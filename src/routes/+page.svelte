@@ -1,2 +1,8 @@
-<h1 class="text-3xl text-primary">Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script>
+	import { Button } from '$lib/components/ui/button';
+</script>
+
+<div class="flex h-screen w-screen flex-col items-center justify-center gap-y-4 bg-inherit">
+	<h1 class="text-primary text-6xl font-semibold">HackHelp</h1>
+	<Button class=" shadow-primary/50 shadow-xl" href="/auth/login">Go Sign In</Button>
+</div>
