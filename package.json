@@ -22,6 +22,7 @@
 		"@sveltejs/adapter-node": "^5.2.12",
 		"@sveltejs/kit": "^2.16.1",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
+		"@tailwindcss/vite": "^4.0.0",
 		"@types/better-sqlite3": "^7.6.12",
 		"@types/node": "^22.12.0",
 		"autoprefixer": "^10.4.20",
@@ -40,7 +41,7 @@
 		"prettier-plugin-tailwindcss": "^0.6.11",
 		"shadcn-svelte": "1.0.0-next.4",
 		"sv": "^0.6.16",
-		"svelte": "^5.0.0",
+		"svelte": "^5.19.5",
 		"svelte-check": "^4.0.0",
 		"svelte-sonner": "^0.3.28",
 		"sveltekit-superforms": "^2.23.1",
@@ -56,12 +57,14 @@
 	"dependencies": {
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
+		"@t3-oss/env-core": "^0.12.0",
 		"@tailwindcss/container-queries": "^0.1.1",
 		"@tailwindcss/forms": "^0.5.10",
 		"@tailwindcss/typography": "^0.5.16",
 		"better-sqlite3": "^11.8.0",
 		"drizzle-orm": "^0.38.4",
-		"mysql2": "^3.11.0"
+		"mysql2": "^3.11.0",
+		"octokit": "^4.1.0"
 	},
 	"packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
 }
