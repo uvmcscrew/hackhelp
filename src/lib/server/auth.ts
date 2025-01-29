@@ -4,10 +4,18 @@ import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
+import { GitHub as GitHubOAuth } from 'arctic';
+import { serverEnv } from '$lib/env/server';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 export const sessionCookieName = 'auth-session';
+
+export const githubOAuth = new GitHubOAuth(
+	serverEnv.GITHUB_APP_CLIENT_ID,
+	serverEnv.GITHUB_APP_CLIENT_SECRET,
+	null
+);
 
 export function generateSessionToken() {
 	const bytes = crypto.getRandomValues(new Uint8Array(18));
