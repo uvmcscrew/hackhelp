@@ -1,5 +1,24 @@
 <script lang="ts">
 	import '../app.css';
+
+	import { browser } from '$app/environment';
+	import { QueryClient } from '@tanstack/svelte-query';
+	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
+	import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client';
+	import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+
+	const queryClient = new QueryClient({
+		defaultOptions: {
+			queries: {
+				enabled: browser
+			}
+		}
+	});
+
+	const persister = createSyncStoragePersister({
+		storage: browser ? window.localStorage : null
+	});
+
 	let { children } = $props();
 
 	$effect(() => {
@@ -17,4 +36,7 @@
 	});
 </script>
 
-{@render children()}
+<PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
+	{@render children()}
+	<SvelteQueryDevtools />
+</PersistQueryClientProvider>
