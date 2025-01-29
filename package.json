@@ -58,6 +58,7 @@
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
 		"@paralleldrive/cuid2": "^2.2.2",
+		"@sveltejs/adapter-cloudflare": "^5.0.1",
 		"@t3-oss/env-core": "^0.12.0",
 		"@tailwindcss/container-queries": "^0.1.1",
 		"@tailwindcss/forms": "^0.5.10",
