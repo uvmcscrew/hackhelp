@@ -6,6 +6,7 @@ import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import { GitHub as GitHubOAuth } from 'arctic';
 import { serverEnv } from '$lib/env/server';
+import { dev } from '$app/environment';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -14,7 +15,9 @@ export const sessionCookieName = 'auth-session';
 export const githubOAuth = new GitHubOAuth(
 	serverEnv.GITHUB_APP_CLIENT_ID,
 	serverEnv.GITHUB_APP_CLIENT_SECRET,
-	null
+	dev
+		? 'http://localhost:5173/auth/login/github/callback'
+		: 'https://hackhelp.unicycl.ing/auth/login/github/callback'
 );
 
 export function generateSessionToken() {
@@ -39,7 +42,12 @@ export async function validateSessionToken(token: string) {
 	const [result] = await db
 		.select({
 			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, username: table.user.username },
+			user: {
+				id: table.user.id,
+				username: table.user.username,
+				githubId: table.user.githubId,
+				fullName: table.user.fullName
+			},
 			session: table.session
 		})
 		.from(table.session)

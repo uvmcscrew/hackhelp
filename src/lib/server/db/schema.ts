@@ -5,7 +5,8 @@ export const user = sqliteTable('user', {
 	id: text('id').primaryKey().$defaultFn(cuid2),
 	githubId: int('github_id').notNull(),
 	username: text('username').notNull(),
-	fullName: text('full_name')
+	fullName: text('full_name'),
+	isAdmin: int('is_admin', { mode: 'boolean' }).default(false)
 });
 
 export const session = sqliteTable('session', {

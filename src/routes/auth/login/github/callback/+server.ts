@@ -5,7 +5,8 @@ import type { RequestEvent } from '@sveltejs/kit';
 import type { OAuth2Tokens } from 'arctic';
 import { db, schema } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
-import { octokit } from '$lib/github';
+import { githubApp, octokit } from '$lib/github';
+import { serverEnv } from '$lib/env/server';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const code = event.url.searchParams.get('code');
@@ -48,6 +49,13 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		}
 	});
 
+	const userMembership = await githubApp.rest.orgs.getMembershipForUser({
+		org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+		username: githubUserResponse.data.login
+	});
+
+	const userIsAdmin = userMembership.data.role === 'admin';
+
 	// TODO: Replace this with your own DB query.
 	const [existingUser] = await db
 		.select({ id: schema.user.id })
@@ -55,13 +63,24 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		.where(eq(schema.user.githubId, githubUserResponse.data.id));
 
 	if (existingUser) {
+		// Create and set session token
 		const sessionToken = generateSessionToken();
 		const session = await createSession(sessionToken, existingUser.id);
 		setSessionTokenCookie(event, sessionToken, session.expiresAt);
+
+		// Update fullName, adminStatus
+		await db
+			.update(schema.user)
+			.set({
+				fullName: githubUserResponse.data.name,
+				isAdmin: userIsAdmin
+			})
+			.where(eq(schema.user.id, existingUser.id));
+
 		return new Response(null, {
 			status: 302,
 			headers: {
-				Location: '/'
+				Location: userIsAdmin ? '/admin' : '/home'
 			}
 		});
 	}
@@ -71,7 +90,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		.values({
 			username: githubUserResponse.data.login,
 			githubId: githubUserResponse.data.id,
-			fullName: githubUserResponse.data.name
+			fullName: githubUserResponse.data.name,
+			isAdmin: userIsAdmin
 		})
 		.returning();
 
@@ -82,7 +102,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	return new Response(null, {
 		status: 302,
 		headers: {
-			Location: '/'
+			Location: userIsAdmin ? '/admin' : '/home'
 		}
 	});
 }

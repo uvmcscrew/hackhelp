@@ -1,4 +1,6 @@
-import { env as runtimeEnv } from '$env/dynamic/private';
+import { env as privateEnv } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
+
 import { createEnv } from '@t3-oss/env-core';
 import { z } from 'zod';
 
@@ -11,6 +13,10 @@ export const serverEnv = createEnv({
 		GITHUB_APP_CLIENT_ID: z.string().nonempty(),
 		GITHUB_APP_CLIENT_SECRET: z.string().nonempty()
 	},
-	runtimeEnv,
+	client: {
+		PUBLIC_GITHUB_ORGNAME: z.string().nonempty()
+	},
+	clientPrefix: 'PUBLIC_',
+	runtimeEnv: { ...privateEnv, ...publicEnv },
 	emptyStringAsUndefined: true
 });
