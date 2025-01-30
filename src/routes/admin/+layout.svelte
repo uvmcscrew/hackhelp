@@ -22,12 +22,21 @@
 			<FireExtinguisher class="h-6 w-6" />
 			<span class="sr-only">HackHelp</span>
 		</a>
-		<a href="/home" class="text-foreground hover:text-foreground transition-colors"> Dashboard </a>
-		<a href="/home/tickets" class="text-muted-foreground hover:text-foreground transition-colors">
+		<a href="/admin" class="text-foreground hover:text-foreground transition-colors"> Dashboard </a>
+		<a href="/admin/tickets" class="text-muted-foreground hover:text-foreground transition-colors">
 			Tickets
 		</a>
-		<a href="/home/analytics" class="text-muted-foreground hover:text-foreground transition-colors">
+		<a
+			href="/admin/analytics"
+			class="text-muted-foreground hover:text-foreground transition-colors"
+		>
 			Analytics
+		</a>
+		<a href="/admin/teams" class="text-muted-foreground hover:text-foreground transition-colors">
+			Teams
+		</a>
+		<a href="/admin/users" class="text-muted-foreground hover:text-foreground transition-colors">
+			Users
 		</a>
 	</nav>
 	<Sheet.Root>
@@ -43,11 +52,10 @@
 					<Package2 class="h-6 w-6" />
 					<span class="sr-only">HackHelp</span>
 				</a>
-				<a href="/home" class="hover:text-foreground"> Dashboard </a>
-				<a href="/home/tickets" class="text-muted-foreground hover:text-foreground"> Tickets </a>
-				<a href="/home/analytics" class="text-muted-foreground hover:text-foreground">
-					Analytics
-				</a>
+				<a href="/admin" class="hover:text-foreground"> Dashboard </a>
+				<a href="/admin/tickets" class="text-muted-foreground hover:text-foreground"> Tickets </a>
+				<a href="/admin/teams" class="text-muted-foreground hover:text-foreground"> Teams </a>
+				<a href="/admin/users" class="text-muted-foreground hover:text-foreground"> Users </a>
 			</nav>
 		</Sheet.Content>
 	</Sheet.Root>
