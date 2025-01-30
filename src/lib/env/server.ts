@@ -1,3 +1,4 @@
+import { building } from '$app/environment';
 import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 
@@ -11,12 +12,14 @@ export const serverEnv = createEnv({
 		GITHUB_APP_INSTALL_ID: z.coerce.number().int().positive(),
 		GITHUB_APP_PRIVATE_KEY: z.string().nonempty(),
 		GITHUB_APP_CLIENT_ID: z.string().nonempty(),
-		GITHUB_APP_CLIENT_SECRET: z.string().nonempty()
+		GITHUB_APP_CLIENT_SECRET: z.string().nonempty(),
+		CF_PAGES: z.coerce.boolean().optional().default(false)
 	},
 	client: {
 		PUBLIC_GITHUB_ORGNAME: z.string().nonempty()
 	},
 	clientPrefix: 'PUBLIC_',
 	runtimeEnv: { ...privateEnv, ...publicEnv },
-	emptyStringAsUndefined: true
+	emptyStringAsUndefined: true,
+	skipValidation: building
 });
