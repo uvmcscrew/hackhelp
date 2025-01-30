@@ -23,4 +23,3 @@ vite.config.ts.timestamp-*
 
 # SQLite
 *.db*
-hackhelp-pg
