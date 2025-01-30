@@ -8,7 +8,8 @@ export const user = pgTable('user', {
 	githubId: integer('github_id').notNull(),
 	username: text('username').notNull(),
 	fullName: text('full_name'),
-	isAdmin: boolean().default(false)
+	isAdmin: boolean().default(false),
+	isInOrganization: boolean().default(false)
 });
 
 export const session = pgTable('session', {
