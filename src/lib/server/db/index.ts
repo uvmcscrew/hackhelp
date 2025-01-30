@@ -1,9 +1,8 @@
 import { serverEnv } from '$lib/env/server';
-import { PGlite } from '@electric-sql/pglite';
-import { drizzle } from 'drizzle-orm/pglite';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 
-// In-memory Postgres
-const client = new PGlite(serverEnv.DATABASE_URL);
-export const db = drizzle({ client });
+const queryClient = postgres(serverEnv.DATABASE_URL);
+export const db = drizzle({ client: queryClient });
 
 export * as schema from '$lib/server/db/schema';
