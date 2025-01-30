@@ -67,6 +67,20 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			).data.role === 'admin'
 		: false;
 
+	const [userStatus] = await db
+		.select({
+			isWhitelisted: schema.userStatus.isWhitelisted,
+			isBanned: schema.userStatus.isWhitelisted
+		})
+		.from(schema.userStatus)
+		.where(eq(schema.userStatus.username, githubUserResponse.data.login));
+
+	if (userStatus?.isBanned) {
+		return new Response(null, {
+			status: 403
+		});
+	}
+
 	const [existingUser] = await db
 		.select({ id: schema.user.id })
 		.from(schema.user)
@@ -84,7 +98,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			.set({
 				fullName: githubUserResponse.data.name,
 				isAdmin: userIsAdmin,
-				isInOrganization: userInOrg
+				isInOrganization: userInOrg,
+				isWhitelisted: userIsAdmin ?? userStatus?.isWhitelisted ?? false
 			})
 			.where(eq(schema.user.id, existingUser.id));
 
@@ -93,20 +108,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			headers: {
 				Location: userIsAdmin ? '/admin' : '/home'
 			}
-		});
-	}
-
-	const [userStatus] = await db
-		.select({
-			isWhitelisted: schema.userStatus.isWhitelisted,
-			isBanned: schema.userStatus.isWhitelisted
-		})
-		.from(schema.userStatus)
-		.where(eq(schema.userStatus.username, githubUserResponse.data.login));
-
-	if (userStatus?.isBanned) {
-		return new Response(null, {
-			status: 403
 		});
 	}
 
