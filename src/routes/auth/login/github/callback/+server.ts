@@ -96,6 +96,20 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		});
 	}
 
+	const [userStatus] = await db
+		.select({
+			isWhitelisted: schema.userStatus.isWhitelisted,
+			isBanned: schema.userStatus.isWhitelisted
+		})
+		.from(schema.userStatus)
+		.where(eq(schema.userStatus.username, githubUserResponse.data.login));
+
+	if (userStatus?.isBanned) {
+		return new Response(null, {
+			status: 403
+		});
+	}
+
 	const [user] = await db
 		.insert(schema.user)
 		.values({
@@ -103,9 +117,16 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			githubId: githubUserResponse.data.id,
 			fullName: githubUserResponse.data.name,
 			isAdmin: userIsAdmin,
-			isInOrganization: userInOrg
+			isInOrganization: userInOrg,
+			isWhitelisted: userStatus?.isWhitelisted ?? false
 		})
 		.returning();
+
+	// Link userStatus to user
+	await db
+		.update(schema.userStatus)
+		.set({ linkedUserId: user.id })
+		.where(eq(schema.userStatus.username, githubUserResponse.data.login));
 
 	const sessionToken = generateSessionToken();
 	const session = await createSession(sessionToken, user.id);
