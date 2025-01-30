@@ -5,6 +5,10 @@ export const load = async (event: ServerLoadEvent) => {
 		return redirect(302, '/auth/login');
 	}
 
+	if (!event.locals.user.isAdmin) {
+		return redirect(302, '/account');
+	}
+
 	return {
 		user: event.locals.user
 	};

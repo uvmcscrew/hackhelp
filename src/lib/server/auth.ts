@@ -47,7 +47,8 @@ export async function validateSessionToken(token: string) {
 				username: table.user.username,
 				githubId: table.user.githubId,
 				fullName: table.user.fullName,
-				isAdmin: table.user.isAdmin
+				isAdmin: table.user.isAdmin,
+				isInOrganization: table.user.isInOrganization
 			},
 			session: table.session
 		})

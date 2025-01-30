@@ -49,14 +49,24 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		}
 	});
 
-	const userMembership = await githubApp.rest.orgs.getMembershipForUser({
-		org: serverEnv.PUBLIC_GITHUB_ORGNAME,
-		username: githubUserResponse.data.login
-	});
+	const userInOrg = (
+		await octokit.rest.orgs.listForAuthenticatedUser({
+			headers: {
+				Authorization: `Bearer ${tokens.accessToken()}`
+			}
+		})
+	).data.some((org) => org.login === serverEnv.PUBLIC_GITHUB_ORGNAME);
 
-	const userIsAdmin = userMembership.data.role === 'admin';
+	const userIsAdmin = userInOrg
+		? // This API call will error if the user is not in the specified organization
+			(
+				await githubApp.rest.orgs.getMembershipForUser({
+					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					username: githubUserResponse.data.login
+				})
+			).data.role === 'admin'
+		: false;
 
-	// TODO: Replace this with your own DB query.
 	const [existingUser] = await db
 		.select({ id: schema.user.id })
 		.from(schema.user)
@@ -73,7 +83,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			.update(schema.user)
 			.set({
 				fullName: githubUserResponse.data.name,
-				isAdmin: userIsAdmin
+				isAdmin: userIsAdmin,
+				isInOrganization: userInOrg
 			})
 			.where(eq(schema.user.id, existingUser.id));
 
@@ -91,7 +102,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			username: githubUserResponse.data.login,
 			githubId: githubUserResponse.data.id,
 			fullName: githubUserResponse.data.name,
-			isAdmin: userIsAdmin
+			isAdmin: userIsAdmin,
+			isInOrganization: userInOrg
 		})
 		.returning();
 
