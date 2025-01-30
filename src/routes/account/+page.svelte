@@ -8,6 +8,7 @@
 	import type { PageProps } from './$types';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
+	import { goto } from '$app/navigation';
 
 	let { data }: PageProps = $props();
 	const image = `https://avatars.githubusercontent.com/u/${data.user.githubId}`;
@@ -39,8 +40,13 @@
 				<span class="text-secondary-foreground font-mono">{data.user.username}</span>
 			</div>
 			<div class="ml-auto">
-				<Button variant="destructive" title="Sign Out" href="/auth/logout"
-					><DoorOpen class="h-8 w-8" />Sign Out</Button
+				<Button
+					variant="destructive"
+					title="Sign Out"
+					onclick={async (e) => {
+						await fetch('/auth/logout', { method: 'POST' });
+						await goto('/auth/login');
+					}}><DoorOpen class="h-8 w-8" />Sign Out</Button
 				>
 			</div>
 		</Card.CardContent></Card.Root
