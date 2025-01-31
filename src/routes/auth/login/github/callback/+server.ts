@@ -13,14 +13,22 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const state = event.url.searchParams.get('state');
 	const storedState = event.cookies.get('github_oauth_state') ?? null;
 	if (code === null || state === null || storedState === null) {
-		return new Response(null, {
-			status: 400
-		});
+		return Response.json(
+			{
+				status: 400,
+				message: 'Invalid state'
+			},
+			{ status: 400 }
+		);
 	}
 	if (state !== storedState) {
-		return new Response(null, {
-			status: 400
-		});
+		return Response.json(
+			{
+				status: 400,
+				message: 'Incorrect state'
+			},
+			{ status: 400 }
+		);
 	}
 
 	let tokens: OAuth2Tokens;
@@ -29,20 +37,17 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	} catch (e: unknown) {
 		const err = e as Error;
 		// Invalid code or client credentials
-		return new Response(
-			JSON.stringify(
-				{
-					message: err.message
-				},
-				null,
-				2
-			),
+		return Response.json(
 			{
-				status: 400
-			}
+				status: 400,
+				message: 'Authorization code error',
+				error: err.message
+			},
+			{ status: 400 }
 		);
 	}
 
+	// --------- Get Github User Info ---------
 	const githubUserResponse = await octokit.rest.users.getAuthenticated({
 		headers: {
 			Authorization: `Bearer ${tokens.accessToken()}`
@@ -67,24 +72,55 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			).data.role === 'admin'
 		: false;
 
+	// --------- Check Whitelist and Ban Status ---------
 	const [userStatus] = await db
 		.select({
+			username: schema.userStatus.username,
 			isWhitelisted: schema.userStatus.isWhitelisted,
-			isBanned: schema.userStatus.isWhitelisted
+			isBanned: schema.userStatus.isBanned
 		})
 		.from(schema.userStatus)
-		.where(eq(schema.userStatus.username, githubUserResponse.data.login));
+		.where(eq(schema.userStatus.username, githubUserResponse.data.login.toLowerCase()));
 
-	if (userStatus?.isBanned) {
-		return new Response(null, {
-			status: 403
+	if (userStatus) {
+		console.log('userStatus', JSON.stringify(userStatus, null, 2));
+		if (userStatus.isBanned) {
+			return Response.json(
+				{
+					message: 'you are banned'
+				},
+				{
+					status: 403
+				}
+			);
+		}
+	} else {
+		console.log('userStatus not found, creating');
+		await db.insert(schema.userStatus).values({
+			username: githubUserResponse.data.login,
+			// Admins should be automatically whitelisted
+			isWhitelisted: userIsAdmin
 		});
 	}
 
+	// --------- Check if user already exists ---------
 	const [existingUser] = await db
 		.select({ id: schema.user.id })
 		.from(schema.user)
 		.where(eq(schema.user.githubId, githubUserResponse.data.id));
+
+	console.log(
+		'USER AUTH INFO',
+		JSON.stringify(
+			{
+				username: githubUserResponse.data.login,
+				exists: Boolean(existingUser),
+				knownStatus: userStatus ?? 'no'
+			},
+			null,
+			2
+		)
+	);
 
 	if (existingUser) {
 		// Create and set session token
@@ -102,6 +138,16 @@ export async function GET(event: RequestEvent): Promise<Response> {
 				isWhitelisted: userIsAdmin ?? userStatus?.isWhitelisted ?? false
 			})
 			.where(eq(schema.user.id, existingUser.id));
+
+		await db
+			.update(schema.userStatus)
+			.set({
+				linkedUserId: existingUser.id,
+				isWhitelisted: userIsAdmin ? true : userStatus?.isWhitelisted
+			})
+			.where(eq(schema.userStatus.username, githubUserResponse.data.login));
+
+		console.log('known user logged in');
 
 		return new Response(null, {
 			status: 302,
@@ -122,6 +168,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			isWhitelisted: userStatus?.isWhitelisted ?? false
 		})
 		.returning();
+
+	console.log('new user created');
 
 	// Link userStatus to user
 	await db
