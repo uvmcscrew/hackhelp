@@ -29,15 +29,17 @@
 	<DropdownMenu.Content align="end">
 		<DropdownMenu.Label>{user.fullName}</DropdownMenu.Label>
 		<DropdownMenu.Separator />
+		{#if user.isAdmin}
+			<DropdownMenu.Item class="w-full hover:cursor-pointer"
+				>{#snippet child({ props })}
+					<a {...props} href="/admin"> Admin</a>
+				{/snippet}</DropdownMenu.Item
+			>
+		{/if}
 
-		<DropdownMenu.Item class="w-full"
+		<DropdownMenu.Item class="w-full hover:cursor-pointer"
 			>{#snippet child({ props })}
-				<button
-					{...props}
-					onclick={async (e) => {
-						await goto('/account');
-					}}>Settings</button
-				>
+				<a {...props} href="/account">Settings</a>
 			{/snippet}</DropdownMenu.Item
 		>
 		<DropdownMenu.Separator />
