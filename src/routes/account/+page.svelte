@@ -9,12 +9,10 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import { goto } from '$app/navigation';
-	import CardContent from '@/components/ui/card/card-content.svelte';
+	import CardContent from '$lib/components/ui/card/card-content.svelte';
 
 	let { data }: PageProps = $props();
 	const image = `https://avatars.githubusercontent.com/u/${data.user.githubId}`;
-
-	const inTeam = false;
 </script>
 
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
