@@ -1,17 +1,13 @@
 <script lang="ts">
-	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import Menu from 'lucide-svelte/icons/menu';
-	import Package2 from 'lucide-svelte/icons/package-2';
 	import FireExtinguisher from 'lucide-svelte/icons/fire-extinguisher';
 
-	import * as Avatar from '$lib/components/ui/avatar/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import type { LayoutProps } from './$types';
-	import { goto } from '$app/navigation';
 	import UserDropdown from '$lib/components/UserDropdown.svelte';
 	import { page } from '$app/state';
+	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -62,7 +58,7 @@
 		<Sheet.Content side="left">
 			<nav class="grid gap-6 text-lg font-medium">
 				<a href="##" class="flex items-center gap-2 text-lg font-semibold">
-					<Package2 class="h-6 w-6" />
+					<FireExtinguisher class="h-6 w-6" />
 					<span class="sr-only">HackHelp</span>
 				</a>
 				<a href="/home" class="hover:text-foreground"> Dashboard </a>
@@ -84,6 +80,7 @@
 		</Sheet.Content>
 	</Sheet.Root>
 	<div class="flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
+		<ColorModeButton />
 		<UserDropdown user={data.user} />
 	</div>
 </header>
