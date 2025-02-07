@@ -8,8 +8,32 @@
 	import type { LayoutProps } from './$types';
 	import { goto } from '$app/navigation';
 	import UserDropdown from '$lib/components/UserDropdown.svelte';
+	import { page } from '$app/state';
 
 	let { data, children }: LayoutProps = $props();
+
+	const links = [
+		{
+			href: '/admin',
+			text: 'Dashboard'
+		},
+		{
+			href: '/admin/tickets',
+			text: 'Tickets'
+		},
+		{
+			href: '/admin/analytics',
+			text: 'Analytics'
+		},
+		{
+			href: '/admin/teams',
+			text: 'Teams'
+		},
+		{
+			href: '/admin/users',
+			text: 'Users'
+		}
+	];
 </script>
 
 <header
@@ -22,22 +46,16 @@
 			<FireExtinguisher class="h-6 w-6" />
 			<span class="sr-only">HackHelp</span>
 		</a>
-		<a href="/admin" class="text-foreground hover:text-foreground transition-colors"> Dashboard </a>
-		<a href="/admin/tickets" class="text-muted-foreground hover:text-foreground transition-colors">
-			Tickets
-		</a>
-		<a
-			href="/admin/analytics"
-			class="text-muted-foreground hover:text-foreground transition-colors"
-		>
-			Analytics
-		</a>
-		<a href="/admin/teams" class="text-muted-foreground hover:text-foreground transition-colors">
-			Teams
-		</a>
-		<a href="/admin/users" class="text-muted-foreground hover:text-foreground transition-colors">
-			Users
-		</a>
+		{#each links as link}
+			<a
+				href={link.href}
+				class={page.url.pathname === link.href
+					? 'text-foreground hover:text-foreground transition-colors'
+					: 'text-muted-foreground hover:text-foreground transition-colors'}
+			>
+				{link.text}
+			</a>
+		{/each}
 	</nav>
 	<Sheet.Root>
 		<Sheet.Trigger
@@ -52,10 +70,16 @@
 					<Package2 class="h-6 w-6" />
 					<span class="sr-only">HackHelp</span>
 				</a>
-				<a href="/admin" class="hover:text-foreground"> Dashboard </a>
-				<a href="/admin/tickets" class="text-muted-foreground hover:text-foreground"> Tickets </a>
-				<a href="/admin/teams" class="text-muted-foreground hover:text-foreground"> Teams </a>
-				<a href="/admin/users" class="text-muted-foreground hover:text-foreground"> Users </a>
+				{#each links as link}
+					<a
+						href={link.href}
+						class={page.url.pathname === link.href
+							? 'hover:text-foreground'
+							: 'text-muted-foreground hover:text-foreground'}
+					>
+						{link.text}
+					</a>
+				{/each}
 			</nav>
 		</Sheet.Content>
 	</Sheet.Root>
