@@ -11,10 +11,24 @@
 	import type { LayoutProps } from './$types';
 	import { goto } from '$app/navigation';
 	import UserDropdown from '$lib/components/UserDropdown.svelte';
+	import { page } from '$app/state';
 
 	let { data, children }: LayoutProps = $props();
 
-	const image = `https://avatars.githubusercontent.com/u/${data.user.githubId}`;
+	const links = [
+		{
+			href: '/home',
+			text: 'Dashboard'
+		},
+		{
+			href: '/home/tickets',
+			text: 'Tickets'
+		},
+		{
+			href: '/home/analytics',
+			text: 'Analytics'
+		}
+	];
 </script>
 
 <header
@@ -27,13 +41,16 @@
 			<FireExtinguisher class="h-6 w-6" />
 			<span class="sr-only">HackHelp</span>
 		</a>
-		<a href="/home" class="text-foreground hover:text-foreground transition-colors"> Dashboard </a>
-		<a href="/home/tickets" class="text-muted-foreground hover:text-foreground transition-colors">
-			Tickets
-		</a>
-		<a href="/home/analytics" class="text-muted-foreground hover:text-foreground transition-colors">
-			Analytics
-		</a>
+		{#each links as link}
+			<a
+				href={link.href}
+				class={page.url.pathname === link.href
+					? 'text-foreground hover:text-foreground transition-colors'
+					: 'text-muted-foreground hover:text-foreground transition-colors'}
+			>
+				{link.text}
+			</a>
+		{/each}
 	</nav>
 	<Sheet.Root>
 		<Sheet.Trigger
@@ -53,6 +70,16 @@
 				<a href="/home/analytics" class="text-muted-foreground hover:text-foreground">
 					Analytics
 				</a>
+				{#each links as link}
+					<a
+						href={link.href}
+						class={page.url.pathname === link.href
+							? 'hover:text-foreground'
+							: 'text-muted-foreground hover:text-foreground'}
+					>
+						{link.text}
+					</a>
+				{/each}
 			</nav>
 		</Sheet.Content>
 	</Sheet.Root>
