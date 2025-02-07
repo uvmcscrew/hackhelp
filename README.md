@@ -1,38 +1,50 @@
-# sv
+# HackHelp
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+HackHelp is a portal created to help manage GitHub access & other stuff for teams at the UVM Hackathon.
 
-## Creating a project
+For 2025, we decided to standardize on GitHub, and require everyone to hold their work in the same GitHub organization. Repositories will be private, with teams inside the org given admin permission on their repositories. This way, people can more easily manage access to repositories, event organizers can easily find teams' code, and at the end of the whole thing, we can open source it all.
 
-If you're seeing this, you've probably already done this step. Congrats!
+The other major feature of this system is ticketing. At the event, we have mentors who help students with their code. This system is how teams notify mentors that they need help; including a description of their problem and reasons why.
 
-```bash
-# create a new project in the current directory
-npx sv create
+## Contributing
 
-# create a new project in my-app
-npx sv create my-app
+**Prerequisites**
+
+- [Bun](https://bun.sh)
+- A PostgreSQL database
+- Github App Credentials
+
+#### Set up environment variables
+
+| Env Var                    | Description                                             |
+| -------------------------- | ------------------------------------------------------- |
+| `DATABASE_URL`             | The url of your PostgreSQL database                     |
+| `GITHUB_APP_ID`            |                                                         |
+| `GITHUB_APP_PRIVATE_KEY`   |                                                         |
+| `GITHUB_APP_CLIENT_ID`     | OAuth Client ID of the Github App                       |
+| `GITHUB_APP_CLIENT_SECRET` | OAuth Client Secret of the Github App                   |
+| `PUBLIC_GITHUB_ORGNAME`    | The slug of the GitHub Org that HackHelp should control |
+
+#### Install Dependencies
+
+```sh
+bun install
 ```
 
-## Developing
+#### Run database migrations
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+```sh
+bun db:migrate
 ```
 
-## Building
+#### Run the development server
 
-To create a production version of your app:
-
-```bash
-npm run build
+```sh
+bun dev
 ```
 
-You can preview the production build with `npm run preview`.
+then visit http://localhost:5173
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## Credits
+
+- https://themes.fkaya.dev/ (theme generator)
