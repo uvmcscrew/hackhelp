@@ -67,6 +67,7 @@
 		"nanoid": "^5.0.9",
 		"octokit": "^4.1.0",
 		"postgres": "^3.4.5",
+		"superjson": "^2.2.2",
 		"svelte": "^5.19.5",
 		"svelte-adapter-bun": "^0.5.2",
 		"svelte-sonner": "^0.3.28",
@@ -75,6 +76,7 @@
 		"tailwind-variants": "^0.3.1",
 		"tailwindcss": "^4.0.0",
 		"tailwindcss-animate": "^1.0.7",
+		"trpc-sveltekit": "^3.6.2",
 		"winston": "^3.17.0",
 		"zod": "^3.24.1"
 	}
