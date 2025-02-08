@@ -121,6 +121,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	apiLogger.info('USER FOUND', { user: githubUserResponse.data.login, admin: userIsAdmin });
 
 	// --------- Check Whitelist and Ban Status ---------
+	apiLogger.info('Checking user status', { user: githubUserResponse.data.login });
 	const [userStatus] = await db
 		.select({
 			username: schema.userStatus.username,
@@ -131,7 +132,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		.where(eq(schema.userStatus.username, githubUserResponse.data.login.toLowerCase()));
 
 	if (userStatus) {
-		apiLogger.info('USER STATUS', { userStatus });
+		apiLogger.info('User Status Found', { userStatus });
 		if (userStatus.isBanned) {
 			apiLogger.warn('User is banned', { user: githubUserResponse.data.login });
 			return Response.json(
@@ -167,6 +168,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	});
 
 	if (existingUser) {
+		apiLogger.info('User already exists', { user: githubUserResponse.data.login });
 		// Create and set session token
 		const sessionToken = generateSessionToken();
 		const session = await createSession(sessionToken, existingUser.id);
@@ -203,6 +205,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			}
 		});
 	}
+
+	apiLogger.info('Creating new user', { user: githubUserResponse.data.login });
 
 	const [user] = await db
 		.insert(schema.user)
