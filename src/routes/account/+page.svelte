@@ -65,7 +65,7 @@
 				</span>
 				{#if data.user.isInOrganization}
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined</Badge>
-				{:else if data.user.isWhitelisted}
+				{:else if data.userStatus.isWhitelisted}
 					<Button
 						size="sm"
 						class="rounded-full bg-yellow-400 hover:cursor-pointer hover:bg-yellow-400/80"
@@ -82,7 +82,7 @@
 				{#if data.user.teamId !== null}
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined</Badge>
 				{:else}
-					<Badge class="rounded-full bg-yellow-400 px-2" hoverEffects={false}>Not in Team</Badge>
+					<Badge class="rounded-full bg-amber-400 px-2" hoverEffects={false}>Not in Team</Badge>
 				{/if}
 			</div>
 		</CardContent>

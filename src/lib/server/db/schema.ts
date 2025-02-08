@@ -10,7 +10,6 @@ export const user = pgTable('user', {
 	fullName: text('full_name'),
 	isAdmin: boolean().default(false),
 	isInOrganization: boolean().default(false),
-	isWhitelisted: boolean().default(false),
 	teamId: text('team_id').references(() => team.id)
 });
 

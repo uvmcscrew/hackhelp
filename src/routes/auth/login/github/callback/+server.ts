@@ -180,8 +180,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			.set({
 				fullName: githubUserResponse.data.name,
 				isAdmin: userIsAdmin,
-				isInOrganization: userInOrg,
-				isWhitelisted: userIsAdmin ?? userStatus?.isWhitelisted ?? false
+				isInOrganization: userInOrg
 			})
 			.where(eq(schema.user.id, existingUser.id));
 
@@ -215,8 +214,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			githubId: githubUserResponse.data.id,
 			fullName: githubUserResponse.data.name,
 			isAdmin: userIsAdmin,
-			isInOrganization: userInOrg,
-			isWhitelisted: userStatus?.isWhitelisted ?? false
+			isInOrganization: userInOrg
 		})
 		.returning();
 
