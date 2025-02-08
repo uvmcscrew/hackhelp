@@ -68,8 +68,8 @@
 				{:else if data.userStatus.isWhitelisted}
 					<Button
 						size="sm"
-						class="rounded-full bg-yellow-400 hover:cursor-pointer hover:bg-yellow-400/80"
-						>Request Invitation</Button
+						class="rounded-full bg-cyan-500 hover:cursor-pointer hover:bg-cyan-500/80"
+						formaction="/account?/requestInvite">Request Invitation</Button
 					>
 				{:else}
 					<Badge class="rounded-full bg-red-400 px-2" hoverEffects={false}
