@@ -5,7 +5,7 @@ import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 
 export const fallback = (async (opts) => {
 	return fetchRequestHandler({
-		endpoint: '/trpc',
+		endpoint: '/api/trpc',
 		req: opts.request,
 		router: appRouter,
 		createContext: createContextFunc(opts)
