@@ -64,6 +64,7 @@
 		"globals": "^15.0.0",
 		"lucide-svelte": "^0.474.0",
 		"mode-watcher": "^0.5.1",
+		"nanoid": "^5.0.9",
 		"octokit": "^4.1.0",
 		"postgres": "^3.4.5",
 		"svelte": "^5.19.5",

@@ -8,10 +8,15 @@ import { eq } from 'drizzle-orm';
 import { githubApp, octokit } from '$lib/github';
 import { serverEnv } from '$lib/env/server';
 import { logger } from '$lib/logger';
-
-const apiLogger = logger.child({ route: '/auth/login/github/callback', method: 'GET' });
+import { nanoid } from 'nanoid';
 
 export async function GET(event: RequestEvent): Promise<Response> {
+	const apiLogger = logger.child({
+		route: '/auth/login/github/callback',
+		method: 'GET',
+		reqId: nanoid()
+	});
+
 	const code = event.url.searchParams.get('code');
 	const state = event.url.searchParams.get('state');
 	const storedState = event.cookies.get('github_oauth_state') ?? null;
@@ -125,9 +130,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		.from(schema.userStatus)
 		.where(eq(schema.userStatus.username, githubUserResponse.data.login.toLowerCase()));
 
-	apiLogger.info('USER STATUS', { userStatus });
-
 	if (userStatus) {
+		apiLogger.info('USER STATUS', { userStatus });
 		if (userStatus.isBanned) {
 			apiLogger.warn('User is banned', { user: githubUserResponse.data.login });
 			return Response.json(
@@ -144,7 +148,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			user: githubUserResponse.data.login
 		});
 		await db.insert(schema.userStatus).values({
-			username: githubUserResponse.data.login,
+			username: githubUserResponse.data.login.toLowerCase(),
 			// Admins should be automatically whitelisted
 			isWhitelisted: userIsAdmin
 		});
@@ -185,7 +189,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 				linkedUserId: existingUser.id,
 				isWhitelisted: userIsAdmin ? true : userStatus?.isWhitelisted
 			})
-			.where(eq(schema.userStatus.username, githubUserResponse.data.login));
+			.where(eq(schema.userStatus.username, githubUserResponse.data.login.toLowerCase()));
 
 		apiLogger.info('Known User Logged In', {
 			username: githubUserResponse.data.login,
