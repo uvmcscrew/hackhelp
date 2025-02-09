@@ -10,9 +10,29 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { goto } from '$app/navigation';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
+	import { create } from 'domain';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { trpcClient } from '$lib/trpc/client';
 
-	let { data }: PageProps = $props();
+	let pgProps: PageProps = $props();
+
+	let { data } = createQuery(() => ({
+		queryKey: ['user', 'userStatus'],
+		queryFn: async () => trpcClient.account.getWithStatus.query(),
+		initialData: pgProps.data
+	}));
+
 	const image = `https://avatars.githubusercontent.com/u/${data.user.githubId}`;
+
+	const { mutate, isPending } = createMutation(() => ({
+		mutationFn: async () => {
+			const res = await fetch('/api/hello');
+			return res.json();
+		},
+		onSuccess: (data) => {
+			console.log(data);
+		}
+	}));
 </script>
 
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
@@ -48,6 +68,7 @@
 				<Button
 					variant="destructive"
 					title="Sign Out"
+					class="hover:cursor-pointer"
 					onclick={async () => {
 						await fetch('/auth/logout', { method: 'POST' });
 						await goto('/auth/login');
@@ -68,7 +89,11 @@
 				{:else if data.userStatus.isWhitelisted}
 					<Button
 						size="sm"
-						class="rounded-full bg-cyan-500 hover:cursor-pointer hover:bg-cyan-500/80"
+						onclick={async () => {
+							const res = await trpcClient.hello.query('RequestInvite');
+							console.log(res);
+						}}
+						class=" bg-cyan-500 hover:cursor-pointer hover:bg-cyan-500/80"
 						formaction="/account?/requestInvite">Request Invitation</Button
 					>
 				{:else}
@@ -83,6 +108,14 @@
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined</Badge>
 				{:else}
 					<Badge class="rounded-full bg-amber-400 px-2" hoverEffects={false}>Not in Team</Badge>
+				{/if}
+			</div>
+			<div class="flex flex-row justify-between">
+				<span class="text-secondary-foreground font-semibold">Whitelist Status: </span>
+				{#if data.userStatus.isWhitelisted}
+					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>WhiteListed</Badge>
+				{:else}
+					<Badge class="rounded-full bg-red-400 px-2" hoverEffects={false}>Not WhiteListed</Badge>
 				{/if}
 			</div>
 		</CardContent>
