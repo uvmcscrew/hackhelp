@@ -22,3 +22,12 @@ export function createContextFunc(skReqEvent: ContextGeneratorParams) {
 		};
 	};
 }
+
+export function createCallerContext(ctx: ContextGeneratorParams) {
+	return {
+		req: ctx.request,
+		...ctx.locals,
+		db,
+		dbSchema: schema
+	} satisfies Context;
+}
