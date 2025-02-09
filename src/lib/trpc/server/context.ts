@@ -2,7 +2,7 @@ import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 import type { Session, User } from '$lib/server/db/schema';
 import { db, schema } from '$lib/server/db';
 
-type ContextGeneratorParams = {
+export type ContextGeneratorParams = {
 	request: Request;
 	locals: {
 		user: User | null;
