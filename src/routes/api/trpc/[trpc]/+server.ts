@@ -1,4 +1,4 @@
-import { appRouter } from '$lib/trpc/server';
+import { appRouter } from '$lib/trpc/server/router';
 import { createContextFunc } from '$lib/trpc/server/context';
 import type { RequestHandler } from './$types';
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
