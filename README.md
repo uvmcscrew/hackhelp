@@ -48,3 +48,7 @@ then visit http://localhost:5173
 ## Credits
 
 - https://themes.fkaya.dev/ (theme generator)
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE)
