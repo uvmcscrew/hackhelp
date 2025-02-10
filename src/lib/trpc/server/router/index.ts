@@ -4,6 +4,9 @@ import { eq } from 'drizzle-orm';
 import { serverEnv } from '$lib/env/server';
 import type { Context } from '../context';
 import { TRPCError } from '@trpc/server';
+import type { db as dbClient, schema as dbSchema } from '$lib/server/db';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { RequestError } from 'octokit';
 
 async function hasPendingInvite(ctx: Context & { user: { username: string } }) {
 	const invites = await ctx.githubApp.rest.orgs.listPendingInvitations({
@@ -13,6 +16,30 @@ async function hasPendingInvite(ctx: Context & { user: { username: string } }) {
 	const hasPendingInvite = invites.data.some((invite) => invite.login === ctx.user.username);
 
 	return hasPendingInvite;
+}
+
+/**
+ *
+ * @param username the username to update
+ * @param db an instance of teh database client
+ * @param githubApp an instance of the github apps api client
+ * @throws {RequestError} if the user is not a member of the organization
+ */
+export async function updateInvitedUser(
+	username: string,
+	db: { client: typeof dbClient; schema: typeof dbSchema },
+	githubApp: typeof import('$lib/github').githubApp
+) {
+	const userIsMember = await githubApp.rest.orgs.getMembershipForUser({
+		username,
+		org: serverEnv.PUBLIC_GITHUB_ORGNAME
+	});
+
+	await db.client
+		.update(db.schema.user)
+		// If we get to this line, the user is a member of the organization. The api client will throw an error if they are not.
+		.set({ isInOrganization: true, isAdmin: userIsMember.data.role === 'admin' })
+		.where(eq(db.schema.user.username, username));
 }
 
 const accountRouter = t.router({
