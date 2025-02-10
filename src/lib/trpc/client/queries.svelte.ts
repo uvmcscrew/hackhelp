@@ -12,15 +12,23 @@ function getAccount(initialData: RouterOutputs['account']['get']) {
 
 function getAccountWithStatus(initialData: RouterOutputs['account']['getWithStatus']) {
 	return createQuery({
-		queryKey: ['user', 'userStatus'],
-		queryFn: async () => trpcClient.account.getWithStatus.query(),
+		queryKey: ['user', 'user_status'],
+		queryFn: () => trpcClient.account.getWithStatus.query(),
 		initialData: initialData
+	});
+}
+
+function hasPendingInvite() {
+	return createQuery({
+		queryKey: ['user_invite', 'user'],
+		queryFn: () => trpcClient.account.hasPendingInvite.query()
 	});
 }
 
 export const queries = {
 	getAccount,
-	getAccountWithStatus
+	getAccountWithStatus,
+	hasPendingInvite
 };
 
 export default queries;
