@@ -4,27 +4,27 @@
 	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import DoorOpen from 'lucide-svelte/icons/door-open';
 	import ArrowLeft from 'lucide-svelte/icons/arrow-left';
-
-	import type { PageProps } from './$types';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import { goto } from '$app/navigation';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
-	import { create } from 'domain';
-	import { createMutation, createQuery } from '@tanstack/svelte-query';
-	import { trpcClient } from '$lib/trpc/client';
+
+	import type { PageProps } from './$types';
+
+	import { goto } from '$app/navigation';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { trpcClient } from '$lib/trpc/client/index.svelte';
+	import PageContent from './PageContent.svelte';
+	import { getAccountWithStatus } from '$lib/trpc/client/queries.svelte';
 
 	let pgProps: PageProps = $props();
 
-	let { data } = createQuery(() => ({
-		queryKey: ['user', 'userStatus'],
-		queryFn: async () => trpcClient.account.getWithStatus.query(),
-		initialData: pgProps.data
-	}));
+	let accountWithStatus = getAccountWithStatus(pgProps.data);
 
-	const image = `https://avatars.githubusercontent.com/u/${data.user.githubId}`;
+	const image = `https://avatars.githubusercontent.com/u/${$accountWithStatus.data.user.githubId}`;
 
-	const { mutate, isPending } = createMutation(() => ({
+	const queryClient = useQueryClient();
+
+	const mutation = createMutation({
 		mutationFn: async () => {
 			const res = await fetch('/api/hello');
 			return res.json();
@@ -32,17 +32,19 @@
 		onSuccess: (data) => {
 			console.log(data);
 		}
-	}));
+	});
+	// $inspect(data);
 </script>
 
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
 	<h1 class="w-full text-center text-2xl font-semibold">Account</h1>
 	<div class="text-foreground flex w-full justify-center">
-		{#if data.user.isInOrganization}
+		{#if $accountWithStatus.data.user.isInOrganization}
 			<Button
 				variant="link"
 				class="hover:cursor-pointer"
-				href={data.user.isAdmin ? '/admin' : '/home'}><ArrowLeft class="h-8 w-8 " />Back</Button
+				href={$accountWithStatus.data.user.isAdmin ? '/admin' : '/home'}
+				><ArrowLeft class="h-8 w-8 " />Back</Button
 			>
 		{/if}
 	</div>
@@ -55,14 +57,16 @@
 			</Avatar.Root>
 			<div class="flex flex-col pl-4">
 				<span class="inline-flex gap-x-2">
-					<h2 class="text-2xl font-medium">{data.user.fullName}</h2>
-					{#if data.user.isAdmin}
+					<h2 class="text-2xl font-medium">{$accountWithStatus.data.user.fullName}</h2>
+					{#if $accountWithStatus.data.user.isAdmin}
 						<Badge class="ml-2 rounded-full bg-purple-400 px-2 py-1" hoverEffects={false}
 							>Administrator</Badge
 						>
 					{/if}
 				</span>
-				<span class="text-secondary-foreground font-mono">{data.user.username}</span>
+				<span class="text-secondary-foreground font-mono"
+					>{$accountWithStatus.data.user.username}</span
+				>
 			</div>
 			<div class="ml-auto grid place-content-start">
 				<Button
@@ -84,14 +88,13 @@
 				<span class="text-secondary-foreground font-semibold"
 					>Organization Membership Status:
 				</span>
-				{#if data.user.isInOrganization}
+				{#if $accountWithStatus.data.user.isInOrganization}
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined</Badge>
-				{:else if data.userStatus.isWhitelisted}
+				{:else if $accountWithStatus.data.userStatus.isWhitelisted}
 					<Button
 						size="sm"
 						onclick={async () => {
-							const res = await trpcClient.hello.query('RequestInvite');
-							console.log(res);
+							queryClient.invalidateQueries({ queryKey: ['user', 'userStatus'] });
 						}}
 						class=" bg-cyan-500 hover:cursor-pointer hover:bg-cyan-500/80"
 						formaction="/account?/requestInvite">Request Invitation</Button
@@ -104,18 +107,10 @@
 			</div>
 			<div class="flex flex-row justify-between">
 				<span class="text-secondary-foreground font-semibold">Team Membership Status: </span>
-				{#if data.user.teamId !== null}
+				{#if $accountWithStatus.data.user.teamId !== null}
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined</Badge>
 				{:else}
 					<Badge class="rounded-full bg-amber-400 px-2" hoverEffects={false}>Not in Team</Badge>
-				{/if}
-			</div>
-			<div class="flex flex-row justify-between">
-				<span class="text-secondary-foreground font-semibold">Whitelist Status: </span>
-				{#if data.userStatus.isWhitelisted}
-					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>WhiteListed</Badge>
-				{:else}
-					<Badge class="rounded-full bg-red-400 px-2" hoverEffects={false}>Not WhiteListed</Badge>
 				{/if}
 			</div>
 		</CardContent>

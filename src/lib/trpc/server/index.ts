@@ -1,3 +1,4 @@
+import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 import { appRouter } from './router';
 import { t } from './shared';
 
@@ -10,3 +11,7 @@ export const trpcCreateCaller = t.createCallerFactory(appRouter);
 // export async function trpcPageLoader((caller: typeof trpcCreateCaller)) {
 //   return trpcCreateCaller(event).account.getWithStatus();
 // }
+
+export type RouterInputs = inferRouterInputs<AppRouter>;
+
+export type RouterOutputs = inferRouterOutputs<AppRouter>;

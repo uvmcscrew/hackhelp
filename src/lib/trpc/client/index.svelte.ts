@@ -1,4 +1,4 @@
-import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
+import { createTRPCProxyClient, httpBatchLink, loggerLink } from '@trpc/client';
 import type { AppRouter } from '../server';
 import superjson from 'superjson';
 import { browser, dev } from '$app/environment';
@@ -15,7 +15,19 @@ export const trpcClient = createTRPCProxyClient<AppRouter>({
 	transformer: superjson,
 	links: [
 		httpBatchLink({
-			url: TRPC_URL
+			url: TRPC_URL,
+			fetch
+		}),
+		loggerLink({ enabled: () => dev })
+	]
+});
+import { createTRPCSvelte, httpBatchLink as svelteHttpBatchLink } from 'trpc-svelte-query';
+
+export const trpc = createTRPCSvelte<AppRouter>({
+	transformer: superjson,
+	links: [
+		svelteHttpBatchLink({
+			url: '/api/trpc'
 		})
 	]
 });

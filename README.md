@@ -97,12 +97,6 @@ then visit http://localhost:5173
 
 #### Svelte Query
 
-This project is using an experimental version of Svelte Query by the Tanstack folks. This is because stable Svelte Query does not support runes yet, and while this shouldn't be a problem (because Svelte 5 is backwards compatible with earlier Svelte versions via Legacy mode), it makes for an annoying devX.
-
-This experimental version is installed using [pkg.pr.new](https://github.com/stackblitz-labs/pkg.pr.new), based on instructions from this discussion post: https://github.com/TanStack/query/discussions/7413#discussioncomment-10154514
-
-Here is a demo repo showing example uses of this svelte 5 query stuff: https://github.com/jakubdonovan/testing-svelte5query
-
 ## Credits
 
 - https://themes.fkaya.dev/ (theme generator)
