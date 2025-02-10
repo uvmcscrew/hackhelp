@@ -1,6 +1,7 @@
 import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 import type { Session, User } from '$lib/server/db/schema';
 import { db, schema } from '$lib/server/db';
+import { githubApp } from '$lib/github';
 
 export type ContextGeneratorParams = {
 	request: Request;
@@ -18,7 +19,8 @@ export function createContextFunc(skReqEvent: ContextGeneratorParams) {
 			req,
 			...skReqEvent.locals,
 			db,
-			dbSchema: schema
+			dbSchema: schema,
+			githubApp
 		};
 	};
 }
@@ -28,6 +30,7 @@ export function createCallerContext(ctx: ContextGeneratorParams) {
 		req: ctx.request,
 		...ctx.locals,
 		db,
-		dbSchema: schema
+		dbSchema: schema,
+		githubApp
 	} satisfies Context;
 }
