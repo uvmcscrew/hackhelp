@@ -6,8 +6,9 @@
 	import { browser } from '$app/environment';
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
-	// import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client';
-	// import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+	import { Toaster } from '$lib/components/ui/sonner';
+	import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client';
+	import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 
 	const queryClient = new QueryClient({
 		defaultOptions: {
@@ -17,13 +18,16 @@
 			}
 		}
 	});
+
+	const persister = createSyncStoragePersister({
+		storage: browser ? window.localStorage : null
+	});
 </script>
 
 <ModeWatcher />
 
-<QueryClientProvider client={queryClient}>
-	<main>
-		{@render children()}
-	</main>
+<PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
+	<Toaster />
+	{@render children()}
 	<SvelteQueryDevtools />
-</QueryClientProvider>
+</PersistQueryClientProvider>
