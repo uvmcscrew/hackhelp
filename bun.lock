@@ -4,6 +4,7 @@
     "": {
       "name": "hackhelp",
       "dependencies": {
+        "@octokit/webhooks": "^13.6.0",
         "@oslojs/crypto": "^1.0.1",
         "@oslojs/encoding": "^1.1.0",
         "@paralleldrive/cuid2": "^2.2.2",
@@ -225,7 +226,7 @@
 
     "@octokit/openapi-types": ["@octokit/openapi-types@23.0.1", "", {}, "sha512-izFjMJ1sir0jn0ldEKhZ7xegCTj/ObmEDlEfpFrx4k/JyZSMRHbO3/rBwgE7f3m2DHt+RrNGIVw4wSmwnm3t/g=="],
 
-    "@octokit/openapi-webhooks-types": ["@octokit/openapi-webhooks-types@8.5.1", "", {}, "sha512-i3h1b5zpGSB39ffBbYdSGuAd0NhBAwPyA3QV3LYi/lx4lsbZiu7u2UHgXVUR6EpvOI8REOuVh1DZTRfHoJDvuQ=="],
+    "@octokit/openapi-webhooks-types": ["@octokit/openapi-webhooks-types@9.1.0", "", {}, "sha512-bO1D2jLdU8qEvqmbWjNxJzDYSFT4wesiYKIKP6f4LaM0XUGtn/0LBv/20hu9YqcnpdX38X5o/xANTMtIAqdwYw=="],
 
     "@octokit/plugin-paginate-graphql": ["@octokit/plugin-paginate-graphql@5.2.4", "", { "peerDependencies": { "@octokit/core": ">=6" } }, "sha512-pLZES1jWaOynXKHOqdnwZ5ULeVR6tVVCMm+AUbp0htdcyXDU95WbkYdU4R2ej1wKj5Tu94Mee2Ne0PjPO9cCyA=="],
 
@@ -243,9 +244,9 @@
 
     "@octokit/types": ["@octokit/types@13.7.0", "", { "dependencies": { "@octokit/openapi-types": "^23.0.1" } }, "sha512-BXfRP+3P3IN6fd4uF3SniaHKOO4UXWBfkdR3vA8mIvaoO/wLjGN5qivUtW0QRitBHHMcfC41SLhNVYIZZE+wkA=="],
 
-    "@octokit/webhooks": ["@octokit/webhooks@13.4.3", "", { "dependencies": { "@octokit/openapi-webhooks-types": "8.5.1", "@octokit/request-error": "^6.1.6", "@octokit/webhooks-methods": "^5.0.0" } }, "sha512-Brjp2TJiTvLV8unrGWC46QgsnH641fTvH32Vp88L6Y5GkMcKMp+YLdRz/EP722GxKM0S4vbeNqAc6QeEUr8oWA=="],
+    "@octokit/webhooks": ["@octokit/webhooks@13.6.0", "", { "dependencies": { "@octokit/openapi-webhooks-types": "9.1.0", "@octokit/request-error": "^6.1.6", "@octokit/webhooks-methods": "^5.1.1" } }, "sha512-qoYP1g6ZP01m8LtKjC+NLuAqRbiVzS5VmnwoEYlrQr6TaLRtb5yAMxWCq5/AqfrUF2Wx6ZQ9IJ4mAFytEn7J9A=="],
 
-    "@octokit/webhooks-methods": ["@octokit/webhooks-methods@5.1.0", "", {}, "sha512-yFZa3UH11VIxYnnoOYCVoJ3q4ChuSOk2IVBBQ0O3xtKX4x9bmKb/1t+Mxixv2iUhzMdOl1qeWJqEhouXXzB3rQ=="],
+    "@octokit/webhooks-methods": ["@octokit/webhooks-methods@5.1.1", "", {}, "sha512-NGlEHZDseJTCj8TMMFehzwa9g7On4KJMPVHDSrHxCQumL6uSQR8wIkP/qesv52fXqV1BPf4pTxwtS31ldAt9Xg=="],
 
     "@oslojs/asn1": ["@oslojs/asn1@1.0.0", "", { "dependencies": { "@oslojs/binary": "1.0.0" } }, "sha512-zw/wn0sj0j0QKbIXfIlnEcTviaCzYOY3V5rAyjR6YtOByFtJiT574+8p9Wlach0lZH9fddD4yb9laEAIl4vXQA=="],
 
@@ -1065,6 +1066,8 @@
 
     "@humanfs/node/@humanwhocodes/retry": ["@humanwhocodes/retry@0.3.1", "", {}, "sha512-JBxkERygn7Bv/GbN5Rv8Ul6LVknS+5Bp6RgDC/O8gEBU/yeH5Ui5C/OlWrTb6qct7LjjfT6Re2NxB0ln0yYybA=="],
 
+    "@octokit/app/@octokit/webhooks": ["@octokit/webhooks@13.4.3", "", { "dependencies": { "@octokit/openapi-webhooks-types": "8.5.1", "@octokit/request-error": "^6.1.6", "@octokit/webhooks-methods": "^5.0.0" } }, "sha512-Brjp2TJiTvLV8unrGWC46QgsnH641fTvH32Vp88L6Y5GkMcKMp+YLdRz/EP722GxKM0S4vbeNqAc6QeEUr8oWA=="],
+
     "@oslojs/jwt/@oslojs/encoding": ["@oslojs/encoding@0.4.1", "", {}, "sha512-hkjo6MuIK/kQR5CrGNdAPZhS01ZCXuWDRJ187zh6qqF2+yMHZpD9fAYpX8q2bOO6Ryhl3XpCT6kUX76N8hhm4Q=="],
 
     "@rollup/plugin-commonjs/is-reference": ["is-reference@1.2.1", "", { "dependencies": { "@types/estree": "*" } }, "sha512-U82MsXXiFIrjCK4otLT+o2NA2Cd2g5MLoOVXUZjIOhLurrRxpEXzI8O0KZHr3IjLvlAH1kTPYSuqer5T9ZVBKQ=="],
@@ -1150,6 +1153,10 @@
     "@esbuild-kit/core-utils/esbuild/@esbuild/win32-ia32": ["@esbuild/win32-ia32@0.18.20", "", { "os": "win32", "cpu": "ia32" }, "sha512-Wv7QBi3ID/rROT08SABTS7eV4hX26sVduqDOTe1MvGMjNd3EjOz4b7zeexIR62GTIEKrfJXKL9LFxTYgkyeu7g=="],
 
     "@esbuild-kit/core-utils/esbuild/@esbuild/win32-x64": ["@esbuild/win32-x64@0.18.20", "", { "os": "win32", "cpu": "x64" }, "sha512-kTdfRcSiDfQca/y9QIkng02avJ+NCaQvrMejlsB3RRv5sE9rRoeBPISaZpKxHELzRxZyLvNts1P27W3wV+8geQ=="],
+
+    "@octokit/app/@octokit/webhooks/@octokit/openapi-webhooks-types": ["@octokit/openapi-webhooks-types@8.5.1", "", {}, "sha512-i3h1b5zpGSB39ffBbYdSGuAd0NhBAwPyA3QV3LYi/lx4lsbZiu7u2UHgXVUR6EpvOI8REOuVh1DZTRfHoJDvuQ=="],
+
+    "@octokit/app/@octokit/webhooks/@octokit/webhooks-methods": ["@octokit/webhooks-methods@5.1.0", "", {}, "sha512-yFZa3UH11VIxYnnoOYCVoJ3q4ChuSOk2IVBBQ0O3xtKX4x9bmKb/1t+Mxixv2iUhzMdOl1qeWJqEhouXXzB3rQ=="],
 
     "@typescript-eslint/typescript-estree/minimatch/brace-expansion": ["brace-expansion@2.0.1", "", { "dependencies": { "balanced-match": "^1.0.0" } }, "sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA=="],
 

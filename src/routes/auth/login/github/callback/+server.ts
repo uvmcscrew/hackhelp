@@ -1,7 +1,7 @@
 import { generateSessionToken, createSession, setSessionTokenCookie } from '$lib/server/auth';
 import { githubOAuth } from '$lib/server/auth';
 
-import type { RequestEvent } from '@sveltejs/kit';
+import type { RequestEvent } from './$types';
 import type { OAuth2Tokens } from 'arctic';
 import { db, schema } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
