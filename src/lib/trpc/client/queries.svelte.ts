@@ -2,7 +2,7 @@ import { createQuery } from '@tanstack/svelte-query';
 import { trpcClient } from './index.svelte';
 import type { RouterOutputs } from '../server';
 
-export function getAccount(initialData?: RouterOutputs['account']['get']) {
+function getAccount(initialData: RouterOutputs['account']['get']) {
 	return createQuery({
 		queryKey: ['user'],
 		queryFn: () => trpcClient.account.get.query(),
@@ -10,7 +10,7 @@ export function getAccount(initialData?: RouterOutputs['account']['get']) {
 	});
 }
 
-export function getAccountWithStatus(initialData: RouterOutputs['account']['getWithStatus']) {
+function getAccountWithStatus(initialData: RouterOutputs['account']['getWithStatus']) {
 	return createQuery({
 		queryKey: ['user', 'userStatus'],
 		queryFn: async () => trpcClient.account.getWithStatus.query(),
@@ -19,5 +19,8 @@ export function getAccountWithStatus(initialData: RouterOutputs['account']['getW
 }
 
 export const queries = {
+	getAccount,
 	getAccountWithStatus
 };
+
+export default queries;

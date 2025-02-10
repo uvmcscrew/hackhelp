@@ -6,13 +6,16 @@
 	import * as DropdownMenu from './ui/dropdown-menu';
 	import type { User } from '$lib/server/db/schema';
 	import { goto } from '$app/navigation';
+	import { queries } from '$lib/trpc/client/queries.svelte';
 
 	type Props = {
 		user: User;
 	};
-
 	const { user }: Props = $props();
-	const image = `https://avatars.githubusercontent.com/u/${user.githubId}`;
+
+	let accountData = queries.getAccount({ user });
+
+	const image = `https://avatars.githubusercontent.com/u/${$accountData.data.user.githubId}`;
 </script>
 
 <DropdownMenu.Root>
@@ -27,9 +30,9 @@
 		<span class="sr-only">Toggle user menu</span>
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
-		<DropdownMenu.Label>{user.fullName}</DropdownMenu.Label>
+		<DropdownMenu.Label>{$accountData.data.user.fullName}</DropdownMenu.Label>
 		<DropdownMenu.Separator />
-		{#if user.isAdmin}
+		{#if $accountData.data.user.isAdmin}
 			<DropdownMenu.Item class="w-full hover:cursor-pointer"
 				>{#snippet child({ props })}
 					<a {...props} href="/admin"> Admin</a>

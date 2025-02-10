@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 
 const accountRouter = t.router({
 	get: protectedProcedure.query(({ ctx }) => {
-		return { user: ctx.user, session: ctx.session };
+		return { user: ctx.user };
 	}),
 	getWithStatus: protectedProcedure.query(async ({ ctx }) => {
 		const [userStatus] = await ctx.db

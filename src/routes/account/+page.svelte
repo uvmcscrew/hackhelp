@@ -4,7 +4,7 @@
 	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import DoorOpen from 'lucide-svelte/icons/door-open';
 	import ArrowLeft from 'lucide-svelte/icons/arrow-left';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 
@@ -12,13 +12,11 @@
 
 	import { goto } from '$app/navigation';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { trpcClient } from '$lib/trpc/client/index.svelte';
-	import PageContent from './PageContent.svelte';
-	import { getAccountWithStatus } from '$lib/trpc/client/queries.svelte';
+	import queries from '$lib/trpc/client/queries.svelte';
 
 	let pgProps: PageProps = $props();
 
-	let accountWithStatus = getAccountWithStatus(pgProps.data);
+	let accountWithStatus = queries.getAccountWithStatus(pgProps.data);
 
 	const image = `https://avatars.githubusercontent.com/u/${$accountWithStatus.data.user.githubId}`;
 
