@@ -4,6 +4,7 @@
 	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import DoorOpen from 'lucide-svelte/icons/door-open';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
+	import MoveUpRight from 'lucide-svelte/icons/move-up-right';
 
 	import ArrowLeft from 'lucide-svelte/icons/arrow-left';
 	import { Button } from '$lib/components/ui/button';
@@ -32,7 +33,8 @@
 			toast.success('Invitation created', {
 				action: {
 					label: 'View',
-					onClick: () => goto(`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}`)
+					onClick: () =>
+						goto(`https://github.com/orgs/${clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation`)
 				}
 			})
 	});
@@ -106,9 +108,11 @@
 						{#if $hasInvite.data.hasPendingInvite}
 							<Button
 								size="sm"
-								href="https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}"
+								href="https://github.com/orgs/{clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation"
+								target="_blank"
 								class=" w-[8.25rem] bg-blue-500 p-2 text-center text-white hover:cursor-pointer hover:bg-blue-500/80"
-								>View Invitation</Button
+							>
+								<MoveUpRight class="mr-1 h-6 w-6 " /> View Invitation</Button
 							>
 						{:else}
 							<Button
@@ -120,7 +124,7 @@
 								class=" w-[8.25rem] bg-blue-500 p-2 text-center text-white hover:cursor-pointer  hover:bg-blue-500/80"
 							>
 								{#if $sendInvite.isPending}
-									<LoaderCircle class="h-6 w-6 animate-spin" /> Inviting...
+									<LoaderCircle class="mr-1 h-6 w-6 animate-spin" /> Inviting...
 								{:else}
 									Request Invitation
 								{/if}
