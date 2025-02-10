@@ -33,7 +33,8 @@
 			queries: {
 				enabled: browser,
 				refetchInterval: 90 * 1000, // 90 seconds at minimum
-				staleTime: 5 * 60 * 1000 // 5 minutes
+				staleTime: 5 * 60 * 1000, // 5 minutes
+				refetchOnWindowFocus: true
 			}
 		}
 	});
