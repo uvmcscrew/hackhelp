@@ -21,13 +21,3 @@ export const trpcClient = createTRPCProxyClient<AppRouter>({
 		loggerLink({ enabled: () => dev })
 	]
 });
-import { createTRPCSvelte, httpBatchLink as svelteHttpBatchLink } from 'trpc-svelte-query';
-
-export const trpc = createTRPCSvelte<AppRouter>({
-	transformer: superjson,
-	links: [
-		svelteHttpBatchLink({
-			url: '/api/trpc'
-		})
-	]
-});

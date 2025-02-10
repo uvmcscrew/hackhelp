@@ -20,7 +20,6 @@
 		"ui": "shadcn-svelte"
 	},
 	"devDependencies": {
-		"@flydotio/dockerfile": "^0.7.4",
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
 		"@tailwindcss/vite": "^4.0.0",
 		"@types/node": "^22.12.0",
@@ -76,8 +75,6 @@
 		"tailwind-variants": "^0.3.1",
 		"tailwindcss": "^4.0.0",
 		"tailwindcss-animate": "^1.0.7",
-		"trpc-svelte-query": "^2.1.0",
-		"trpc-sveltekit": "^3.6.2",
 		"winston": "^3.17.0",
 		"zod": "^3.24.1"
 	}
