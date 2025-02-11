@@ -2,22 +2,18 @@ import { generateState } from 'arctic';
 import { githubOAuth } from '$lib/server/auth';
 
 import type { RequestEvent } from './$types';
+import { createCallerContext } from '$lib/trpc/server/context';
+import { trpcCreateCaller } from '$lib/trpc/server';
 
 export async function GET(event: RequestEvent) {
-	const state = generateState();
-	const url = githubOAuth.createAuthorizationURL(state, ['read:user', 'user:email']);
+	const trpc = trpcCreateCaller(createCallerContext(event));
 
-	event.cookies.set('github_oauth_state', state, {
-		path: '/',
-		httpOnly: true,
-		maxAge: 60 * 10,
-		sameSite: 'lax'
-	});
+	const { url } = await trpc.auth.getOAuthUrl();
 
 	return new Response(null, {
 		status: 302,
 		headers: {
-			Location: url.toString()
+			Location: url
 		}
 	});
 }

@@ -1,4 +1,4 @@
-import { protectedProcedure, t } from '../shared';
+import { protectedProcedure, publicProcedure, t } from '../shared';
 import { eq } from 'drizzle-orm';
 import { serverEnv } from '$lib/env/server';
 import type { Context } from '../context';
@@ -7,6 +7,8 @@ import type { db as dbClient, schema as dbSchema } from '$lib/server/db';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RequestError } from 'octokit';
 import { githubApp, octokit } from '$lib/github';
+import { generateState } from 'arctic';
+import { githubOAuth } from '$lib/server/auth';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -112,4 +114,20 @@ export async function authenticatedUserOrgStatus(username: string, accessToken: 
 	return { isInOrg: false, isAdmin: null };
 }
 
-export const authRouter = t.router({});
+export const authRouter = t.router({
+	getOAuthUrl: publicProcedure.query(async ({ ctx }) => {
+		const state = generateState();
+		const url = githubOAuth.createAuthorizationURL(state, ['read:user', 'user:email']);
+
+		ctx.cookies.set('github_oauth_state', state, {
+			path: '/',
+			httpOnly: true,
+			maxAge: 60 * 10,
+			sameSite: 'lax'
+		});
+
+		return {
+			url: url.toString()
+		};
+	})
+});
