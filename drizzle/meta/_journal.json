@@ -36,6 +36,13 @@
       "when": 1739295517948,
       "tag": "0004_flaky_jack_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1739308642275,
+      "tag": "0005_solid_cable",
+      "breakpoints": true
     }
   ]
 }
