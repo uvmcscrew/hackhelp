@@ -13,8 +13,13 @@ export const user = pgTable('user', {
 	teamId: text('team_id').references(() => team.id)
 });
 
-export const userStatus = pgTable('user_status', {
+export type PersonRole = 'admin' | 'mentor' | 'competitor';
+
+export const person = pgTable('person', {
 	username: text('username').notNull().primaryKey(),
+	role: text('role').notNull().$type<PersonRole>(),
+	givenName: text('given_name'),
+	eduEmail: text('edu_email'),
 	isWhitelisted: boolean().default(false).notNull(),
 	isBanned: boolean().default(false).notNull(),
 	linkedUserId: text('linked_user_id').references(() => user.id)

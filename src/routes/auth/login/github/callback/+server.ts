@@ -122,19 +122,19 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	apiLogger.info('USER FOUND', { user: githubUserResponse.data.login, admin: userIsAdmin });
 
 	// --------- Check Whitelist and Ban Status ---------
-	apiLogger.info('Checking user status', { user: githubUserResponse.data.login });
-	const [userStatus] = await db
+	apiLogger.info('Checking competitor list', { user: githubUserResponse.data.login });
+	const [competitor] = await db
 		.select({
-			username: schema.userStatus.username,
-			isWhitelisted: schema.userStatus.isWhitelisted,
-			isBanned: schema.userStatus.isBanned
+			username: schema.person.username,
+			isWhitelisted: schema.person.isWhitelisted,
+			isBanned: schema.person.isBanned
 		})
-		.from(schema.userStatus)
-		.where(eq(schema.userStatus.username, githubUserResponse.data.login.toLowerCase()));
+		.from(schema.person)
+		.where(eq(schema.person.username, githubUserResponse.data.login.toLowerCase()));
 
-	if (userStatus) {
-		apiLogger.info('User Status Found', { userStatus });
-		if (userStatus.isBanned) {
+	if (competitor) {
+		apiLogger.info('Competitor Found', { competitor });
+		if (competitor.isBanned) {
 			apiLogger.warn('User is banned', { user: githubUserResponse.data.login });
 			return Response.json(
 				{
@@ -146,11 +146,12 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			);
 		}
 	} else {
-		apiLogger.info('User not found in userStatus, inserting', {
+		apiLogger.info('User not found in competitors, inserting', {
 			user: githubUserResponse.data.login
 		});
-		await db.insert(schema.userStatus).values({
+		await db.insert(schema.person).values({
 			username: githubUserResponse.data.login.toLowerCase(),
+			role: userIsAdmin ? 'admin' : 'competitor',
 			// Admins should be automatically whitelisted
 			isWhitelisted: userIsAdmin
 		});
@@ -165,7 +166,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	apiLogger.info('USER AUTH INFO', {
 		username: githubUserResponse.data.login,
 		exists: Boolean(existingUser),
-		knownStatus: userStatus ?? 'no'
+		knownStatus: competitor ?? 'no'
 	});
 
 	if (existingUser) {
@@ -186,12 +187,12 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			.where(eq(schema.user.id, existingUser.id));
 
 		await db
-			.update(schema.userStatus)
+			.update(schema.person)
 			.set({
 				linkedUserId: existingUser.id,
-				isWhitelisted: userIsAdmin ? true : userStatus?.isWhitelisted
+				isWhitelisted: userIsAdmin ? true : competitor?.isWhitelisted
 			})
-			.where(eq(schema.userStatus.username, githubUserResponse.data.login.toLowerCase()));
+			.where(eq(schema.person.username, githubUserResponse.data.login.toLowerCase()));
 
 		apiLogger.info('Known User Logged In', {
 			username: githubUserResponse.data.login,
@@ -224,11 +225,11 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		admin: userIsAdmin
 	});
 
-	// Link userStatus to user
+	// Link competitor to user
 	await db
-		.update(schema.userStatus)
+		.update(schema.person)
 		.set({ linkedUserId: user.id })
-		.where(eq(schema.userStatus.username, githubUserResponse.data.login));
+		.where(eq(schema.person.username, githubUserResponse.data.login));
 
 	const sessionToken = generateSessionToken();
 	const session = await createSession(sessionToken, user.id);

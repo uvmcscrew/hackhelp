@@ -19,10 +19,7 @@ const userRouter = t.router({
 		const users = await ctx.db
 			.select()
 			.from(ctx.dbSchema.user)
-			.leftJoin(
-				ctx.dbSchema.userStatus,
-				eq(ctx.dbSchema.user.id, ctx.dbSchema.userStatus.linkedUserId)
-			);
+			.leftJoin(ctx.dbSchema.person, eq(ctx.dbSchema.user.id, ctx.dbSchema.person.linkedUserId));
 		return { users };
 	}),
 	allAccounts: adminProcedure.query(async ({ ctx }) => {

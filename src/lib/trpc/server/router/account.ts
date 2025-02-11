@@ -55,8 +55,8 @@ export const accountRouter = t.router({
 	whoamiWithStatus: protectedProcedure.query(async ({ ctx }) => {
 		const [userStatus] = await ctx.db
 			.select()
-			.from(ctx.dbSchema.userStatus)
-			.where(eq(ctx.dbSchema.userStatus.linkedUserId, ctx.user.id));
+			.from(ctx.dbSchema.person)
+			.where(eq(ctx.dbSchema.person.linkedUserId, ctx.user.id));
 		return { user: ctx.user, session: ctx.session, userStatus };
 	}),
 	hasPendingInvite: protectedProcedure.query(async ({ ctx }) => {

@@ -1,17 +1,7 @@
-import { fail } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
-import { db, schema } from '$lib/server/db';
-import { eq } from 'drizzle-orm';
+import { trpcCreateCaller } from '$lib/trpc/server';
+import { createCallerContext } from '$lib/trpc/server/context';
+import { type ServerLoadEvent } from '@sveltejs/kit';
 
-export const load = (async (event) => {
-	if (!event.locals.user || !event.locals.user.isAdmin) {
-		return fail(403);
-	}
-
-	const dbTeams = await db
-		.select()
-		.from(schema.team)
-		.leftJoin(schema.user, eq(schema.user.teamId, schema.team.id));
-
-	return { teams: dbTeams };
-}) satisfies PageServerLoad;
+export const load = async (event: ServerLoadEvent) => {
+	return trpcCreateCaller(createCallerContext(event)).account.whoamiWithStatus();
+};

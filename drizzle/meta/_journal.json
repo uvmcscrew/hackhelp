@@ -43,6 +43,13 @@
       "when": 1739308642275,
       "tag": "0005_solid_cable",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1739312254744,
+      "tag": "0006_clear_raza",
+      "breakpoints": true
     }
   ]
 }

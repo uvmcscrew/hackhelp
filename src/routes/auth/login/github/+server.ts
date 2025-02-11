@@ -1,6 +1,3 @@
-import { generateState } from 'arctic';
-import { githubOAuth } from '$lib/server/auth';
-
 import type { RequestEvent } from './$types';
 import { createCallerContext } from '$lib/trpc/server/context';
 import { trpcCreateCaller } from '$lib/trpc/server';
