@@ -2,6 +2,7 @@ import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
 import type { Session, User } from '$lib/server/db/schema';
 import { db, schema } from '$lib/server/db';
 import { githubApp } from '$lib/github';
+import type { Cookies } from '@sveltejs/kit';
 
 export type ContextGeneratorParams = {
 	request: Request;
@@ -9,18 +10,20 @@ export type ContextGeneratorParams = {
 		user: User | null;
 		session: Session | null;
 	};
+	cookies: Cookies;
 };
 
 export type Context = Awaited<ReturnType<ReturnType<typeof createContextFunc>>>;
 
-export function createContextFunc(skReqEvent: ContextGeneratorParams) {
+export function createContextFunc(sveltekitCtx: ContextGeneratorParams) {
 	return async function ({ req }: FetchCreateContextFnOptions) {
 		return {
 			req,
-			...skReqEvent.locals,
+			...sveltekitCtx.locals,
 			db,
 			dbSchema: schema,
-			githubApp
+			githubApp,
+			cookies: sveltekitCtx.cookies
 		};
 	};
 }
@@ -31,6 +34,7 @@ export function createCallerContext(ctx: ContextGeneratorParams) {
 		...ctx.locals,
 		db,
 		dbSchema: schema,
-		githubApp
+		githubApp,
+		cookies: ctx.cookies
 	} satisfies Context;
 }
