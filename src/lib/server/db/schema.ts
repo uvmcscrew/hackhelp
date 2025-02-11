@@ -8,8 +8,8 @@ export const user = pgTable('user', {
 	githubId: integer('github_id').notNull(),
 	username: text('username').notNull(),
 	fullName: text('full_name'),
-	isAdmin: boolean().default(false),
-	isInOrganization: boolean().default(false),
+	isOrgAdmin: boolean().default(false),
+	isOrgMember: boolean().default(false),
 	teamId: text('team_id').references(() => team.id)
 });
 
