@@ -2,18 +2,18 @@ import { createQuery } from '@tanstack/svelte-query';
 import { trpcClient } from './index.svelte';
 import type { RouterOutputs } from '../server';
 
-function getAccount(initialData: RouterOutputs['account']['get']) {
+function queryWhoami(initialData: RouterOutputs['account']['whoami']) {
 	return createQuery({
 		queryKey: ['user'],
-		queryFn: () => trpcClient.account.get.query(),
+		queryFn: () => trpcClient.account.whoami.query(),
 		initialData: initialData
 	});
 }
 
-function getAccountWithStatus(initialData: RouterOutputs['account']['getWithStatus']) {
+function queryWhoamiWithStatus(initialData: RouterOutputs['account']['whoamiWithStatus']) {
 	return createQuery({
 		queryKey: ['user', 'user_status'],
-		queryFn: () => trpcClient.account.getWithStatus.query(),
+		queryFn: () => trpcClient.account.whoamiWithStatus.query(),
 		initialData: initialData
 	});
 }
@@ -26,8 +26,8 @@ function hasPendingInvite() {
 }
 
 export const queries = {
-	getAccount,
-	getAccountWithStatus,
+	getAccount: queryWhoami,
+	getAccountWithStatus: queryWhoamiWithStatus,
 	hasPendingInvite
 };
 

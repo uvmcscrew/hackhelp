@@ -47,10 +47,10 @@ export async function updateInvitedUser(
 }
 
 export const accountRouter = t.router({
-	get: protectedProcedure.query(({ ctx }) => {
+	whoami: protectedProcedure.query(({ ctx }) => {
 		return { user: ctx.user };
 	}),
-	getWithStatus: protectedProcedure.query(async ({ ctx }) => {
+	whoamiWithStatus: protectedProcedure.query(async ({ ctx }) => {
 		const [userStatus] = await ctx.db
 			.select()
 			.from(ctx.dbSchema.userStatus)

@@ -7,5 +7,5 @@ export const load = async (event: ServerLoadEvent) => {
 		return redirect(302, '/auth/login');
 	}
 
-	return trpcCreateCaller(createCallerContext(event)).account.getWithStatus();
+	return trpcCreateCaller(createCallerContext(event)).account.whoamiWithStatus();
 };

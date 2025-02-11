@@ -8,6 +8,7 @@
 	import UserDropdown from '$lib/components/UserDropdown.svelte';
 	import { page } from '$app/state';
 	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
+	import MadeWith from '$lib/components/MadeWith.svelte';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -88,3 +89,6 @@
 	</div>
 </header>
 {@render children()}
+<footer class="border-t-border mt-auto">
+	<MadeWith />
+</footer>
