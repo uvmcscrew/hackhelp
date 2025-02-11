@@ -11,10 +11,11 @@ import { logger } from '$lib/logger';
 import { nanoid } from 'nanoid';
 
 export async function GET(event: RequestEvent): Promise<Response> {
+	const reqId = event.request.headers.get('x-railway-request-id') ?? nanoid();
 	const apiLogger = logger.child({
 		route: '/auth/login/github/callback',
 		method: 'GET',
-		reqId: nanoid()
+		reqId
 	});
 
 	const code = event.url.searchParams.get('code');
