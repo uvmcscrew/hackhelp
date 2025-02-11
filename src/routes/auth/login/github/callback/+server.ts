@@ -9,6 +9,8 @@ import { githubApp, octokit } from '$lib/github';
 import { serverEnv } from '$lib/env/server';
 import { logger } from '$lib/logger';
 import { nanoid } from 'nanoid';
+import { createCallerContext } from '$lib/trpc/server/context';
+import { trpcCreateCaller } from '$lib/trpc/server';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const apiLogger = logger.child({
@@ -60,6 +62,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			{ status: 400 }
 		);
 	}
+
+	// const trpc = trpcCreateCaller(createCallerContext(event));
 
 	// --------- Get Github User Info ---------
 
@@ -179,8 +183,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			.update(schema.user)
 			.set({
 				fullName: githubUserResponse.data.name,
-				isAdmin: userIsAdmin,
-				isInOrganization: userInOrg
+				isOrgAdmin: userIsAdmin,
+				isOrgMember: userInOrg
 			})
 			.where(eq(schema.user.id, existingUser.id));
 
@@ -213,8 +217,8 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			username: githubUserResponse.data.login,
 			githubId: githubUserResponse.data.id,
 			fullName: githubUserResponse.data.name,
-			isAdmin: userIsAdmin,
-			isInOrganization: userInOrg
+			isOrgAdmin: userIsAdmin,
+			isOrgMember: userInOrg
 		})
 		.returning();
 

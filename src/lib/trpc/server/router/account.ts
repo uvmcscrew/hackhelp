@@ -6,6 +6,11 @@ import { TRPCError } from '@trpc/server';
 import type { db as dbClient, schema as dbSchema } from '$lib/server/db';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RequestError } from 'octokit';
+import { githubApp, octokit } from '$lib/github';
+
+// #############################################
+// #              ACCOUNT ROUTER               #
+// #############################################
 
 async function hasPendingInvite(ctx: Context & { user: { username: string } }) {
 	const invites = await ctx.githubApp.rest.orgs.listPendingInvitations({
@@ -37,7 +42,7 @@ export async function updateInvitedUser(
 	await db.client
 		.update(db.schema.user)
 		// If we get to this line, the user is a member of the organization. The api client will throw an error if they are not.
-		.set({ isInOrganization: true, isAdmin: userIsMember.data.role === 'admin' })
+		.set({ isOrgMember: true, isOrgAdmin: userIsMember.data.role === 'admin' })
 		.where(eq(db.schema.user.username, username));
 }
 
@@ -71,3 +76,40 @@ export const accountRouter = t.router({
 		return { invited: true };
 	})
 });
+
+// #############################################
+// #         AUTHENTICATION ROUTER             #
+// #############################################
+
+export async function authenticatedUserOrgStatus(username: string, accessToken: string) {
+	let userInOrg: boolean;
+
+	try {
+		userInOrg = (
+			await octokit.rest.orgs.listForAuthenticatedUser({
+				headers: {
+					Authorization: `Bearer ${accessToken}`
+				}
+			})
+		).data.some((org) => org.login === serverEnv.PUBLIC_GITHUB_ORGNAME);
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	} catch (e) {
+		return { isInOrg: false, isAdmin: null };
+	}
+
+	if (userInOrg) {
+		const userIsAdmin =
+			(
+				await githubApp.rest.orgs.getMembershipForUser({
+					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					username: username
+				})
+			).data.role === 'admin';
+
+		return { isInOrg: true, isAdmin: userIsAdmin };
+	}
+
+	return { isInOrg: false, isAdmin: null };
+}
+
+export const authRouter = t.router({});

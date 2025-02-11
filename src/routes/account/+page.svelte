@@ -44,11 +44,11 @@
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
 	<h1 class="w-full text-center text-2xl font-semibold">Account</h1>
 	<div class="text-foreground flex w-full justify-center">
-		{#if $accountWithStatus.data.user.isInOrganization}
+		{#if $accountWithStatus.data.user.isOrgMember}
 			<Button
 				variant="link"
 				class="hover:cursor-pointer"
-				href={$accountWithStatus.data.user.isAdmin ? '/admin' : '/home'}
+				href={$accountWithStatus.data.user.isOrgAdmin ? '/admin' : '/home'}
 				><ArrowLeft class="h-8 w-8 " />Back</Button
 			>
 		{/if}
@@ -63,7 +63,7 @@
 			<div class="flex flex-col pl-4">
 				<span class="inline-flex gap-x-2">
 					<h2 class="text-2xl font-medium">{$accountWithStatus.data.user.fullName}</h2>
-					{#if $accountWithStatus.data.user.isAdmin}
+					{#if $accountWithStatus.data.user.isOrgAdmin}
 						<Badge class="ml-2 rounded-full bg-purple-400 px-2 py-1" hoverEffects={false}
 							>Administrator</Badge
 						>
@@ -93,7 +93,7 @@
 				<span class="text-secondary-foreground font-semibold"
 					>Organization Membership Status:
 				</span>
-				{#if $accountWithStatus.data.user.isInOrganization}
+				{#if $accountWithStatus.data.user.isOrgMember}
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined</Badge>
 				{:else if $accountWithStatus.data.userStatus.isWhitelisted}
 					<Badge class="rounded-full bg-amber-400 px-2" hoverEffects={false}>Pending Invite</Badge>
@@ -104,7 +104,7 @@
 				{/if}
 			</div>
 			<div class="flex flex-row items-center justify-end">
-				{#if !$accountWithStatus.data.user.isInOrganization && $accountWithStatus.data.userStatus.isWhitelisted}
+				{#if !$accountWithStatus.data.user.isOrgMember && $accountWithStatus.data.userStatus.isWhitelisted}
 					{#if $hasInvite.data}
 						{#if $hasInvite.data.hasPendingInvite}
 							<Button
