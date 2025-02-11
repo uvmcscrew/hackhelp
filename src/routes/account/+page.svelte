@@ -20,6 +20,7 @@
 	import { clientEnv } from '$lib/env/client';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import { toast } from 'svelte-sonner';
+	import MadeWith from '$lib/components/MadeWith.svelte';
 
 	let pgProps: PageProps = $props();
 
@@ -145,4 +146,5 @@
 			</div>
 		</CardContent>
 	</Card.Root>
+	<div class="mt-auto mb-2 inline-flex justify-center"><MadeWith /></div>
 </div>
