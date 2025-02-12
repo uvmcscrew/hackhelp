@@ -95,6 +95,15 @@ then visit http://localhost:5173
 
 ### Development Notes
 
+#### Code Line Counting
+
+```sh
+# Counting excluding installed ui components
+tokei -t=Typescript,Svelte,Javascript,CSS,HTML -e src/lib/components/ui
+# Counting everything
+tokei -t=Typescript,Svelte,Javascript,CSS,HTML
+```
+
 #### Svelte Query
 
 ## Credits
