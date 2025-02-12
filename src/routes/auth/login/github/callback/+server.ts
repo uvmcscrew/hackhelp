@@ -5,10 +5,10 @@ import type { RequestEvent } from './$types';
 import type { OAuth2Tokens } from 'arctic';
 import { db, schema } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
-import { githubApp, octokit } from '$lib/github';
-import { serverEnv } from '$lib/env/server';
+import { octokit } from '$lib/github';
 import { logger } from '$lib/logger';
 import { nanoid } from 'nanoid';
+import { authenticatedUserOrgStatus } from '$lib/trpc/server/router/account';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const reqId = event.request.headers.get('x-railway-request-id') ?? nanoid();
@@ -86,38 +86,10 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		);
 	}
 
-	let userInOrg: boolean;
-
-	try {
-		userInOrg = (
-			await octokit.rest.orgs.listForAuthenticatedUser({
-				headers: {
-					Authorization: `Bearer ${tokens.accessToken()}`
-				}
-			})
-		).data.some((org) => org.login === serverEnv.PUBLIC_GITHUB_ORGNAME);
-	} catch (e: unknown) {
-		const err = e as Error;
-		apiLogger.warn('Could not check if user is in organization', { error: 400, code, ghErr: err });
-		return Response.json(
-			{
-				status: 400,
-				message: 'Could not check if user is in organization',
-				error: err.message
-			},
-			{ status: 400 }
-		);
-	}
-
-	const userIsAdmin = userInOrg
-		? // This API call will error if the user is not in the specified organization
-			(
-				await githubApp.rest.orgs.getMembershipForUser({
-					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
-					username: githubUserResponse.data.login
-				})
-			).data.role === 'admin'
-		: false;
+	const { isInOrg: userInOrg, isAdmin: userIsAdmin } = await authenticatedUserOrgStatus(
+		githubUserResponse.data.login,
+		tokens.accessToken()
+	);
 
 	apiLogger.info('USER FOUND', { user: githubUserResponse.data.login, admin: userIsAdmin });
 
@@ -153,7 +125,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			username: githubUserResponse.data.login.toLowerCase(),
 			role: userIsAdmin ? 'admin' : 'competitor',
 			// Admins should be automatically whitelisted
-			isWhitelisted: userIsAdmin
+			isWhitelisted: Boolean(userIsAdmin)
 		});
 	}
 
@@ -181,7 +153,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			.update(schema.user)
 			.set({
 				fullName: githubUserResponse.data.name,
-				isOrgAdmin: userIsAdmin,
+				isOrgAdmin: Boolean(userIsAdmin),
 				isOrgMember: userInOrg
 			})
 			.where(eq(schema.user.id, existingUser.id));
@@ -215,7 +187,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			username: githubUserResponse.data.login,
 			githubId: githubUserResponse.data.id,
 			fullName: githubUserResponse.data.name,
-			isOrgAdmin: userIsAdmin,
+			isOrgAdmin: Boolean(userIsAdmin),
 			isOrgMember: userInOrg
 		})
 		.returning();
