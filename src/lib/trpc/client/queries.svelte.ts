@@ -55,13 +55,34 @@ function adminGetUserByUsername(
 	});
 }
 
+function adminGetAllTeams(initialData?: RouterOutputs['admin']['teams']['all']) {
+	return createQuery({
+		queryKey: ['admin', 'teamlist'],
+		queryFn: () => trpcClient.admin.teams.all.query(),
+		initialData
+	});
+}
+
+function adminGetTeamById(
+	teamId: string,
+	initialData?: RouterOutputs['admin']['teams']['getById']
+) {
+	return createQuery({
+		queryKey: ['admin', 'team', teamId],
+		queryFn: () => trpcClient.admin.teams.getById.query({ teamId }),
+		initialData
+	});
+}
+
 export const queries = {
 	queryWhoami,
 	queryWhoamiWithStatus,
 	hasPendingInvite,
 	adminListAllUsers,
 	adminGetUserById,
-	adminGetUserByUsername
+	adminGetUserByUsername,
+	adminGetAllTeams,
+	adminGetTeamById
 };
 
 export default queries;

@@ -48,9 +48,33 @@ const userRouter = t.router({
 });
 
 // #############################################
+// #               TEAM ROUTER                 #
+// #############################################
+
+const teamRouter = t.router({
+	all: adminProcedure.query(async ({ ctx }) => {
+		const teams = await ctx.db.select().from(ctx.dbSchema.team);
+		return { teams };
+	}),
+	getById: adminProcedure
+		.input(z.object({ teamId: z.string().nonempty() }))
+		.query(async ({ ctx, input }) => {
+			const [team] = await ctx.db
+				.select()
+				.from(ctx.dbSchema.team)
+				.where(eq(ctx.dbSchema.team.id, input.teamId));
+			if (!team) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
+			}
+			return { team };
+		})
+});
+
+// #############################################
 // #               ADMIN ROUTER                #
 // #############################################
 
 export const adminRouter = t.router({
-	users: userRouter
+	users: userRouter,
+	teams: teamRouter
 });
