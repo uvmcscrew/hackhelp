@@ -67,6 +67,7 @@
 		"nanoid": "^5.0.9",
 		"octokit": "^4.1.0",
 		"postgres": "^3.4.5",
+		"posthog-js": "^1.217.2",
 		"superjson": "^2.2.2",
 		"svelte": "^5.19.5",
 		"svelte-adapter-bun": "^0.5.2",

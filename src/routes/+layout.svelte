@@ -3,7 +3,7 @@
 
 	let { children } = $props();
 	import { ModeWatcher } from 'mode-watcher';
-	import { browser } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 	import {
 		MutationCache,
 		QueryCache,
@@ -15,6 +15,18 @@
 	import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client';
 	import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 	import { toast } from 'svelte-sonner';
+	import posthog from 'posthog-js';
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		if (browser && !dev) {
+			posthog.init('phc_rpv1K3BqyoUeD0AWDrilTJFebDceDdLHVnihs4Oi88x', {
+				api_host: 'https://us.i.posthog.com',
+				person_profiles: 'identified_only' // or 'always' to create profiles for anonymous users as well
+			});
+		}
+		return;
+	});
 
 	const queryCache = new QueryCache({
 		onError: (error, query) => {
