@@ -89,6 +89,6 @@
 	</div>
 </header>
 {@render children()}
-<footer class="border-t-border mt-auto flex w-screen justify-center">
+<footer class="border-t-border mt-16 flex w-screen justify-center">
 	<MadeWith />
 </footer>

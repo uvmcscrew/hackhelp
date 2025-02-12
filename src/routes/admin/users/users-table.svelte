@@ -3,6 +3,9 @@
 	import queries from '$lib/trpc/client/queries.svelte';
 	import type { RouterOutputs } from '$lib/trpc/server';
 	import type { PageProps } from './$types';
+	import CheckIcon from 'lucide-svelte/icons/check';
+	import XIcon from 'lucide-svelte/icons/x';
+	import UserTableDropdown from './user-table-dropdown.svelte';
 
 	type UserData = RouterOutputs['admin']['users']['all'];
 
@@ -10,18 +13,21 @@
 		users: UserData;
 	};
 
-	let pgProps: Props = $props();
+	let props: Props = $props();
 
-	let users = queries.adminListAllUsers(pgProps.users);
+	let users = queries.adminListAllUsers(props.users);
 </script>
 
 <Table.Root>
 	<Table.Header>
 		<Table.Row>
-			<Table.Head>Full Name</Table.Head>
-			<Table.Head>Username</Table.Head>
-			<Table.Head>Email</Table.Head>
+			<Table.Head class="w-min">Full Name</Table.Head>
+			<Table.Head class="w-min">Username</Table.Head>
+			<Table.Head class="w-min">Email</Table.Head>
+			<Table.Head class="w-32">Role</Table.Head>
+
 			<Table.Head class="w-[100px]">Whitelisted</Table.Head>
+			<Table.Head class=" w-36">Assigned to Team</Table.Head>
 			<Table.Head></Table.Head>
 		</Table.Row>
 	</Table.Header>
@@ -29,19 +35,31 @@
 		{#if $users.data}
 			{#each $users.data.users as user}
 				<Table.Row>
-					<Table.Cell class="font-medium">{user.user.fullName}</Table.Cell>
+					<Table.Cell class="font-medium"
+						>{user.person && user.person.givenName
+							? user.person.givenName
+							: `${user.user.fullName} (GitHub)`}</Table.Cell
+					>
 					<Table.Cell>{user.user.username}</Table.Cell>
 					<Table.Cell>{user.person?.eduEmail}</Table.Cell>
-					<Table.Cell class="text-right">$250.00</Table.Cell>
+					<Table.Cell>{user.person?.role ?? 'unknown'}</Table.Cell>
+					<Table.Cell>
+						{#if user.person?.isWhitelisted}
+							<CheckIcon class="h-5 w-5 text-green-500" />
+						{:else}
+							<XIcon class="h-5 w-5 text-red-500" />
+						{/if}
+					</Table.Cell>
+					<Table.Cell>
+						{#if user.user.teamId !== null}
+							<CheckIcon class="h-5 w-5 text-green-500" />
+						{:else}
+							<XIcon class="h-5 w-5 text-red-500" />
+						{/if}
+					</Table.Cell>
+					<Table.Cell><UserTableDropdown /></Table.Cell>
 				</Table.Row>
 			{/each}
 		{/if}
-
-		<Table.Row>
-			<Table.Cell class="font-medium">INV001</Table.Cell>
-			<Table.Cell>Paid</Table.Cell>
-			<Table.Cell>Credit Card</Table.Cell>
-			<Table.Cell class="text-right">$250.00</Table.Cell>
-		</Table.Row>
 	</Table.Body>
 </Table.Root>

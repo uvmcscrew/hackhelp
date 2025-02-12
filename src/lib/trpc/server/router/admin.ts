@@ -1,18 +1,11 @@
-import { adminProcedure, protectedProcedure, t } from '../shared';
+import { adminProcedure, t } from '../shared';
 import { eq } from 'drizzle-orm';
-import { serverEnv } from '$lib/env/server';
-import type { Context } from '../context';
 import { TRPCError } from '@trpc/server';
-import type { db as dbClient, schema as dbSchema } from '$lib/server/db';
 import { z } from 'zod';
 
 // #############################################
 // #               USER ROUTER                 #
 // #############################################
-
-const allUserFilterSchema = z.object({
-	filter: z.string().optional()
-});
 
 const userRouter = t.router({
 	all: adminProcedure.query(async ({ ctx }) => {
@@ -22,6 +15,32 @@ const userRouter = t.router({
 			.leftJoin(ctx.dbSchema.person, eq(ctx.dbSchema.user.id, ctx.dbSchema.person.linkedUserId));
 		return { users };
 	}),
+	getById: adminProcedure
+		.input(z.object({ userId: z.string().nonempty() }))
+		.query(async ({ ctx, input }) => {
+			const [user] = await ctx.db
+				.select()
+				.from(ctx.dbSchema.user)
+				.where(eq(ctx.dbSchema.user.id, input.userId))
+				.leftJoin(ctx.dbSchema.person, eq(ctx.dbSchema.user.id, ctx.dbSchema.person.linkedUserId));
+			if (!user) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+			}
+			return { user };
+		}),
+	getByUsername: adminProcedure
+		.input(z.object({ userName: z.string().nonempty() }))
+		.query(async ({ ctx, input }) => {
+			const [user] = await ctx.db
+				.select()
+				.from(ctx.dbSchema.user)
+				.where(eq(ctx.dbSchema.user.username, input.userName))
+				.leftJoin(ctx.dbSchema.person, eq(ctx.dbSchema.user.id, ctx.dbSchema.person.linkedUserId));
+			if (!user) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+			}
+			return { user };
+		}),
 	allAccounts: adminProcedure.query(async ({ ctx }) => {
 		const users = await ctx.db.select().from(ctx.dbSchema.user);
 		return { users };

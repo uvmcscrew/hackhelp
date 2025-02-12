@@ -29,7 +29,29 @@ function adminListAllUsers(initialData?: RouterOutputs['admin']['users']['all'])
 	return createQuery({
 		queryKey: ['admin', 'userlist'],
 		queryFn: () => trpcClient.admin.users.all.query(),
-		initialData: initialData
+		initialData
+	});
+}
+
+function adminGetUserById(
+	userId: string,
+	initialData?: RouterOutputs['admin']['users']['getById']
+) {
+	return createQuery({
+		queryKey: ['admin', 'user', userId],
+		queryFn: () => trpcClient.admin.users.getById.query({ userId }),
+		initialData
+	});
+}
+
+function adminGetUserByUsername(
+	userName: string,
+	initialData?: RouterOutputs['admin']['users']['getByUsername']
+) {
+	return createQuery({
+		queryKey: ['admin', 'user', userName],
+		queryFn: () => trpcClient.admin.users.getByUsername.query({ userName }),
+		initialData
 	});
 }
 
@@ -37,7 +59,9 @@ export const queries = {
 	queryWhoami,
 	queryWhoamiWithStatus,
 	hasPendingInvite,
-	adminListAllUsers
+	adminListAllUsers,
+	adminGetUserById,
+	adminGetUserByUsername
 };
 
 export default queries;
