@@ -25,10 +25,19 @@ function hasPendingInvite() {
 	});
 }
 
+function adminListAllUsers(initialData?: RouterOutputs['admin']['users']['all']) {
+	return createQuery({
+		queryKey: ['admin', 'userlist'],
+		queryFn: () => trpcClient.admin.users.all.query(),
+		initialData: initialData
+	});
+}
+
 export const queries = {
-	getAccount: queryWhoami,
-	getAccountWithStatus: queryWhoamiWithStatus,
-	hasPendingInvite
+	queryWhoami,
+	queryWhoamiWithStatus,
+	hasPendingInvite,
+	adminListAllUsers
 };
 
 export default queries;

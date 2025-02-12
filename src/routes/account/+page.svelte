@@ -24,7 +24,7 @@
 
 	let pgProps: PageProps = $props();
 
-	let accountWithStatus = queries.getAccountWithStatus(pgProps.data);
+	let accountWithStatus = queries.queryWhoamiWithStatus(pgProps.data);
 	let hasInvite = queries.hasPendingInvite();
 
 	const image = `https://avatars.githubusercontent.com/u/${$accountWithStatus.data.user.githubId}`;
