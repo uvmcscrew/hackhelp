@@ -13,7 +13,7 @@
 	};
 	const { user }: Props = $props();
 
-	let accountData = queries.getAccount({ user });
+	let accountData = queries.queryWhoami({ user });
 
 	const image = `https://avatars.githubusercontent.com/u/${$accountData.data.user.githubId}`;
 </script>
@@ -32,7 +32,7 @@
 	<DropdownMenu.Content align="end">
 		<DropdownMenu.Label>{$accountData.data.user.fullName}</DropdownMenu.Label>
 		<DropdownMenu.Separator />
-		{#if $accountData.data.user.isAdmin}
+		{#if $accountData.data.user.isOrgAdmin}
 			<DropdownMenu.Item class="w-full hover:cursor-pointer"
 				>{#snippet child({ props })}
 					<a {...props} href="/admin"> Admin</a>
