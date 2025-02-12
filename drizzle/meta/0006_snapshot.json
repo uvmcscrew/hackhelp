@@ -1,5 +1,5 @@
 {
-  "id": "5e19a401-bbaf-47da-af1c-ae5cffa88658",
+  "id": "9f54d591-7311-4e27-946e-95bc726f8385",
   "prevId": "b380f5c6-0f77-4f5e-970f-4bac2a1b9b67",
   "version": "7",
   "dialect": "postgresql",
@@ -18,7 +18,8 @@
           "name": "role",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": "'competitor'"
         },
         "given_name": {
           "name": "given_name",

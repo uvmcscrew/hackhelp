@@ -17,7 +17,7 @@ export type PersonRole = 'admin' | 'mentor' | 'competitor';
 
 export const person = pgTable('person', {
 	username: text('username').notNull().primaryKey(),
-	role: text('role').notNull().$type<PersonRole>(),
+	role: text('role').$type<PersonRole>().default('competitor'),
 	givenName: text('given_name'),
 	eduEmail: text('edu_email'),
 	isWhitelisted: boolean().default(false).notNull(),
