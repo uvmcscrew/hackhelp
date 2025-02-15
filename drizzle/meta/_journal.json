@@ -50,6 +50,13 @@
       "when": 1739320079450,
       "tag": "0006_burly_tattoo",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1739656355518,
+      "tag": "0007_mushy_silver_samurai",
+      "breakpoints": true
     }
   ]
 }

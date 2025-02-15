@@ -2,6 +2,7 @@ import { pgTable, text, integer } from 'drizzle-orm/pg-core';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { boolean } from 'drizzle-orm/pg-core';
 import { timestamp } from 'drizzle-orm/pg-core';
+import { customAlphabet } from 'nanoid';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey().$defaultFn(cuid2),
@@ -33,11 +34,15 @@ export const session = pgTable('session', {
 	expiresAt: timestamp('expires_at').notNull()
 });
 
+const simpleCode = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 6);
+
 export const team = pgTable('team', {
 	id: text('id').primaryKey().$defaultFn(cuid2),
 	githubId: integer('github_id').notNull(),
 	githubSlug: text('github_slug').notNull(),
-	name: text('name').notNull()
+	name: text('name').notNull(),
+	joinCode: text('join_code').notNull().unique().$defaultFn(simpleCode),
+	canJoin: boolean().default(true).notNull()
 });
 
 export type Session = typeof session.$inferSelect;
