@@ -24,6 +24,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 	apiLogger.info('Github OAuth callback', { code });
 
+	// --------- Validate State ---------
 	if (code === null || state === null || storedState === null) {
 		apiLogger.warn('Invalid state, 400 error', { error: 400, code });
 		return Response.json(
@@ -45,6 +46,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		);
 	}
 
+	// --------- Validate Authorization Code ---------
 	let tokens: OAuth2Tokens;
 	try {
 		tokens = await githubOAuth.validateAuthorizationCode(code);
@@ -63,7 +65,6 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	}
 
 	// --------- Get Github User Info ---------
-
 	let githubUserResponse: { data: { login: string; name: string | null; id: number } };
 
 	try {
@@ -201,7 +202,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	await db
 		.update(schema.person)
 		.set({ linkedUserId: user.id })
-		.where(eq(schema.person.username, githubUserResponse.data.login));
+		.where(eq(schema.person.username, githubUserResponse.data.login.toLowerCase()));
 
 	const sessionToken = generateSessionToken();
 	const session = await createSession(sessionToken, user.id);
