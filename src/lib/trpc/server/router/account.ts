@@ -20,9 +20,8 @@ async function hasPendingInvite(ctx: Context & { user: { username: string } }) {
 		org: serverEnv.PUBLIC_GITHUB_ORGNAME
 	});
 
-	const hasPendingInvite = invites.data.some((invite) => invite.login === ctx.user.username);
-
-	return hasPendingInvite;
+	// If the username is present in the list of pending invites, return true
+	return invites.data.some((invite) => invite.login === ctx.user.username);
 }
 
 /**
@@ -82,8 +81,24 @@ export const accountRouter = t.router({
 		return { hasPendingInvite: pendingInvite };
 	}),
 	sendInvite: protectedProcedure.mutation(async ({ ctx }) => {
+		const trpclogger = ctx.logger.child({ procedure: 'account.sendInvite' });
+		// Make sure DB state is accurate
+		const userstatus = await updateInvitedUser(
+			ctx.user.username,
+			{ client: ctx.db, schema: ctx.dbSchema },
+			ctx.githubApp
+		);
+		if (userstatus.isOrgMember) {
+			trpclogger.info('User is already a member of the organization');
+			throw new TRPCError({
+				message: 'You are already a member of the organization',
+				code: 'UNAUTHORIZED'
+			});
+		}
+
 		const pendingInvite = await hasPendingInvite(ctx);
 		if (pendingInvite) {
+			trpclogger.warn('User already has a pending invite');
 			throw new TRPCError({ message: 'You already have a pending invite', code: 'UNAUTHORIZED' });
 		}
 
@@ -94,6 +109,52 @@ export const accountRouter = t.router({
 		});
 
 		return { invited: true };
+	}),
+	refreshInvite: protectedProcedure.mutation(async ({ ctx }) => {
+		const trpclogger = ctx.logger.child({ procedure: 'account.refreshInvite' });
+
+		// Make sure DB state is accurate
+		const userstatus = await updateInvitedUser(
+			ctx.user.username,
+			{ client: ctx.db, schema: ctx.dbSchema },
+			ctx.githubApp
+		);
+		if (userstatus.isOrgMember) {
+			trpclogger.info('User is already a member of the organization');
+			throw new TRPCError({
+				message: 'You are already a member of the organization',
+				code: 'UNAUTHORIZED'
+			});
+		}
+
+		const pendingInvite = await hasPendingInvite(ctx);
+		if (!pendingInvite) {
+			trpclogger.warn('User does not have a pending invite');
+			throw new TRPCError({ message: 'You do not have a pending invite', code: 'UNAUTHORIZED' });
+		}
+
+		const orgmembers = await ctx.githubApp.rest.orgs.listMembers({
+			org: serverEnv.PUBLIC_GITHUB_ORGNAME
+		});
+
+		const isMember = orgmembers.data.some((member) => member.login === ctx.user.username);
+
+		trpclogger.info('User org membership status', { isMember });
+
+		if (isMember) {
+			trpclogger.info('User is a member of the organization, updating user status');
+			const result = await updateInvitedUser(
+				ctx.user.username,
+				{ client: ctx.db, schema: ctx.dbSchema },
+				ctx.githubApp
+			);
+			trpclogger.info('User status updated', {
+				isOrgMember: result.isOrgMember,
+				isOrgAdmin: result.isOrgAdmin
+			});
+		}
+
+		return { refreshed: true, isMember };
 	})
 });
 

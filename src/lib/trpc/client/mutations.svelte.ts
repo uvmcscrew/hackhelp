@@ -18,8 +18,22 @@ function requestInvite(opts?: BaseMutationProps) {
 	});
 }
 
+function refreshInvite(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['user_invite'],
+		mutationFn: () => trpcClient.account.refreshInvite.mutate(),
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: ['user_invite', 'user'] });
+		},
+		onSuccess: opts?.onSuccess
+	});
+}
+
 export const mutations = {
-	requestInvite
+	requestInvite,
+	refreshInvite
 };
 
 export default mutations;
