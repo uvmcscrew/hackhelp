@@ -5,6 +5,7 @@
 	import DoorOpen from 'lucide-svelte/icons/door-open';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import MoveUpRight from 'lucide-svelte/icons/move-up-right';
+	import RefreshCW from 'lucide-svelte/icons/refresh-cw';
 
 	import ArrowLeft from 'lucide-svelte/icons/arrow-left';
 	import { Button } from '$lib/components/ui/button';
@@ -21,11 +22,14 @@
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import { toast } from 'svelte-sonner';
 	import MadeWith from '$lib/components/MadeWith.svelte';
+	import { delay } from '$lib/utils';
 
 	let pgProps: PageProps = $props();
 
 	let accountWithStatus = queries.queryWhoamiWithStatus(pgProps.data);
 	let hasInvite = queries.hasPendingInvite();
+
+	let inviteRefreshLoading = $state(false);
 
 	const image = `https://avatars.githubusercontent.com/u/${$accountWithStatus.data.user.githubId}`;
 
@@ -39,6 +43,8 @@
 				}
 			})
 	});
+
+	let refreshInvite = mutations.refreshInvite();
 </script>
 
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
@@ -103,10 +109,28 @@
 					>
 				{/if}
 			</div>
-			<div class="flex flex-row items-center justify-end">
+			<div class="flex flex-row items-center justify-end gap-x-3">
 				{#if !$accountWithStatus.data.user.isOrgMember && $accountWithStatus.data.userStatus.isWhitelisted}
 					{#if $hasInvite.data}
 						{#if $hasInvite.data.hasPendingInvite}
+							<Button
+								size="sm"
+								variant="outline"
+								class="p-2 text-center  hover:cursor-pointer "
+								onclick={async () => {
+									inviteRefreshLoading = true;
+									await $refreshInvite.mutateAsync();
+									await delay(3500);
+									inviteRefreshLoading = false;
+								}}
+								disabled={$refreshInvite.isPending || inviteRefreshLoading}
+							>
+								{#if inviteRefreshLoading}
+									<RefreshCW class="mr-1 h-6 w-6 animate-spin" /> Refreshing...
+								{:else}
+									<RefreshCW class="mr-1 h-6 w-6" /> Refresh Status
+								{/if}
+							</Button>
 							<Button
 								size="sm"
 								href="https://github.com/orgs/{clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation"
@@ -121,7 +145,7 @@
 								onclick={async () => {
 									await $sendInvite.mutateAsync();
 								}}
-								disabled={$sendInvite.isPending}
+								disabled={$sendInvite.isPending || inviteRefreshLoading}
 								class=" w-[8.25rem] bg-blue-500 p-2 text-center text-white hover:cursor-pointer  hover:bg-blue-500/80"
 							>
 								{#if $sendInvite.isPending}
