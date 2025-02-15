@@ -3,6 +3,7 @@ import type { Session, User } from '$lib/server/db/schema';
 import { db, schema } from '$lib/server/db';
 import { githubApp } from '$lib/github';
 import type { Cookies } from '@sveltejs/kit';
+import { logger } from '$lib/logger';
 
 export type ContextGeneratorParams = {
 	request: Request;
@@ -23,7 +24,8 @@ export function createContextFunc(sveltekitCtx: ContextGeneratorParams) {
 			db,
 			dbSchema: schema,
 			githubApp,
-			cookies: sveltekitCtx.cookies
+			cookies: sveltekitCtx.cookies,
+			logger: logger.child({ requestId: req.headers.get('x-railway-request-id') })
 		};
 	};
 }
@@ -35,6 +37,7 @@ export function createCallerContext(ctx: ContextGeneratorParams) {
 		db,
 		dbSchema: schema,
 		githubApp,
-		cookies: ctx.cookies
+		cookies: ctx.cookies,
+		logger: logger.child({ requestId: ctx.request.headers.get('x-railway-request-id') })
 	} satisfies Context;
 }
