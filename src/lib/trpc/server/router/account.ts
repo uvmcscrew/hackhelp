@@ -9,6 +9,7 @@ import { RequestError } from 'octokit';
 import { githubApp, octokit } from '$lib/github';
 import { generateState } from 'arctic';
 import { githubOAuth } from '$lib/server/auth';
+import type { User } from '$lib/server/db/schema';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -29,23 +30,40 @@ async function hasPendingInvite(ctx: Context & { user: { username: string } }) {
  * @param username the username to update
  * @param db an instance of teh database client
  * @param githubApp an instance of the github apps api client
- * @throws {RequestError} if the user is not a member of the organization
  */
 export async function updateInvitedUser(
 	username: string,
 	db: { client: typeof dbClient; schema: typeof dbSchema },
 	githubApp: typeof import('$lib/github').githubApp
 ) {
-	const userIsMember = await githubApp.rest.orgs.getMembershipForUser({
-		username,
-		org: serverEnv.PUBLIC_GITHUB_ORGNAME
-	});
+	let result: User;
 
-	await db.client
-		.update(db.schema.user)
-		// If we get to this line, the user is a member of the organization. The api client will throw an error if they are not.
-		.set({ isOrgMember: true, isOrgAdmin: userIsMember.data.role === 'admin' })
-		.where(eq(db.schema.user.username, username));
+	try {
+		const userIsMember = await githubApp.rest.orgs.getMembershipForUser({
+			username,
+			org: serverEnv.PUBLIC_GITHUB_ORGNAME
+		});
+
+		result = (
+			await db.client
+				.update(db.schema.user)
+				// If we get to this line, the user is a member of the organization. The api client will throw an error if they are not.
+				.set({ isOrgMember: true, isOrgAdmin: userIsMember.data.role === 'admin' })
+				.where(eq(db.schema.user.username, username))
+				.returning()
+		)[0];
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	} catch (e) {
+		result = (
+			await db.client
+				.update(db.schema.user)
+				.set({ isOrgMember: false, isOrgAdmin: false })
+				.where(eq(db.schema.user.username, username))
+				.returning()
+		)[0];
+	}
+
+	return result;
 }
 
 export const accountRouter = t.router({
