@@ -25,7 +25,7 @@ function refreshInvite(opts?: BaseMutationProps) {
 		mutationKey: ['user_invite'],
 		mutationFn: () => trpcClient.account.refreshInvite.mutate(),
 		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: ['user_invite', 'user'] });
+			queryClient.invalidateQueries({ queryKey: ['user_invite', 'user', 'user_status'] });
 		},
 		onSuccess: opts?.onSuccess
 	});

@@ -70,6 +70,11 @@ export const accountRouter = t.router({
 		return { user: ctx.user };
 	}),
 	whoamiWithStatus: protectedProcedure.query(async ({ ctx }) => {
+		await updateInvitedUser(
+			ctx.user.username,
+			{ client: ctx.db, schema: ctx.dbSchema },
+			ctx.githubApp
+		);
 		const [userStatus] = await ctx.db
 			.select()
 			.from(ctx.dbSchema.person)
@@ -121,16 +126,13 @@ export const accountRouter = t.router({
 		);
 		if (userstatus.isOrgMember) {
 			trpclogger.info('User is already a member of the organization');
-			throw new TRPCError({
-				message: 'You are already a member of the organization',
-				code: 'UNAUTHORIZED'
-			});
+			return { refreshed: true, isMember: true };
 		}
 
 		const pendingInvite = await hasPendingInvite(ctx);
 		if (!pendingInvite) {
 			trpclogger.warn('User does not have a pending invite');
-			throw new TRPCError({ message: 'You do not have a pending invite', code: 'UNAUTHORIZED' });
+			return { refreshed: false, isMember: false };
 		}
 
 		const orgmembers = await ctx.githubApp.rest.orgs.listMembers({

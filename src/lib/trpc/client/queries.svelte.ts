@@ -21,7 +21,8 @@ function queryWhoamiWithStatus(initialData: RouterOutputs['account']['whoamiWith
 function hasPendingInvite() {
 	return createQuery({
 		queryKey: ['user_invite', 'user'],
-		queryFn: () => trpcClient.account.hasPendingInvite.query()
+		queryFn: () => trpcClient.account.hasPendingInvite.query(),
+		refetchOnWindowFocus: false
 	});
 }
 
