@@ -10,17 +10,17 @@ function queryWhoami(initialData: RouterOutputs['account']['whoami']) {
 	});
 }
 
-function queryWhoamiWithStatus(initialData: RouterOutputs['account']['whoamiWithStatus']) {
+function queryWhoamiWithProfile(initialData: RouterOutputs['account']['whoamiWithProfile']) {
 	return createQuery({
-		queryKey: ['user', 'user_status'],
-		queryFn: () => trpcClient.account.whoamiWithStatus.query(),
+		queryKey: ['user', 'profile'],
+		queryFn: () => trpcClient.account.whoamiWithProfile.query(),
 		initialData: initialData
 	});
 }
 
 function hasPendingInvite() {
 	return createQuery({
-		queryKey: ['user_invite', 'user'],
+		queryKey: ['user', 'invite'],
 		queryFn: () => trpcClient.account.hasPendingInvite.query(),
 		refetchOnWindowFocus: false
 	});
@@ -77,7 +77,7 @@ function adminGetTeamById(
 
 export const queries = {
 	queryWhoami,
-	queryWhoamiWithStatus,
+	queryWhoamiWithProfile,
 	hasPendingInvite,
 	adminListAllUsers,
 	adminGetUserById,

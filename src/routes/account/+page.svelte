@@ -26,7 +26,7 @@
 
 	let pgProps: PageProps = $props();
 
-	let accountWithStatus = queries.queryWhoamiWithStatus(pgProps.data);
+	let accountWithStatus = queries.queryWhoamiWithProfile(pgProps.data);
 	let hasInvite = queries.hasPendingInvite();
 
 	let inviteRefreshLoading = $state(false);

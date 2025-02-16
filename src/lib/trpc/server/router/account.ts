@@ -69,7 +69,7 @@ export const accountRouter = t.router({
 	whoami: protectedProcedure.query(({ ctx }) => {
 		return { user: ctx.user };
 	}),
-	whoamiWithStatus: protectedProcedure.query(async ({ ctx }) => {
+	whoamiWithProfile: protectedProcedure.query(async ({ ctx }) => {
 		await updateInvitedUser(
 			ctx.user.username,
 			{ client: ctx.db, schema: ctx.dbSchema },
