@@ -134,10 +134,17 @@ const teamRouter = t.router({
 });
 
 // #############################################
+// #              TICKET ROUTER                #
+// #############################################
+
+const ticketRouter = t.router({});
+
+// #############################################
 // #               ADMIN ROUTER                #
 // #############################################
 
 export const adminRouter = t.router({
 	users: userRouter,
-	teams: teamRouter
+	teams: teamRouter,
+	tickets: ticketRouter
 });
