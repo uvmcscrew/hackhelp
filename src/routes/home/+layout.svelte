@@ -9,23 +9,26 @@
 	import { page } from '$app/state';
 	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
 	import MadeWith from '$lib/components/MadeWith.svelte';
+	import queries from '$lib/trpc/client/queries.svelte';
+	import Logo from '$lib/components/Logo.svelte';
 
 	let { data, children }: LayoutProps = $props();
+
+	const account = queries.queryWhoami(data);
 
 	const links = [
 		{
 			href: '/home',
 			text: 'Dashboard'
-		},
-		{
-			href: '/home/tickets',
-			text: 'Tickets'
-		},
-		{
-			href: '/home/analytics',
-			text: 'Analytics'
 		}
 	];
+
+	if ($account.data.user.teamId !== null) {
+		links.push({
+			href: '/home/tickets',
+			text: 'Tickets'
+		});
+	}
 </script>
 
 <header
