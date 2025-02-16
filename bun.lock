@@ -4,6 +4,9 @@
     "": {
       "name": "hackhelp",
       "dependencies": {
+        "@fontsource-variable/inter": "^5.1.1",
+        "@fontsource-variable/inter-tight": "^5.1.1",
+        "@fontsource-variable/lora": "^5.1.1",
         "@octokit/webhooks": "^13.6.0",
         "@oslojs/crypto": "^1.0.1",
         "@oslojs/encoding": "^1.1.0",
@@ -160,6 +163,12 @@
     "@floating-ui/dom": ["@floating-ui/dom@1.6.13", "", { "dependencies": { "@floating-ui/core": "^1.6.0", "@floating-ui/utils": "^0.2.9" } }, "sha512-umqzocjDgNRGTuO7Q8CU32dkHkECqI8ZdMZ5Swb6QAM0t5rnlrN3lGo1hdpscRd3WS8T6DKYK4ephgIH9iRh3w=="],
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.9", "", {}, "sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg=="],
+
+    "@fontsource-variable/inter": ["@fontsource-variable/inter@5.1.1", "", {}, "sha512-OpXFTmiH6tHkYijMvQTycFKBLK4X+SRV6tet1m4YOUH7SzIIlMqDja+ocDtiCA72UthBH/vF+3ZtlMr2rN/wIw=="],
+
+    "@fontsource-variable/inter-tight": ["@fontsource-variable/inter-tight@5.1.1", "", {}, "sha512-uPBgjWbkau/7q/IGu/offWoaQqx9dky6shbqQFsBUsoosG6rhrX7azqh0tnrENpgjoE+CwgEotQ8eZaha1ni8w=="],
+
+    "@fontsource-variable/lora": ["@fontsource-variable/lora@5.1.1", "", {}, "sha512-renGhPji2o39E9CIdj1vAGwrV66IS7uz1AU/8DWC/zE2QdC2dA7mbaM/Q8gAfmVhow0Jyt4NPP25XrO5NQa8qg=="],
 
     "@gcornut/valibot-json-schema": ["@gcornut/valibot-json-schema@0.31.0", "", { "dependencies": { "valibot": "~0.31.0" }, "optionalDependencies": { "@types/json-schema": ">= 7.0.14", "esbuild": ">= 0.18.20", "esbuild-runner": ">= 2.2.2" }, "bin": { "valibot-json-schema": "bin/index.js" } }, "sha512-3xGptCurm23e7nuPQkdrE5rEs1FeTPHhAUsBuwwqG4/YeZLwJOoYZv+fmsppUEfo5y9lzUwNQrNqLS/q7HMc7g=="],
 

@@ -70,7 +70,8 @@ const config: Config = {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			fontFamily: {
-				sans: [...defaultTheme.fontFamily.sans]
+				sans: ['Inter Variable', ...defaultTheme.fontFamily.sans],
+				serif: ['Lora Variable', ...defaultTheme.fontFamily.serif]
 			},
 			keyframes: {
 				'accordion-down': {

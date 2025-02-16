@@ -37,6 +37,9 @@
 		"vite": "^6.0.11"
 	},
 	"dependencies": {
+		"@fontsource-variable/inter": "^5.1.1",
+		"@fontsource-variable/inter-tight": "^5.1.1",
+		"@fontsource-variable/lora": "^5.1.1",
 		"@octokit/webhooks": "^13.6.0",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",

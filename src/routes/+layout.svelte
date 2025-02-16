@@ -18,6 +18,9 @@
 	import posthog from 'posthog-js';
 	import { onMount } from 'svelte';
 
+	import '@fontsource-variable/lora';
+	import '@fontsource-variable/inter';
+
 	onMount(() => {
 		if (browser && !dev) {
 			posthog.init('phc_rpv1K3BqyoUeD0AWDrilTJFebDceDdLHVnihs4Oi88x', {
