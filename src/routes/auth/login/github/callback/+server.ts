@@ -98,12 +98,12 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	apiLogger.info('Checking competitor list', { user: githubUserResponse.data.login });
 	const [competitor] = await db
 		.select({
-			username: schema.person.username,
-			isWhitelisted: schema.person.isWhitelisted,
-			isBanned: schema.person.isBanned
+			username: schema.profile.username,
+			isWhitelisted: schema.profile.isWhitelisted,
+			isBanned: schema.profile.isBanned
 		})
-		.from(schema.person)
-		.where(eq(schema.person.username, githubUserResponse.data.login.toLowerCase()));
+		.from(schema.profile)
+		.where(eq(schema.profile.username, githubUserResponse.data.login.toLowerCase()));
 
 	if (competitor) {
 		apiLogger.info('Competitor Found', { competitor });
@@ -122,7 +122,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 		apiLogger.info('User not found in competitors, inserting', {
 			user: githubUserResponse.data.login
 		});
-		await db.insert(schema.person).values({
+		await db.insert(schema.profile).values({
 			username: githubUserResponse.data.login.toLowerCase(),
 			role: userIsAdmin ? 'admin' : 'competitor',
 			// Admins should be automatically whitelisted
@@ -160,12 +160,12 @@ export async function GET(event: RequestEvent): Promise<Response> {
 			.where(eq(schema.user.id, existingUser.id));
 
 		await db
-			.update(schema.person)
+			.update(schema.profile)
 			.set({
 				linkedUserId: existingUser.id,
 				isWhitelisted: userIsAdmin ? true : competitor?.isWhitelisted
 			})
-			.where(eq(schema.person.username, githubUserResponse.data.login.toLowerCase()));
+			.where(eq(schema.profile.username, githubUserResponse.data.login.toLowerCase()));
 
 		apiLogger.info('Known User Logged In', {
 			username: githubUserResponse.data.login,
@@ -200,9 +200,9 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 	// Link competitor to user
 	await db
-		.update(schema.person)
+		.update(schema.profile)
 		.set({ linkedUserId: user.id })
-		.where(eq(schema.person.username, githubUserResponse.data.login.toLowerCase()));
+		.where(eq(schema.profile.username, githubUserResponse.data.login.toLowerCase()));
 
 	const sessionToken = generateSessionToken();
 	const session = await createSession(sessionToken, user.id);

@@ -16,11 +16,11 @@ export const user = pgTable('user', {
 
 export type PersonRole = 'admin' | 'mentor' | 'competitor';
 
-export const person = pgTable('person', {
+export const profile = pgTable('profile', {
 	username: text('username').notNull().primaryKey(),
 	role: text('role').$type<PersonRole>().default('competitor'),
 	givenName: text('given_name'),
-	eduEmail: text('edu_email'),
+	email: text('email'),
 	isWhitelisted: boolean().default(false).notNull(),
 	isBanned: boolean().default(false).notNull(),
 	linkedUserId: text('linked_user_id').references(() => user.id)

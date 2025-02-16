@@ -36,15 +36,15 @@
 			{#each $users.data.users as user}
 				<Table.Row>
 					<Table.Cell class="font-medium"
-						>{user.person && user.person.givenName
-							? user.person.givenName
+						>{user.profile && user.profile.givenName
+							? user.profile.givenName
 							: `${user.user.fullName} (GitHub)`}</Table.Cell
 					>
 					<Table.Cell>{user.user.username}</Table.Cell>
-					<Table.Cell>{user.person?.eduEmail}</Table.Cell>
-					<Table.Cell>{user.person?.role ?? 'unknown'}</Table.Cell>
+					<Table.Cell>{user.profile?.email}</Table.Cell>
+					<Table.Cell>{user.profile?.role ?? 'unknown'}</Table.Cell>
 					<Table.Cell>
-						{#if user.person?.isWhitelisted}
+						{#if user.profile?.isWhitelisted}
 							<CheckIcon class="h-5 w-5 text-green-500" />
 						{:else}
 							<XIcon class="h-5 w-5 text-red-500" />

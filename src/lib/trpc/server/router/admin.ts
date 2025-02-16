@@ -12,7 +12,7 @@ const userRouter = t.router({
 		const users = await ctx.db
 			.select()
 			.from(ctx.dbSchema.user)
-			.leftJoin(ctx.dbSchema.person, eq(ctx.dbSchema.user.id, ctx.dbSchema.person.linkedUserId));
+			.leftJoin(ctx.dbSchema.profile, eq(ctx.dbSchema.user.id, ctx.dbSchema.profile.linkedUserId));
 		return { users };
 	}),
 	getById: adminProcedure
@@ -22,7 +22,10 @@ const userRouter = t.router({
 				.select()
 				.from(ctx.dbSchema.user)
 				.where(eq(ctx.dbSchema.user.id, input.userId))
-				.leftJoin(ctx.dbSchema.person, eq(ctx.dbSchema.user.id, ctx.dbSchema.person.linkedUserId));
+				.leftJoin(
+					ctx.dbSchema.profile,
+					eq(ctx.dbSchema.user.id, ctx.dbSchema.profile.linkedUserId)
+				);
 			if (!user) {
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
 			}
@@ -35,7 +38,10 @@ const userRouter = t.router({
 				.select()
 				.from(ctx.dbSchema.user)
 				.where(eq(ctx.dbSchema.user.username, input.userName))
-				.leftJoin(ctx.dbSchema.person, eq(ctx.dbSchema.user.id, ctx.dbSchema.person.linkedUserId));
+				.leftJoin(
+					ctx.dbSchema.profile,
+					eq(ctx.dbSchema.user.id, ctx.dbSchema.profile.linkedUserId)
+				);
 			if (!user) {
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
 			}
