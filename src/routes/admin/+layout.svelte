@@ -9,6 +9,7 @@
 	import { page } from '$app/state';
 	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
 	import MadeWith from '$lib/components/MadeWith.svelte';
+	import Logo from '$lib/components/Logo.svelte';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -39,13 +40,10 @@
 <header
 	class="bg-background sticky top-0 flex h-16 w-screen items-center justify-between gap-4 border-b px-4 md:px-6"
 >
+	<Logo />
 	<nav
 		class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6"
 	>
-		<a href="##" class="flex items-center gap-2 text-lg font-semibold md:text-base">
-			<FireExtinguisher class="h-6 w-6" />
-			<span class="sr-only">HackHelp</span>
-		</a>
 		{#each links as link}
 			<a
 				href={link.href}
