@@ -14,7 +14,6 @@
 	const { user }: Props = $props();
 
 	let accountData = queries.queryWhoami({ user });
-
 	const image = `https://avatars.githubusercontent.com/u/${$accountData.data.user.githubId}`;
 </script>
 
@@ -23,7 +22,7 @@
 		class={buttonVariants({ variant: 'secondary', size: 'icon', class: 'rounded-full' })}
 	>
 		<Avatar.Root>
-			<Avatar.Image src={image} alt="User avatar" />
+			<!-- <Avatar.Image src={`/favicon.ico`} alt="User avatar" /> -->
 			<Avatar.Fallback><CircleUser class="h-5 w-5" /></Avatar.Fallback>
 		</Avatar.Root>
 
