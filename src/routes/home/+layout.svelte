@@ -6,7 +6,6 @@
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import type { LayoutProps } from './$types';
 	import UserDropdown from '$lib/components/UserDropdown.svelte';
-	import { page } from '$app/state';
 	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import queries from '$lib/trpc/client/queries.svelte';
@@ -49,7 +48,8 @@
 			</a>
 		{/each}
 	</nav> -->
-	<Sheet.Root>
+
+	<!-- <Sheet.Root>
 		<Sheet.Trigger
 			class={buttonVariants({ variant: 'outline', size: 'icon', class: 'shrink-0 md:hidden' })}
 		>
@@ -79,13 +79,13 @@
 				{/each}
 			</nav>
 		</Sheet.Content>
-	</Sheet.Root>
+	</Sheet.Root> -->
 	<div class="flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
 		<ColorModeButton />
 		<UserDropdown user={data.user} />
 	</div>
 </header>
 {@render children()}
-<footer class=" bg-background border-t">
+<footer class=" bg-background flex h-8 justify-center border-t">
 	<MadeWith />
 </footer>
