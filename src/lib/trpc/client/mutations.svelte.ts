@@ -1,5 +1,6 @@
 import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 import { trpcClient } from './index.svelte';
+import type { RouterInputs } from '../server';
 
 export type BaseMutationProps = {
 	onSuccess?: () => void;
@@ -28,9 +29,22 @@ function refreshInvite(opts?: BaseMutationProps) {
 	});
 }
 
+function competitorCreateTeam(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['competitor_team'],
+		mutationFn: (data: RouterInputs['competitor']['team']['create']) =>
+			trpcClient.competitor.team.create.mutate(data),
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['competitor_team'] }),
+		onSuccess: opts?.onSuccess
+	});
+}
+
 export const mutations = {
 	requestInvite,
-	refreshInvite
+	refreshInvite,
+	competitorCreateTeam
 };
 
 export default mutations;

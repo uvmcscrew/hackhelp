@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { serverEnv } from '$lib/env/server';
+import { createTeamSchema } from '$lib/schemas';
 
 /**
  * This file contains most actions that a competitor will need. It is broken out into multiple routers depending on what the different actions
@@ -79,7 +80,36 @@ const teamRouter = t.router({
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
 			}
 			return { team };
-		})
+		}),
+	create: protectedProcedure.input(createTeamSchema).mutation(async ({ ctx, input }) => {
+		const ghTeam = await ctx.githubApp.rest.teams.create({
+			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+			name: input.name,
+			description: input.description
+		});
+
+		const [team] = await ctx.db
+			.insert(ctx.dbSchema.team)
+			.values({
+				name: input.name,
+				githubId: ghTeam.data.id,
+				githubSlug: ghTeam.data.slug
+			})
+			.returning();
+
+		await ctx.db
+			.update(ctx.dbSchema.user)
+			.set({ teamId: team.id })
+			.where(eq(ctx.dbSchema.user.id, ctx.user.id));
+
+		await ctx.githubApp.rest.teams.addOrUpdateMembershipForUserInOrg({
+			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+			team_slug: team.githubSlug,
+			username: ctx.user.username
+		});
+
+		return { team };
+	})
 });
 
 // #############################################
@@ -92,7 +122,7 @@ const ticketRouter = t.router({});
 // #            COMPETITOR ROUTER              #
 // #############################################
 
-export const adminRouter = t.router({
+export const competitorRouter = t.router({
 	tickets: ticketRouter,
 	team: teamRouter
 });
