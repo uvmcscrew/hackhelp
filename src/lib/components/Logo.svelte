@@ -1,4 +1,4 @@
-<span class="text-uvm-green dark:text-uvm-fog inline-flex items-center">
+<span class="text-uvm-green dark:text-uvm-fog inline-flex items-center rounded p-2">
 	<svg
 		version="1.1"
 		id="Layer_1"
