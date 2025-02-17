@@ -9,7 +9,11 @@ export const load = async (event: ServerLoadEvent) => {
 		return redirect(302, '/account');
 	}
 
+	if (event.locals.user.teamId === null) {
+		return redirect(302, '/join-team');
+	}
+
 	return {
-		user: event.locals.user
+		user: { ...event.locals.user, teamId: event.locals.user.teamId }
 	};
 };
