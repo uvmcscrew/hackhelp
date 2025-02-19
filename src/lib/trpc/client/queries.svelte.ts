@@ -75,6 +75,14 @@ function adminGetTeamById(
 	});
 }
 
+function competitorGetMyTeam(initialData?: RouterOutputs['competitor']['team']['get']) {
+	return createQuery({
+		queryKey: ['competitor', 'team'],
+		queryFn: () => trpcClient.competitor.team.get.query(),
+		initialData
+	});
+}
+
 export const queries = {
 	queryWhoami,
 	queryWhoamiWithProfile,
@@ -83,7 +91,8 @@ export const queries = {
 	adminGetUserById,
 	adminGetUserByUsername,
 	adminGetAllTeams,
-	adminGetTeamById
+	adminGetTeamById,
+	competitorGetMyTeam
 };
 
 export default queries;
