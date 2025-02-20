@@ -75,7 +75,7 @@ function adminGetTeamById(
 	});
 }
 
-function competitorGetMyTeam(initialData?: RouterOutputs['competitor']['team']['get']) {
+function competitorGetMyTeam(initialData: RouterOutputs['competitor']['team']['get']) {
 	return createQuery({
 		queryKey: ['competitor', 'team'],
 		queryFn: () => trpcClient.competitor.team.get.query(),

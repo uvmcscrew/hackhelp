@@ -41,10 +41,23 @@ function competitorCreateTeam(opts?: BaseMutationProps) {
 	});
 }
 
+function competitorJoinTeam(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['competitor_team'],
+		mutationFn: (data: RouterInputs['competitor']['team']['joinTeam']) =>
+			trpcClient.competitor.team.joinTeam.mutate(data),
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['competitor_team'] }),
+		onSuccess: opts?.onSuccess
+	});
+}
+
 export const mutations = {
 	requestInvite,
 	refreshInvite,
-	competitorCreateTeam
+	competitorCreateTeam,
+	competitorJoinTeam
 };
 
 export default mutations;

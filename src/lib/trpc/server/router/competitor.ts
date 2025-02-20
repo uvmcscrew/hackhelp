@@ -109,6 +109,53 @@ const teamRouter = t.router({
 		});
 
 		return { team };
+	}),
+	joinTeam: protectedProcedure
+		.input(z.object({ teamJoinCode: z.string().nonempty().max(6).min(6) }))
+		.mutation(async ({ ctx, input }) => {
+			if (ctx.user.teamId !== null) {
+				throw new TRPCError({ code: 'FORBIDDEN', message: 'User is already in a team' });
+			}
+
+			const [team] = await ctx.db
+				.select()
+				.from(ctx.dbSchema.team)
+				.where(eq(ctx.dbSchema.team.id, input.teamJoinCode));
+
+			if (!team) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
+			}
+
+			if (!team.canJoin) {
+				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team is not accepting new members' });
+			}
+
+			await ctx.db
+				.update(ctx.dbSchema.user)
+				.set({ teamId: team.id })
+				.where(eq(ctx.dbSchema.user.id, ctx.user.id));
+
+			await ctx.githubApp.rest.teams.addOrUpdateMembershipForUserInOrg({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				team_slug: team.githubSlug,
+				username: ctx.user.username
+			});
+
+			return { team };
+		}),
+	leaveTeam: teamProcedure.mutation(async ({ ctx }) => {
+		await ctx.db
+			.update(ctx.dbSchema.user)
+			.set({ teamId: null })
+			.where(eq(ctx.dbSchema.user.id, ctx.user.id));
+
+		await ctx.githubApp.rest.teams.removeMembershipForUserInOrg({
+			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+			team_slug: ctx.team.githubSlug,
+			username: ctx.user.username
+		});
+
+		return { team: ctx.team };
 	})
 });
 
