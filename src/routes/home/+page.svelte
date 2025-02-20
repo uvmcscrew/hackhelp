@@ -1,17 +1,21 @@
 <script lang="ts">
 	import queries from '$lib/trpc/client/queries.svelte';
 	import type { PageProps } from './$types';
-	import TeamCard from './TeamCard.svelte';
+	import PromptCard from './prompt-card.svelte';
+	import TeamCard from './team-card.svelte';
+	import TicketTableCard from './ticket-table-card.svelte';
 
 	let { data }: PageProps = $props();
-
-	const account = queries.queryWhoami(data);
 </script>
 
 <svelte:head>
 	<title>Competitor Home</title>
 </svelte:head>
 
-<div class="grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-3 grid-rows-2 p-2">
+<div
+	class=" bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-3 grid-rows-2 gap-2 p-2"
+>
 	<TeamCard teamData={data.team} />
+	<PromptCard />
+	<TicketTableCard />
 </div>
