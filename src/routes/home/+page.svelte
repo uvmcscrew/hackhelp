@@ -1,7 +1,7 @@
 <script lang="ts">
 	import queries from '$lib/trpc/client/queries.svelte';
 	import type { PageProps } from './$types';
-	import PromptCard from './prompt-card.svelte';
+	import BottomLeftCard from './ bottomleft-card.svelte';
 	import TeamCard from './team-card.svelte';
 	import TicketTableCard from './ticket-table-card.svelte';
 
@@ -16,6 +16,6 @@
 	class=" bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-3 grid-rows-2 gap-2 p-2"
 >
 	<TeamCard teamData={data.team} />
-	<PromptCard />
+	<BottomLeftCard />
 	<TicketTableCard />
 </div>
