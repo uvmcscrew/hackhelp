@@ -1,7 +1,7 @@
 <svelte:options runes={true} />
 
 <script lang="ts">
-	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import * as Tabs from '$lib/components/ui/tabs';
 	import JoinExistingForm from './JoinExistingForm.svelte';
 	import Menu from 'lucide-svelte/icons/menu';
 	import FireExtinguisher from 'lucide-svelte/icons/fire-extinguisher';
