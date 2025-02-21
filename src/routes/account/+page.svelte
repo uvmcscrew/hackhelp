@@ -21,7 +21,7 @@
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import { toast } from 'svelte-sonner';
 	import MadeWith from '$lib/components/MadeWith.svelte';
-	import { delay } from '$lib/utils';
+	import { delay, posthogHandler } from '$lib/utils';
 	import posthog from 'posthog-js';
 
 	let pgProps: PageProps = $props();
@@ -46,12 +46,14 @@
 
 	let refreshInvite = mutations.refreshInvite();
 
-	posthog.identify($accountWithStatus.data.user.username, {
-		id: $accountWithStatus.data.user.id,
-		username: $accountWithStatus.data.user.username,
-		isOrgAdmin: $accountWithStatus.data.user.isOrgAdmin,
-		isOrgMember: $accountWithStatus.data.user.isOrgMember
-	});
+	posthogHandler((posthog) =>
+		posthog.identify($accountWithStatus.data.user.username, {
+			id: $accountWithStatus.data.user.id,
+			username: $accountWithStatus.data.user.username,
+			isOrgAdmin: $accountWithStatus.data.user.isOrgAdmin,
+			isOrgMember: $accountWithStatus.data.user.isOrgMember
+		})
+	);
 </script>
 
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">

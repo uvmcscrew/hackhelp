@@ -4,18 +4,20 @@
 	import BottomLeftCard from './ bottomleft-card.svelte';
 	import TeamCard from './team-card.svelte';
 	import TicketTableCard from './ticket-table-card.svelte';
-	import posthog from 'posthog-js';
+	import { posthogHandler } from '$lib/utils';
 
 	let { data }: PageProps = $props();
 
 	let account = queries.queryWhoami(data);
 
-	posthog.identify($account.data.user.username, {
-		id: $account.data.user.id,
-		username: $account.data.user.username,
-		isOrgAdmin: $account.data.user.isOrgAdmin,
-		isOrgMember: $account.data.user.isOrgMember
-	});
+	posthogHandler((posthog) =>
+		posthog.identify($account.data.user.username, {
+			id: $account.data.user.id,
+			username: $account.data.user.username,
+			isOrgAdmin: $account.data.user.isOrgAdmin,
+			isOrgMember: $account.data.user.isOrgMember
+		})
+	);
 </script>
 
 <svelte:head>
