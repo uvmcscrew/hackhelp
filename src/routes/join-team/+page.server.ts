@@ -12,7 +12,7 @@ export const load = (async () => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	default: async (event) => {
+	create: async (event) => {
 		const form = await superValidate(event, zod(createTeamSchema));
 		if (!form.valid) {
 			return fail(400, {

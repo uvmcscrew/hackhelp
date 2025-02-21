@@ -21,7 +21,7 @@
 		<Card.Title>Create a team</Card.Title>
 	</Card.Header>
 	<Card.Content>
-		<form method="POST" use:enhance>
+		<form method="POST" use:enhance action="/join-team?/create">
 			<Form.Field {form} name="name">
 				<Form.Control>
 					{#snippet children({ props })}
