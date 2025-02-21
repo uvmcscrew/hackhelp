@@ -17,7 +17,8 @@
 		"db:studio": "drizzle-kit studio",
 		"db:gen": "drizzle-kit generate",
 		"sv": "sv",
-		"ui": "shadcn-svelte"
+		"ui": "shadcn-svelte",
+		"clean": "rm -rf .svelte-kit build"
 	},
 	"devDependencies": {
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
