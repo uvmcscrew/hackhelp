@@ -86,7 +86,12 @@
 		<UserDropdown user={data.user} />
 	</div>
 </header>
-{@render children()}
-<footer class="border-t-border mt-16 flex w-screen justify-center">
+<div
+	class=" bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-3 grid-rows-2 gap-2 p-2"
+>
+	{@render children()}
+</div>
+
+<footer class=" bg-background flex h-8 justify-center border-t">
 	<MadeWith />
 </footer>
