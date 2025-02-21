@@ -2,7 +2,7 @@
 
 <script lang="ts">
 	import * as Tabs from '$lib/components/ui/tabs';
-	import JoinExistingForm from './JoinExistingForm.svelte';
+	import JoinExistingForm from './join-existing-team.svelte';
 	import Menu from 'lucide-svelte/icons/menu';
 	import FireExtinguisher from 'lucide-svelte/icons/fire-extinguisher';
 
