@@ -14,6 +14,7 @@
 
 	import '@fontsource-variable/lora';
 	import '@fontsource-variable/inter';
+	import '@fontsource-variable/jetbrains-mono';
 
 	let { children } = $props();
 

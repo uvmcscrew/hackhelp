@@ -3,7 +3,8 @@
 	import SvelteLogo from './SvelteLogo.svelte';
 </script>
 
-<span class="text-muted-foreground inline-flex items-center justify-center text-center text-sm"
+<span
+	class="text-muted-foreground inline-flex items-center justify-center text-center font-mono text-sm"
 	>HackHelp made with <HeartIcon class="h-6 w-6 fill-red-600 stroke-3 p-1 text-red-600" /> &
 	<SvelteLogo class="h-[1.7rem] w-[1.7rem] p-1" />
 	by

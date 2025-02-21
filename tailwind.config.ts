@@ -71,7 +71,8 @@ const config: Config = {
 			},
 			fontFamily: {
 				sans: ['Inter Variable', ...defaultTheme.fontFamily.sans],
-				serif: ['Lora Variable', ...defaultTheme.fontFamily.serif]
+				serif: ['Lora Variable', ...defaultTheme.fontFamily.serif],
+				mono: ['JetBrains Mono Variable', ...defaultTheme.fontFamily.mono]
 			},
 			keyframes: {
 				'accordion-down': {
