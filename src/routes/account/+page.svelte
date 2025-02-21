@@ -15,7 +15,6 @@
 	import type { PageProps } from './$types';
 
 	import { goto } from '$app/navigation';
-	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import mutations from '$lib/trpc/client/mutations.svelte';
 	import { clientEnv } from '$lib/env/client';

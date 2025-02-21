@@ -4,6 +4,10 @@
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import CardHeader from '$lib/components/ui/card/card-header.svelte';
 	import CardTitle from '$lib/components/ui/card/card-title.svelte';
+	import posthog from 'posthog-js';
+
+	// Always reset on the sign in page to ensure we don't track the wrong user
+	posthog.reset();
 </script>
 
 <CardHeader
