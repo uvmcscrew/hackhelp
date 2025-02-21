@@ -7,6 +7,7 @@
 	import type { User } from '$lib/server/db/schema';
 	import { goto } from '$app/navigation';
 	import { queries } from '$lib/trpc/client/queries.svelte';
+	import posthog from 'posthog-js';
 
 	type Props = {
 		user: User;
@@ -51,6 +52,7 @@
 					{...props}
 					onclick={async (e) => {
 						await fetch('/auth/logout', { method: 'POST' });
+						posthog.reset();
 						await goto('/auth/login');
 					}}>Logout</button
 				>

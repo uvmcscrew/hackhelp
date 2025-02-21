@@ -23,6 +23,7 @@
 	import { toast } from 'svelte-sonner';
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import { delay } from '$lib/utils';
+	import posthog from 'posthog-js';
 
 	let pgProps: PageProps = $props();
 
@@ -45,6 +46,11 @@
 	});
 
 	let refreshInvite = mutations.refreshInvite();
+
+	posthog.identify($accountWithStatus.data.user.username, {
+		id: $accountWithStatus.data.user.id,
+		username: $accountWithStatus.data.user.username
+	});
 </script>
 
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
@@ -86,6 +92,7 @@
 					class="hover:cursor-pointer"
 					onclick={async () => {
 						await fetch('/auth/logout', { method: 'POST' });
+						posthog.reset();
 						await goto('/auth/login');
 					}}><DoorOpen class="h-8 w-8" />Sign Out</Button
 				>

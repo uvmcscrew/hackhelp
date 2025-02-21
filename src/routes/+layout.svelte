@@ -10,23 +10,18 @@
 	import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 	import { toast } from 'svelte-sonner';
 	import posthog from 'posthog-js';
-	import { onMount } from 'svelte';
 
 	import '@fontsource-variable/lora';
 	import '@fontsource-variable/inter';
 	import '@fontsource-variable/jetbrains-mono';
+	import { afterNavigate, beforeNavigate } from '$app/navigation';
 
 	let { children } = $props();
 
-	onMount(() => {
-		if (browser && !dev) {
-			posthog.init('phc_rpv1K3BqyoUeD0AWDrilTJFebDceDdLHVnihs4Oi88x', {
-				api_host: 'https://us.i.posthog.com',
-				person_profiles: 'identified_only' // or 'always' to create profiles for anonymous users as well
-			});
-		}
-		return;
-	});
+	if (browser && !dev) {
+		beforeNavigate(() => posthog.capture('$pageleave'));
+		afterNavigate(() => posthog.capture('$pageview'));
+	}
 
 	const queryCache = new QueryCache({
 		onError: (error, query) => {
