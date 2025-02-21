@@ -49,7 +49,9 @@
 
 	posthog.identify($accountWithStatus.data.user.username, {
 		id: $accountWithStatus.data.user.id,
-		username: $accountWithStatus.data.user.username
+		username: $accountWithStatus.data.user.username,
+		isOrgAdmin: $accountWithStatus.data.user.isOrgAdmin,
+		isOrgMember: $accountWithStatus.data.user.isOrgMember
 	});
 </script>
 

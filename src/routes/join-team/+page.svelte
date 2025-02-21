@@ -5,11 +5,22 @@
 	import type { PageProps } from './$types';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import queries from '$lib/trpc/client/queries.svelte';
+	import posthog from 'posthog-js';
 
 	let { data }: PageProps = $props();
 
 	const form = superForm(data.createTeamForm);
 	const { form: formData, enhance, submitting } = form;
+
+	let account = queries.queryWhoami(data);
+
+	posthog.identify($account.data.user.username, {
+		id: $account.data.user.id,
+		username: $account.data.user.username,
+		isOrgAdmin: $account.data.user.isOrgAdmin,
+		isOrgMember: $account.data.user.isOrgMember
+	});
 </script>
 
 <svelte:head>
