@@ -9,18 +9,18 @@
 	import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client';
 	import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 	import { toast } from 'svelte-sonner';
-	import posthog from 'posthog-js';
 
 	import '@fontsource-variable/lora';
 	import '@fontsource-variable/inter';
 	import '@fontsource-variable/jetbrains-mono';
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { posthogHandler } from '$lib/utils';
 
 	let { children } = $props();
 
 	if (browser && !dev) {
-		beforeNavigate(() => posthog.capture('$pageleave'));
-		afterNavigate(() => posthog.capture('$pageview'));
+		beforeNavigate(() => posthogHandler((posthog) => posthog.capture('$pageleave')));
+		afterNavigate(() => posthogHandler((posthog) => posthog.capture('$pageview')));
 	}
 
 	const queryCache = new QueryCache({

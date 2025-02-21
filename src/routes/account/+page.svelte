@@ -22,7 +22,6 @@
 	import { toast } from 'svelte-sonner';
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import { delay, posthogHandler } from '$lib/utils';
-	import posthog from 'posthog-js';
 
 	let pgProps: PageProps = $props();
 
@@ -95,7 +94,7 @@
 					class="hover:cursor-pointer"
 					onclick={async () => {
 						await fetch('/auth/logout', { method: 'POST' });
-						posthog.reset();
+						posthogHandler((posthog) => posthog.reset());
 						await goto('/auth/login');
 					}}><DoorOpen class="h-8 w-8" />Sign Out</Button
 				>

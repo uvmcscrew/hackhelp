@@ -1,7 +1,7 @@
 import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 import { trpcClient } from './index.svelte';
 import type { RouterInputs } from '../server';
-import posthog from 'posthog-js';
+import { posthogHandler } from '$lib/utils';
 
 export type BaseMutationProps = {
 	onSuccess?: () => void;
@@ -14,7 +14,7 @@ function requestInvite(opts?: BaseMutationProps) {
 		mutationKey: ['user_invite'],
 		mutationFn: () => trpcClient.account.sendInvite.mutate(),
 		onMutate: async () => {
-			posthog.capture('Invite Requested');
+			posthogHandler((ph) => ph.capture('Invite Requested'));
 		},
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['user_invite'] }),
 		onSuccess: opts?.onSuccess
@@ -28,7 +28,7 @@ function refreshInvite(opts?: BaseMutationProps) {
 		mutationKey: ['user_invite'],
 		mutationFn: () => trpcClient.account.refreshInvite.mutate(),
 		onMutate: async () => {
-			posthog.capture('Invite Refreshed');
+			posthogHandler((ph) => ph.capture('Invite Refreshed'));
 		},
 		onSettled: async () =>
 			await queryClient.invalidateQueries({ queryKey: ['user_invite', 'user', 'user_status'] }),
@@ -44,7 +44,7 @@ function competitorCreateTeam(opts?: BaseMutationProps) {
 		mutationFn: (data: RouterInputs['competitor']['team']['create']) =>
 			trpcClient.competitor.team.create.mutate(data),
 		onMutate: async () => {
-			posthog.capture('Competitor: Team Created');
+			posthogHandler((ph) => ph.capture('Competitor: Team Create Requested'));
 		},
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['competitor_team'] }),
 		onSuccess: opts?.onSuccess
@@ -59,7 +59,7 @@ function competitorJoinTeam(opts?: BaseMutationProps) {
 		mutationFn: (data: RouterInputs['competitor']['team']['joinTeam']) =>
 			trpcClient.competitor.team.joinTeam.mutate(data),
 		onMutate: async () => {
-			posthog.capture('Competitor: Team Join Requested');
+			posthogHandler((ph) => ph.capture('Competitor: Team Join Requested'));
 		},
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['competitor_team'] }),
 		onSuccess: opts?.onSuccess
