@@ -55,9 +55,7 @@
 		<UserDropdown user={data.user} />
 	</div>
 </header>
-<div
-	class=" bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-3 grid-rows-2 gap-2 p-2"
->
+<div class=" bg-secondary h-[calc(100vh-4rem-2rem)] w-screen">
 	{@render children()}
 </div>
 

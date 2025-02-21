@@ -17,4 +17,8 @@
 	);
 </script>
 
-hello {data.user.username}
+<div
+	class=" bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-3 grid-rows-2 gap-2 p-2"
+>
+	hello {data.user.username}
+</div>
