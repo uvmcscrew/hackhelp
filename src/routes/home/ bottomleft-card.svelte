@@ -7,7 +7,7 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 </script>
 
-<Tabs.Root value="prompt" class="col-span-1 col-start-1 row-span-1 row-start-2 flex flex-col">
+<Tabs.Root value="challenge" class="col-span-1 col-start-1 row-span-1 row-start-2 flex flex-col">
 	<Tabs.List class="w-fit">
 		<Tabs.Trigger value="challenge">Challenge</Tabs.Trigger>
 		<Tabs.Trigger value="repos">Repositories</Tabs.Trigger>
@@ -15,9 +15,9 @@
 	<Tabs.Content value="challenge" class="h-auto shrink-0 grow">
 		<Card.Root class="col-span-1 col-start-1 row-span-1 row-start-2 h-full">
 			<Card.Header>
-				<Card.Title>Your Prompt</Card.Title>
+				<Card.Title>Your Challenge</Card.Title>
 			</Card.Header>
-			<Card.Content>No prompt selected?</Card.Content>
+			<Card.Content>No challenge selected?</Card.Content>
 			<Card.Footer class="grid w-fit grid-cols-2 grid-rows-3"></Card.Footer>
 		</Card.Root>
 	</Tabs.Content>
