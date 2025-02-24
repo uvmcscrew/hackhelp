@@ -31,7 +31,13 @@
 		}
 	});
 
-	const mutationCache = new MutationCache();
+	const mutationCache = new MutationCache({
+		onError: (error, mutation) => {
+			toast.error('Failed to perform action', {
+				description: error.message
+			});
+		}
+	});
 
 	const queryClient = new QueryClient({
 		queryCache,
