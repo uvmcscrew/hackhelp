@@ -17,10 +17,10 @@
 			href: '/admin/tickets',
 			text: 'Tickets'
 		},
-		{
-			href: '/admin/analytics',
-			text: 'Analytics'
-		},
+		// {
+		// 	href: '/admin/analytics',
+		// 	text: 'Analytics'
+		// },
 		{
 			href: '/admin/teams',
 			text: 'Teams'

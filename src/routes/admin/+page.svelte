@@ -2,6 +2,10 @@
 	import queries from '$lib/trpc/client/queries.svelte';
 	import { posthogHandler } from '$lib/utils';
 	import type { PageProps } from './$types';
+	import MyTicketTableCard from './my-ticket-table-card.svelte';
+	import TeamsUserCard from './teams-status-card.svelte';
+	import TicketStatusCard from './ticket-status-card.svelte';
+	import WhitelistCard from './whitelist-card.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -18,7 +22,10 @@
 </script>
 
 <div
-	class=" bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-3 grid-rows-2 gap-2 p-2"
+	class=" bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-4 grid-rows-3 gap-2 p-2"
 >
-	hello {data.user.username}
+	<MyTicketTableCard />
+	<TicketStatusCard />
+	<WhitelistCard />
+	<TeamsUserCard />
 </div>
