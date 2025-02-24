@@ -120,7 +120,7 @@ const teamRouter = t.router({
 			const [team] = await ctx.db
 				.select()
 				.from(ctx.dbSchema.team)
-				.where(eq(ctx.dbSchema.team.id, input.teamJoinCode));
+				.where(eq(ctx.dbSchema.team.joinCode, input.teamJoinCode));
 
 			if (!team) {
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });

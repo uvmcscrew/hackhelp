@@ -15,6 +15,7 @@
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import Logo from '$lib/components/Logo.svelte';
+	import mutations from '$lib/trpc/client/mutations.svelte';
 
 	let { children, data }: LayoutProps = $props();
 </script>

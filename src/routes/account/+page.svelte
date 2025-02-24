@@ -45,6 +45,8 @@
 
 	let refreshInvite = mutations.refreshInvite();
 
+	let leaveTeam = mutations.competitorLeaveTeam();
+
 	posthogHandler((posthog) =>
 		posthog.identify($accountWithStatus.data.user.username, {
 			id: $accountWithStatus.data.user.id,
@@ -175,6 +177,18 @@
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined Team</Badge>
 				{:else}
 					<Badge class="rounded-full bg-red-400 px-2" hoverEffects={false}>Not in Team</Badge>
+				{/if}
+			</div>
+
+			<div class="flex flex-row items-center justify-end">
+				{#if $accountWithStatus.data.user.teamId !== null}
+					<Button variant="destructive" onclick={async () => await $leaveTeam.mutateAsync()}
+						{#if $leaveTeam.isPending}
+							<LoaderCircle class="mr-1 h-6 w-6 animate-spin" /> Leaving...
+						{:else}
+							Leave Team
+						{/if}
+					</Button>
 				{/if}
 			</div>
 		</CardContent>

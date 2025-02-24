@@ -5,6 +5,7 @@ import { posthogHandler } from '$lib/utils';
 
 export type BaseMutationProps = {
 	onSuccess?: () => void;
+	onError?: () => void;
 };
 
 function requestInvite(opts?: BaseMutationProps) {
@@ -17,7 +18,8 @@ function requestInvite(opts?: BaseMutationProps) {
 			posthogHandler((ph) => ph.capture('Invite Requested'));
 		},
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['user_invite'] }),
-		onSuccess: opts?.onSuccess
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
 	});
 }
 
@@ -32,7 +34,8 @@ function refreshInvite(opts?: BaseMutationProps) {
 		},
 		onSettled: async () =>
 			await queryClient.invalidateQueries({ queryKey: ['user_invite', 'user', 'user_status'] }),
-		onSuccess: opts?.onSuccess
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
 	});
 }
 
@@ -47,7 +50,8 @@ function competitorCreateTeam(opts?: BaseMutationProps) {
 			posthogHandler((ph) => ph.capture('Competitor: Team Create Requested'));
 		},
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['competitor_team'] }),
-		onSuccess: opts?.onSuccess
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
 	});
 }
 
@@ -62,7 +66,23 @@ function competitorJoinTeam(opts?: BaseMutationProps) {
 			posthogHandler((ph) => ph.capture('Competitor: Team Join Requested'));
 		},
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['competitor_team'] }),
-		onSuccess: opts?.onSuccess
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
+function competitorLeaveTeam(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['competitor_team'],
+		mutationFn: () => trpcClient.competitor.team.leaveTeam.mutate(),
+		onMutate: async () => {
+			posthogHandler((ph) => ph.capture('Competitor: Team Leave Requested'));
+		},
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['competitor_team'] }),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
 	});
 }
 
@@ -70,7 +90,8 @@ export const mutations = {
 	requestInvite,
 	refreshInvite,
 	competitorCreateTeam,
-	competitorJoinTeam
+	competitorJoinTeam,
+	competitorLeaveTeam
 };
 
 export default mutations;

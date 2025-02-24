@@ -30,7 +30,7 @@
 		"prettier": "^3.3.2",
 		"prettier-plugin-svelte": "^3.2.6",
 		"prettier-plugin-tailwindcss": "^0.6.11",
-		"shadcn-svelte": "1.0.0-next.4",
+		"shadcn-svelte": "1.0.0-next.5",
 		"sv": "^0.6.16",
 		"svelte-check": "^4.0.0",
 		"typescript": "^5.0.0",
@@ -38,6 +38,7 @@
 		"vite": "^6.0.11"
 	},
 	"dependencies": {
+		"@faker-js/faker": "^9.5.0",
 		"@fontsource-variable/inter": "^5.1.1",
 		"@fontsource-variable/inter-tight": "^5.1.1",
 		"@fontsource-variable/jetbrains-mono": "^5.1.2",
