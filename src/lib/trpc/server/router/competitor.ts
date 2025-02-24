@@ -160,6 +160,62 @@ const teamRouter = t.router({
 });
 
 // #############################################
+// #            REPOSITORY ROUTER              #
+// #############################################
+const repositoryRouter = t.router({
+	getAll: teamProcedure.query(async ({ ctx }) => {
+		return (
+			await ctx.githubApp.rest.teams.listReposInOrg({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				team_slug: ctx.team.githubSlug
+			})
+		).data.map((repo) => {
+			return {
+				id: repo.id,
+				name: repo.name,
+				fullName: repo.full_name,
+				description: repo.description,
+				private: repo.private,
+				htmlUrl: repo.html_url
+			};
+		});
+	}),
+	repoSlugIsTaken: teamProcedure
+		.input(z.object({ repoName: z.string().nonempty() }))
+		.query(async ({ ctx, input }) => {
+			const repos = await ctx.githubApp.rest.repos.listForOrg({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME
+			});
+			return { repoExists: repos.data.some((repo) => repo.name === input.repoName) };
+		}),
+	create: teamProcedure
+		.input(
+			z.object({
+				repoName: z.string().nonempty(),
+				description: z.string().default('')
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			// Create the repository
+			const ghRepo = await ctx.githubApp.rest.repos.createInOrg({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				name: input.repoName,
+				description: input.description,
+				private: false
+			});
+
+			// Update the permissions
+			await ctx.githubApp.rest.teams.addOrUpdateRepoPermissionsInOrg({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				team_slug: ctx.team.githubSlug,
+				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				repo: ghRepo.data.name,
+				permission: 'admin'
+			});
+		})
+});
+
+// #############################################
 // #              TICKET ROUTER                #
 // #############################################
 
@@ -171,5 +227,6 @@ const ticketRouter = t.router({});
 
 export const competitorRouter = t.router({
 	tickets: ticketRouter,
-	team: teamRouter
+	team: teamRouter,
+	repositories: repositoryRouter
 });
