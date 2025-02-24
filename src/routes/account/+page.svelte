@@ -182,7 +182,7 @@
 
 			<div class="flex flex-row items-center justify-end">
 				{#if $accountWithStatus.data.user.teamId !== null}
-					<Button variant="destructive" onclick={async () => await $leaveTeam.mutateAsync()}
+					<Button variant="destructive" onclick={async () => await $leaveTeam.mutateAsync()}>
 						{#if $leaveTeam.isPending}
 							<LoaderCircle class="mr-1 h-6 w-6 animate-spin" /> Leaving...
 						{:else}
