@@ -104,12 +104,29 @@ function competitorLeaveTeam(opts?: BaseMutationProps) {
 	});
 }
 
+function createTeamRepo(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['create repo'],
+		mutationFn: (data: RouterInputs['competitor']['repositories']['create']) =>
+			trpcClient.competitor.repositories.create.mutate(data),
+		onMutate: async () => {
+			posthogHandler((ph) => ph.capture('Team: Repo Created'));
+		},
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['repositories'] }),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
 export const mutations = {
 	requestInvite,
 	refreshInvite,
 	competitorCreateTeam,
 	competitorJoinTeam,
-	competitorLeaveTeam
+	competitorLeaveTeam,
+	createTeamRepo
 };
 
 export default mutations;

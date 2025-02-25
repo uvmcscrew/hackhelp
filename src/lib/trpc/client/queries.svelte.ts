@@ -83,11 +83,22 @@ function competitorGetMyTeam(initialData?: RouterOutputs['competitor']['team']['
 	});
 }
 
-function competitorCheckRepoSlug(slug: string) {
+function competitorCheckRepoSlug(slug: string, enabled: boolean = true) {
 	return createQuery({
 		queryKey: ['repo', slug],
 		queryFn: () => trpcClient.competitor.repositories.repoSlugIsTaken.query({ repoName: slug }),
-		refetchOnWindowFocus: false
+		refetchOnWindowFocus: false,
+		enabled: !!slug && slug.length > 0 && enabled
+	});
+}
+
+function competitorGetTeamRepos(
+	initialData?: RouterOutputs['competitor']['repositories']['getAll']
+) {
+	return createQuery({
+		queryKey: ['repositories'],
+		queryFn: () => trpcClient.competitor.repositories.getAll.query(),
+		initialData
 	});
 }
 
@@ -101,7 +112,8 @@ export const queries = {
 	adminGetAllTeams,
 	adminGetTeamById,
 	competitorGetMyTeam,
-	competitorCheckRepoSlug
+	competitorCheckRepoSlug,
+	competitorGetTeamRepos
 };
 
 export default queries;

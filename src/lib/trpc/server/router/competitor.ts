@@ -164,21 +164,24 @@ const teamRouter = t.router({
 // #############################################
 const repositoryRouter = t.router({
 	getAll: teamProcedure.query(async ({ ctx }) => {
-		return (
-			await ctx.githubApp.rest.teams.listReposInOrg({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
-				team_slug: ctx.team.githubSlug
+		return {
+			repos: (
+				await ctx.githubApp.rest.teams.listReposInOrg({
+					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					team_slug: ctx.team.githubSlug
+				})
+			).data.map((repo) => {
+				return {
+					id: repo.id,
+					name: repo.name,
+					fullName: repo.full_name,
+					description: repo.description,
+					private: repo.private,
+					htmlUrl: repo.html_url,
+					language: repo.language
+				};
 			})
-		).data.map((repo) => {
-			return {
-				id: repo.id,
-				name: repo.name,
-				fullName: repo.full_name,
-				description: repo.description,
-				private: repo.private,
-				htmlUrl: repo.html_url
-			};
-		});
+		};
 	}),
 	repoSlugIsTaken: teamProcedure
 		.input(z.object({ repoName: z.string().nonempty() }))
@@ -201,7 +204,7 @@ const repositoryRouter = t.router({
 				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
 				name: input.repoName,
 				description: input.description,
-				private: false
+				private: true
 			});
 
 			// Update the permissions
