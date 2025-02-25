@@ -38,6 +38,11 @@
 					<a {...props} href="/admin"> Admin</a>
 				{/snippet}</DropdownMenu.Item
 			>
+			<DropdownMenu.Item class="w-full hover:cursor-pointer"
+				>{#snippet child({ props })}
+					<a {...props} href="/home">Competitor Home</a>
+				{/snippet}</DropdownMenu.Item
+			>
 		{/if}
 
 		<DropdownMenu.Item class="w-full hover:cursor-pointer"
