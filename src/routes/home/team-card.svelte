@@ -5,6 +5,10 @@
 	import { Switch } from '$lib/components/ui/switch';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import type { RouterOutputs } from '$lib/trpc/server';
+	import { watch } from 'runed';
+	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
+	import mutations from '$lib/trpc/client/mutations.svelte';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	type Props = {
 		teamData: RouterOutputs['competitor']['team']['get'];
@@ -14,7 +18,10 @@
 
 	const team = queries.competitorGetMyTeam(teamData);
 
+	let teamJoinStateMutation = mutations.competitorUpdateTeamJoinable();
+
 	let canJoinState = $state($team.data?.team.canJoin ?? false);
+	let canJoinEnabled = $state(true);
 </script>
 
 <Card.Root class="col-span-1 col-start-1 row-span-1 row-start-1 flex flex-col">
@@ -30,7 +37,45 @@
 			<Label for="canJoin" class="text-base">Can Join</Label>
 		</div>
 		<div class="col-start-1 row-start-3 inline-flex items-center lg:col-start-2 lg:row-start-2">
-			<Switch id="canJoin" class="ml-2" bind:checked={canJoinState} />
+			<Tooltip.Provider delayDuration={canJoinEnabled ? 500 : 50} disableCloseOnTriggerClick>
+				<Tooltip.Root>
+					<Tooltip.Trigger
+						><Switch
+							id="canJoin"
+							class="mr-2"
+							checked={canJoinState}
+							disabled={!canJoinEnabled}
+							onCheckedChange={async (checked) => {
+								canJoinState = false;
+								canJoinEnabled = false;
+								const { teamIsJoinable } = await $teamJoinStateMutation.mutateAsync({
+									canJoin: checked
+								});
+								canJoinState = teamIsJoinable;
+								setTimeout(() => {
+									canJoinEnabled = true;
+								}, 1000);
+							}}
+						/></Tooltip.Trigger
+					>
+					<Tooltip.Content
+						class=" outline-primary text-secondary-foreground bg-secondary outline-1 "
+					>
+						{#if canJoinEnabled}
+							{#if canJoinState}
+								Anyone with the code can join
+							{:else}
+								Click to enable joining
+							{/if}
+						{:else}
+							Disabled for a few seconds to prevent spam
+						{/if}
+					</Tooltip.Content>
+				</Tooltip.Root>
+			</Tooltip.Provider>
+			{#if $teamJoinStateMutation.isPending}
+				<LoaderCircle class="h-6 w-6 animate-spin" />
+			{/if}
 		</div>
 		<div class="col-start-2 row-start-2 inline-flex items-center lg:col-start-1 lg:row-start-3">
 			{#if canJoinState}
@@ -39,7 +84,7 @@
 		</div>
 		<div class="col-start-2 row-start-3 inline-flex h-8 items-center">
 			{#if canJoinState}
-				<span class="bg-accent text-accent-foreground ml-2 rounded-sm p-1 font-mono"
+				<span class="bg-accent text-accent-foreground rounded-sm p-1 font-mono"
 					>{$team.data?.team.joinCode}</span
 				>
 			{/if}

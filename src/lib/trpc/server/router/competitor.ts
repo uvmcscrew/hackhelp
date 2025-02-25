@@ -81,6 +81,25 @@ const teamRouter = t.router({
 			}
 			return { team };
 		}),
+	updateJoinable: teamProcedure
+		.input(z.object({ canJoin: z.boolean() }))
+		.mutation(async ({ ctx, input }) => {
+			if (ctx.team.canJoin === input.canJoin) {
+				return { teamIsJoinable: input.canJoin };
+			}
+
+			const [team] = await ctx.db
+				.update(ctx.dbSchema.team)
+				.set({ canJoin: input.canJoin })
+				.where(eq(ctx.dbSchema.team.id, ctx.user.teamId))
+				.returning();
+
+			if (!team) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
+			}
+
+			return { teamIsJoinable: input.canJoin };
+		}),
 	create: protectedProcedure.input(createTeamSchema).mutation(async ({ ctx, input }) => {
 		const ghTeam = await ctx.githubApp.rest.teams.create({
 			org: serverEnv.PUBLIC_GITHUB_ORGNAME,

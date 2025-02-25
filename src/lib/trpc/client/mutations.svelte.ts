@@ -120,13 +120,27 @@ function createTeamRepo(opts?: BaseMutationProps) {
 	});
 }
 
+function competitorUpdateTeamJoinable(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['change team joinable'],
+		mutationFn: (data: RouterInputs['competitor']['team']['updateJoinable']) =>
+			trpcClient.competitor.team.updateJoinable.mutate(data),
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['team'] }),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
 export const mutations = {
 	requestInvite,
 	refreshInvite,
 	competitorCreateTeam,
 	competitorJoinTeam,
 	competitorLeaveTeam,
-	createTeamRepo
+	createTeamRepo,
+	competitorUpdateTeamJoinable
 };
 
 export default mutations;
