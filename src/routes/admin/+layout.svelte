@@ -5,6 +5,8 @@
 	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import Logo from '$lib/components/Logo.svelte';
+	import WidthWarning from '$lib/components/WidthWarning.svelte';
+	import { browser } from '$app/environment';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -17,10 +19,6 @@
 			href: '/admin/tickets',
 			text: 'Tickets'
 		},
-		// {
-		// 	href: '/admin/analytics',
-		// 	text: 'Analytics'
-		// },
 		{
 			href: '/admin/teams',
 			text: 'Teams'
@@ -36,6 +34,11 @@
 	class="bg-background sticky top-0 flex h-16 w-screen items-center justify-between gap-4 border-b px-4 md:px-6"
 >
 	<Logo />
+
+	{#if browser}
+		<WidthWarning />
+	{/if}
+
 	<nav
 		class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6"
 	>

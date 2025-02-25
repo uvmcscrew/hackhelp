@@ -14,5 +14,5 @@
       15.2,62.1 43.1,62.1 43.1,50.6 39.1,50.6 52.6,11.5 58.3,11.5 58.3,0 "
 		/>
 	</svg>
-	<h1 class="text-mono ml-2 font-mono text-2xl font-bold">HACKS</h1>
+	<h1 class="text-mono ml-2 hidden font-mono text-2xl font-bold sm:block">HACKS</h1>
 </span>

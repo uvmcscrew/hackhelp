@@ -5,6 +5,8 @@
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import Logo from '$lib/components/Logo.svelte';
+	import WidthWarning from '$lib/components/WidthWarning.svelte';
+	import { browser } from '$app/environment';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -29,6 +31,11 @@
 	class="bg-background sticky top-0 flex h-16 w-screen items-center justify-between gap-4 border-b px-4 md:px-6"
 >
 	<Logo />
+
+	{#if browser}
+		<WidthWarning />
+	{/if}
+
 	<div class="flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
 		<ColorModeButton />
 		<UserDropdown user={data.user} />

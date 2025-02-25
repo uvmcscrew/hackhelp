@@ -24,15 +24,15 @@
 	<Card.Content class="h-max grow">
 		<h2 class="text-2xl font-semibold">{$team.data?.team.name}</h2>
 	</Card.Content>
-	<Card.Footer class="grid grid-cols-4 grid-rows-3 gap-y-2">
+	<Card.Footer class=" grid grid-cols-2 grid-rows-4 gap-y-2 lg:grid-cols-4 lg:grid-rows-3">
 		<span class="text-muted-foreground col-span-2 row-start-1 text-base">Join Details</span>
 		<div class="row-start-2 inline-flex items-center">
 			<Label for="canJoin" class="text-base">Can Join</Label>
 		</div>
-		<div class="col-start-2 row-start-2 inline-flex items-center">
+		<div class="col-start-1 row-start-3 inline-flex items-center lg:col-start-2 lg:row-start-2">
 			<Switch id="canJoin" class="ml-2" bind:checked={canJoinState} />
 		</div>
-		<div class="row-start-3 inline-flex items-center">
+		<div class="col-start-2 row-start-2 inline-flex items-center lg:col-start-1 lg:row-start-3">
 			{#if canJoinState}
 				<span class="text-base font-medium">Join Code</span>
 			{/if}
@@ -45,7 +45,7 @@
 			{/if}
 		</div>
 		<div
-			class="col-span-2 col-start-3 row-span-2 row-start-2 flex h-full w-full items-center justify-center"
+			class="col-span-2 col-start-1 row-span-2 row-start-4 flex h-full w-full items-center justify-center lg:col-start-3 lg:row-start-2"
 		>
 			<Button size="lg">Modify Team</Button>
 		</div>
