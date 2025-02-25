@@ -107,9 +107,7 @@
 		<Card.Header><Card.Title>Participant Status</Card.Title></Card.Header>
 		<CardContent class="flex flex-col gap-y-2">
 			<div class="flex flex-row items-center justify-between">
-				<span class="text-secondary-foreground font-semibold"
-					>Organization Membership Status:
-				</span>
+				<span class="text-secondary-foreground font-semibold">Organization Membership: </span>
 				{#if $accountWithStatus.data.user.isOrgMember}
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined</Badge>
 				{:else if $accountWithStatus.data.userStatus.isWhitelisted}
@@ -172,7 +170,7 @@
 				{/if}
 			</div>
 			<div class="flex flex-row items-center justify-between">
-				<span class="text-secondary-foreground font-semibold">Team Membership Status: </span>
+				<span class="text-secondary-foreground font-semibold">Team Membership: </span>
 				{#if $accountWithStatus.data.user.teamId !== null}
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined Team</Badge>
 				{:else}

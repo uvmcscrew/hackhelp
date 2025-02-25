@@ -16,7 +16,8 @@
 			id: $account.data.user.id,
 			username: $account.data.user.username,
 			isOrgAdmin: $account.data.user.isOrgAdmin,
-			isOrgMember: $account.data.user.isOrgMember
+			isOrgMember: $account.data.user.isOrgMember,
+			teamId: $account.data.user.teamId
 		})
 	);
 </script>

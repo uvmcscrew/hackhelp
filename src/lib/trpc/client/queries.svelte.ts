@@ -77,9 +77,17 @@ function adminGetTeamById(
 
 function competitorGetMyTeam(initialData?: RouterOutputs['competitor']['team']['get']) {
 	return createQuery({
-		queryKey: ['competitor', 'team'],
+		queryKey: ['team'],
 		queryFn: () => trpcClient.competitor.team.get.query(),
 		initialData
+	});
+}
+
+function competitorCheckRepoSlug(slug: string) {
+	return createQuery({
+		queryKey: ['repo', slug],
+		queryFn: () => trpcClient.competitor.repositories.repoSlugIsTaken.query({ repoName: slug }),
+		refetchOnWindowFocus: false
 	});
 }
 
@@ -92,7 +100,8 @@ export const queries = {
 	adminGetUserByUsername,
 	adminGetAllTeams,
 	adminGetTeamById,
-	competitorGetMyTeam
+	competitorGetMyTeam,
+	competitorCheckRepoSlug
 };
 
 export default queries;

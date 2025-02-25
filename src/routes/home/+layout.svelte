@@ -34,7 +34,7 @@
 		<UserDropdown user={data.user} />
 	</div>
 </header>
-{@render children()}
+<div class="bg-background">{@render children()}</div>
 <footer class=" bg-background flex h-8 justify-center border-t">
 	<MadeWith />
 </footer>

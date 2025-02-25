@@ -12,12 +12,17 @@ function requestInvite(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
 	return createMutation({
-		mutationKey: ['user_invite'],
+		mutationKey: ['userInvite'],
 		mutationFn: () => trpcClient.account.sendInvite.mutate(),
 		onMutate: async () => {
 			posthogHandler((ph) => ph.capture('Invite Requested'));
 		},
-		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['user_invite'] }),
+		onSettled: async () =>
+			await Promise.allSettled([
+				queryClient.invalidateQueries({ queryKey: ['user'] }),
+				queryClient.invalidateQueries({ queryKey: ['user', 'profile'] }),
+				queryClient.invalidateQueries({ queryKey: ['user', 'invite'] })
+			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
 	});
@@ -27,13 +32,17 @@ function refreshInvite(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
 	return createMutation({
-		mutationKey: ['user_invite'],
+		mutationKey: ['user refresh invite'],
 		mutationFn: () => trpcClient.account.refreshInvite.mutate(),
 		onMutate: async () => {
 			posthogHandler((ph) => ph.capture('Invite Refreshed'));
 		},
 		onSettled: async () =>
-			await queryClient.invalidateQueries({ queryKey: ['user_invite', 'user', 'user_status'] }),
+			await Promise.allSettled([
+				queryClient.invalidateQueries({ queryKey: ['user'] }),
+				queryClient.invalidateQueries({ queryKey: ['user', 'profile'] }),
+				queryClient.invalidateQueries({ queryKey: ['user', 'invite'] })
+			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
 	});
@@ -49,7 +58,7 @@ function competitorCreateTeam(opts?: BaseMutationProps) {
 		onMutate: async () => {
 			posthogHandler((ph) => ph.capture('Competitor: Team Create Requested'));
 		},
-		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['competitor_team'] }),
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['createTeam'] }),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
 	});
@@ -59,13 +68,17 @@ function competitorJoinTeam(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
 	return createMutation({
-		mutationKey: ['competitor_team'],
+		mutationKey: ['joinTeam'],
 		mutationFn: (data: RouterInputs['competitor']['team']['joinTeam']) =>
 			trpcClient.competitor.team.joinTeam.mutate(data),
 		onMutate: async () => {
 			posthogHandler((ph) => ph.capture('Competitor: Team Join Requested'));
 		},
-		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['competitor_team'] }),
+		onSettled: async () =>
+			await Promise.allSettled([
+				queryClient.invalidateQueries({ queryKey: ['user'] }),
+				queryClient.invalidateQueries({ queryKey: ['user', 'profile'] })
+			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
 	});
@@ -80,7 +93,12 @@ function competitorLeaveTeam(opts?: BaseMutationProps) {
 		onMutate: async () => {
 			posthogHandler((ph) => ph.capture('Competitor: Team Leave Requested'));
 		},
-		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['competitor_team'] }),
+		onSettled: async () =>
+			await Promise.allSettled([
+				queryClient.invalidateQueries({ queryKey: ['user'] }),
+				queryClient.invalidateQueries({ queryKey: ['user', 'profile'] }),
+				queryClient.invalidateQueries({ queryKey: ['team'] })
+			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
 	});
