@@ -60,7 +60,8 @@ const config: Config = {
 				},
 				uvm: {
 					green: '#154734',
-					fog: '#F7F7F7'
+					fog: '#F7F7F7',
+					gold: '#FFD100'
 				}
 			},
 			borderRadius: {
