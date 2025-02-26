@@ -304,7 +304,6 @@ const ticketRouter = t.router({
 				teamId: ctx.team.id,
 				challengeId: ctx.team.selectedChallengeId,
 				createdAt: new Date(),
-				issueId: input.issueId,
 				issueNumber: input.issueNumber,
 				repository: input.repository,
 				title: input.title,

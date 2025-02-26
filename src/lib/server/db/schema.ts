@@ -54,7 +54,6 @@ export const ticket = pgTable('ticket', {
 	teamId: text('team_id').references(() => team.id),
 	challengeId: text('challenge_id').references(() => challenge.id),
 	createdAt: timestamp('created_at').notNull(),
-	issueId: integer('issue_id').notNull(),
 	issueNumber: integer('issue_number').notNull(),
 	repository: text('repository').notNull(),
 	title: text('title').notNull(),

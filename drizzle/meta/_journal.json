@@ -85,6 +85,13 @@
       "when": 1740600524651,
       "tag": "0011_greedy_night_thrasher",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1740604554186,
+      "tag": "0012_handy_manta",
+      "breakpoints": true
     }
   ]
 }
