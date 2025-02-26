@@ -42,7 +42,23 @@ export const team = pgTable('team', {
 	githubSlug: text('github_slug').notNull(),
 	name: text('name').notNull(),
 	joinCode: text('join_code').notNull().unique().$defaultFn(simpleCode),
-	canJoin: boolean().default(true).notNull()
+	canJoin: boolean().default(true).notNull(),
+	selectedChallengeId: text('selected_challenge_id').references(() => challenge.id)
+});
+
+export const ticket = pgTable('ticket', {
+	id: text('id').primaryKey().$defaultFn(cuid2),
+	teamId: text('team_id').references(() => team.id),
+	createdAt: timestamp('created_at').notNull(),
+	issueId: integer('issue_id').notNull(),
+	repository: text('repository').notNull(),
+	title: text('title').notNull()
+});
+
+export const challenge = pgTable('challenge', {
+	id: text('id').primaryKey().$defaultFn(cuid2),
+	title: text('title').notNull(),
+	linkedRepo: text('linked_repo').notNull()
 });
 
 export type Session = typeof session.$inferSelect;
@@ -50,3 +66,7 @@ export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
 
 export type Team = typeof team.$inferSelect;
+
+export type Ticket = typeof ticket.$inferSelect;
+
+export type Challenge = typeof challenge.$inferSelect;
