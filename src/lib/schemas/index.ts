@@ -7,7 +7,8 @@ export const createTeamSchema = z.object({
 });
 
 export const createTicketSchema = z.object({
-	title: z.string().nonempty().min(3).max(100),
+	title: z.string().nonempty().max(100),
 	location: z.enum(WORK_ROOMS),
-	locationDescription: z.string().default('')
+	locationDescription: z.string().max(280),
+	issueId: z.coerce.number().int().positive()
 });

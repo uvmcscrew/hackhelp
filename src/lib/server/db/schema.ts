@@ -47,15 +47,24 @@ export const team = pgTable('team', {
 	selectedChallengeId: text('selected_challenge_id').references(() => challenge.id)
 });
 
+export type TicketResolutionStatus = 'open' | 'assigned' | 'inProgress' | 'closed';
+
 export const ticket = pgTable('ticket', {
 	id: text('id').primaryKey().$defaultFn(cuid2),
 	teamId: text('team_id').references(() => team.id),
+	challengeId: text('challenge_id').references(() => challenge.id),
 	createdAt: timestamp('created_at').notNull(),
 	issueId: integer('issue_id').notNull(),
+	issueNumber: integer('issue_number').notNull(),
 	repository: text('repository').notNull(),
 	title: text('title').notNull(),
 	location: text('location').notNull().$type<WorkRooms>(),
-	locationDescription: text('location_description')
+	locationDescription: text('location_description'),
+	assignedMentor: text('assigned_mentor').references(() => user.id),
+	resolutionStatus: text('resolution_status')
+		.default('open')
+		.notNull()
+		.$type<TicketResolutionStatus>()
 });
 
 export const challenge = pgTable('challenge', {
