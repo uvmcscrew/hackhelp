@@ -122,6 +122,22 @@ function competitorGetOpenTickets(
 	});
 }
 
+function adminGetAllOpenTickets() {
+	return createQuery({
+		queryKey: ['admin', 'tickets'],
+		queryFn: () => trpcClient.admin.tickets.openTickets.query(),
+		refetchInterval: 30_000
+	});
+}
+
+function adminGetMyAssignedTickets() {
+	return createQuery({
+		queryKey: ['admin', 'mytickets'],
+		queryFn: () => trpcClient.admin.tickets.myTickets.query(),
+		refetchInterval: 30_000
+	});
+}
+
 export const queries = {
 	queryWhoami,
 	queryWhoamiWithProfile,
@@ -135,7 +151,9 @@ export const queries = {
 	competitorCheckRepoSlug,
 	competitorGetTeamRepos,
 	competitorGetAllTeamIssues,
-	competitorGetOpenTickets
+	competitorGetOpenTickets,
+	adminGetAllOpenTickets,
+	adminGetMyAssignedTickets
 };
 
 export default queries;

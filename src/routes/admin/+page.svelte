@@ -6,6 +6,8 @@
 	import TeamsUserCard from './teams-status-card.svelte';
 	import TicketStatusCard from './ticket-status-card.svelte';
 	import WhitelistCard from './whitelist-card.svelte';
+	import * as Tabs from '$lib/components/ui/tabs';
+	import AllTicketsTableCard from './all-tickets-table-card.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -22,10 +24,20 @@
 	);
 </script>
 
-<div
-	class=" bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-4 grid-rows-3 gap-2 p-2"
->
-	<MyTicketTableCard />
+<div class="bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-4 grid-rows-3 gap-2 p-2">
+	<Tabs.Root value="alltix" class="col-span-3 col-start-2 row-span-3 row-start-1">
+		<Tabs.List class="grid w-full grid-cols-2">
+			<Tabs.Trigger value="alltix">All Tickets</Tabs.Trigger>
+			<Tabs.Trigger value="mytix">Assigned Tickets</Tabs.Trigger>
+		</Tabs.List>
+		<Tabs.Content value="mytix">
+			<MyTicketTableCard />
+		</Tabs.Content>
+		<Tabs.Content value="alltix">
+			<AllTicketsTableCard />
+		</Tabs.Content>
+	</Tabs.Root>
+
 	<TicketStatusCard />
 	<WhitelistCard />
 	<TeamsUserCard />

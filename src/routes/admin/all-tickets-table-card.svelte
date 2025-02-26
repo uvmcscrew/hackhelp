@@ -6,17 +6,17 @@
 	import * as Table from '$lib/components/ui/table';
 	import { clientEnv } from '$lib/env/client';
 	import queries from '$lib/trpc/client/queries.svelte';
-	import { formatDistance } from 'date-fns';
 	import GithubIcon from 'lucide-svelte/icons/github';
+	import { formatRelative, formatDistance } from 'date-fns';
 
-	let tixQuery = queries.adminGetMyAssignedTickets();
+	let tixQuery = queries.adminGetAllOpenTickets();
 </script>
 
 <Card.Card class="">
 	<Card.Header class="flex flex-row items-center justify-between">
 		<span class="flex flex-col gap-y-2">
-			<Card.Title class="h-full">My Tickets</Card.Title>
-			<Card.Description>Help Tickets assigned to me</Card.Description>
+			<Card.Title class="h-full">All Tickets</Card.Title>
+			<Card.Description>All Help Tickets</Card.Description>
 		</span>
 		<Button size="default">View All Tickets</Button>
 	</Card.Header>
@@ -25,7 +25,7 @@
 			<Table.Header>
 				<Table.Head class="w-max">Title</Table.Head>
 				<Table.Head>Issue Link</Table.Head>
-				<Table.Head>Challenge</Table.Head>
+				<Table.Head>Challenge Link</Table.Head>
 				<Table.Head class="">Created</Table.Head>
 				<Table.Head class="w-30">Status</Table.Head>
 				<Table.Head class="">Actions</Table.Head>
@@ -66,7 +66,7 @@
 					{#if $tixQuery.data.tickets.length === 0}
 						<Table.Row>
 							<Table.Cell colspan={6} class="text-muted-foreground text-center italic">
-								No tickets assigned to you
+								No tickets found.
 							</Table.Cell>
 						</Table.Row>
 					{/if}

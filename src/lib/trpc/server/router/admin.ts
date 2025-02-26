@@ -1,5 +1,5 @@
 import { adminProcedure, t } from '../shared';
-import { eq } from 'drizzle-orm';
+import { eq, ne, desc } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { serverEnv } from '$lib/env/server';
@@ -137,7 +137,52 @@ const teamRouter = t.router({
 // #              TICKET ROUTER                #
 // #############################################
 
-const ticketRouter = t.router({});
+const ticketRouter = t.router({
+	openTickets: adminProcedure.query(async ({ ctx }) => {
+		const tickets = await ctx.db
+			.select({
+				id: ctx.dbSchema.ticket.id,
+				title: ctx.dbSchema.ticket.title,
+				assignedMentorName: ctx.dbSchema.user.fullName,
+				createdAt: ctx.dbSchema.ticket.createdAt,
+				resolutionStatus: ctx.dbSchema.ticket.resolutionStatus,
+				repository: ctx.dbSchema.ticket.repository,
+				issueNumber: ctx.dbSchema.ticket.issueNumber,
+				challengeRepo: ctx.dbSchema.challenge.title
+			})
+			.from(ctx.dbSchema.ticket)
+			.where(ne(ctx.dbSchema.ticket.resolutionStatus, 'closed'))
+			.leftJoin(ctx.dbSchema.user, eq(ctx.dbSchema.ticket.assignedMentor, ctx.dbSchema.user.id))
+			.leftJoin(
+				ctx.dbSchema.challenge,
+				eq(ctx.dbSchema.ticket.challengeId, ctx.dbSchema.challenge.id)
+			)
+			.orderBy(desc(ctx.dbSchema.ticket.createdAt));
+		return { tickets };
+	}),
+	myTickets: adminProcedure.query(async ({ ctx }) => {
+		const tickets = await ctx.db
+			.select({
+				id: ctx.dbSchema.ticket.id,
+				title: ctx.dbSchema.ticket.title,
+				assignedMentorName: ctx.dbSchema.user.fullName,
+				createdAt: ctx.dbSchema.ticket.createdAt,
+				resolutionStatus: ctx.dbSchema.ticket.resolutionStatus,
+				repository: ctx.dbSchema.ticket.repository,
+				issueNumber: ctx.dbSchema.ticket.issueNumber,
+				challengeRepo: ctx.dbSchema.challenge.linkedRepo
+			})
+			.from(ctx.dbSchema.ticket)
+			.where(eq(ctx.dbSchema.ticket.assignedMentor, ctx.user.id))
+			.leftJoin(ctx.dbSchema.user, eq(ctx.dbSchema.ticket.assignedMentor, ctx.dbSchema.user.id))
+			.leftJoin(
+				ctx.dbSchema.challenge,
+				eq(ctx.dbSchema.ticket.challengeId, ctx.dbSchema.challenge.id)
+			)
+			.orderBy(desc(ctx.dbSchema.ticket.createdAt));
+		return { tickets };
+	})
+});
 
 // #############################################
 // #               ADMIN ROUTER                #
