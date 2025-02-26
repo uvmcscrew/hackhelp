@@ -17,16 +17,6 @@
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 
-	let tabValue = $state(browser ? localStorage.getItem('home-blcard-tab') || 'challenge' : 'empty');
-	watch(
-		() => tabValue,
-		(curr) => {
-			if (browser) {
-				localStorage.setItem('home-blcard-tab', curr);
-			}
-		}
-	);
-
 	let repos = queries.competitorGetTeamRepos();
 
 	let repoCountString = $derived(`${$repos.data?.repos.length ?? '?'}/3`);
@@ -36,10 +26,7 @@
 	let manualRefreshing = $state(false);
 </script>
 
-<Tabs.Root
-	bind:value={tabValue}
-	class="col-span-1 col-start-1 row-span-1 row-start-2 flex flex-col"
->
+<Tabs.Root class="col-span-1 col-start-1 row-span-1 row-start-2 flex flex-col">
 	<Tabs.List class="w-fit">
 		<Tabs.Trigger value="challenge">Challenge</Tabs.Trigger>
 		<Tabs.Trigger value="repos">Repositories</Tabs.Trigger>

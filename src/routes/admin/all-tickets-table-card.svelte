@@ -8,6 +8,8 @@
 	import queries from '$lib/trpc/client/queries.svelte';
 	import GithubIcon from 'lucide-svelte/icons/github';
 	import { formatRelative, formatDistance } from 'date-fns';
+	import UserPen from 'lucide-svelte/icons/user-pen';
+	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
 
 	let tixQuery = queries.adminGetAllOpenTickets();
 </script>
@@ -60,7 +62,12 @@
 								>{formatDistance(ticket.createdAt, Date.now(), { addSuffix: true })}</Table.Cell
 							>
 							<Table.Cell><TicketStatusBadge status={ticket.resolutionStatus} /></Table.Cell>
-							<Table.Cell></Table.Cell>
+							<Table.Cell>
+								<Button title="Assign issue to self" variant="outline" size="icon"
+									><UserPen class="size-4" /></Button
+								>
+								<Button variant="outline" size="icon"><SquareChevronRight class="size-4" /></Button>
+							</Table.Cell>
 						</Table.Row>
 					{/each}
 					{#if $tixQuery.data.tickets.length === 0}
