@@ -1,9 +1,9 @@
 import { protectedProcedure, t } from '../shared';
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { serverEnv } from '$lib/env/server';
-import { createTeamSchema } from '$lib/schemas';
+import { createTeamSchema, createTicketSchema } from '$lib/schemas';
 import type { GithubAppClient } from '$lib/github';
 
 /**
@@ -278,6 +278,50 @@ const ticketRouter = t.router({
 					}) satisfies IssueReturn
 			)
 		};
+	}),
+	getTickets: teamProcedure.query(async ({ ctx }) => {
+		const tickets = await ctx.db
+			.select({
+				id: ctx.dbSchema.ticket.id,
+				title: ctx.dbSchema.ticket.title,
+				assignedMentorName: ctx.dbSchema.user.fullName,
+				createdAt: ctx.dbSchema.ticket.createdAt,
+				resolutionStatus: ctx.dbSchema.ticket.resolutionStatus,
+				repository: ctx.dbSchema.ticket.repository,
+				issueNumber: ctx.dbSchema.ticket.issueNumber
+			})
+			.from(ctx.dbSchema.ticket)
+			.where(eq(ctx.dbSchema.ticket.teamId, ctx.team.id))
+			.leftJoin(ctx.dbSchema.user, eq(ctx.dbSchema.ticket.assignedMentor, ctx.dbSchema.user.id))
+			.orderBy(desc(ctx.dbSchema.ticket.createdAt));
+		return { tickets };
+	}),
+	create: teamProcedure.input(createTicketSchema).mutation(async ({ ctx, input }) => {
+		// Create the ticket in the database
+		const [ticket] = await ctx.db
+			.insert(ctx.dbSchema.ticket)
+			.values({
+				teamId: ctx.team.id,
+				challengeId: ctx.team.selectedChallengeId,
+				createdAt: new Date(),
+				issueId: input.issueId,
+				issueNumber: input.issueNumber,
+				repository: input.repository,
+				title: input.title,
+				location: input.location,
+				locationDescription: input.locationDescription
+			})
+			.returning();
+
+		// Add a comment to the issue
+		await ctx.githubApp.rest.issues.createComment({
+			owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+			repo: input.repository,
+			issue_number: input.issueNumber,
+			body: `This issue has been linked to a ticket.  \nRoom: ${input.location}  \nLocation Description: ${input.locationDescription}`
+		});
+
+		return { ticket };
 	})
 });
 

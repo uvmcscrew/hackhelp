@@ -10,5 +10,7 @@ export const createTicketSchema = z.object({
 	title: z.string().nonempty().max(100),
 	location: z.enum(WORK_ROOMS),
 	locationDescription: z.string().max(280),
-	issueId: z.coerce.number().int().positive()
+	issueId: z.coerce.number().int().positive(),
+	repository: z.string().nonempty(),
+	issueNumber: z.coerce.number().int().positive()
 });

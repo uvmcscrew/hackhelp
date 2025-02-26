@@ -133,6 +133,22 @@ function competitorUpdateTeamJoinable(opts?: BaseMutationProps) {
 	});
 }
 
+function competitorCreateTicket(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['create ticket'],
+		mutationFn: (data: RouterInputs['competitor']['tickets']['create']) =>
+			trpcClient.competitor.tickets.create.mutate(data),
+		onMutate: async () => {
+			posthogHandler((ph) => ph.capture('Ticket Created'));
+		},
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['tickets'] }),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
 export const mutations = {
 	requestInvite,
 	refreshInvite,
@@ -140,7 +156,8 @@ export const mutations = {
 	competitorJoinTeam,
 	competitorLeaveTeam,
 	createTeamRepo,
-	competitorUpdateTeamJoinable
+	competitorUpdateTeamJoinable,
+	competitorCreateTicket
 };
 
 export default mutations;
