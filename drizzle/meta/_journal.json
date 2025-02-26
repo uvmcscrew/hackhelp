@@ -71,6 +71,13 @@
       "when": 1740532659488,
       "tag": "0009_wonderful_ultron",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1740581816430,
+      "tag": "0010_colossal_rocket_racer",
+      "breakpoints": true
     }
   ]
 }

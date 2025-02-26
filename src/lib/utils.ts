@@ -26,3 +26,28 @@ export function posthogHandler(posthogFn: (ph: PostHog) => void) {
 		posthogFn(posthog);
 	}
 }
+
+export const WORK_ROOMS = [
+	'Kalkin 225',
+	'Kalkin 110',
+	'Ifshin 107 (Keller Room)',
+
+	'Ifshin 337A',
+	'Ifshin 337',
+	'Ifshin 240',
+	'Ifshin 358',
+
+	'Ifshin 238A',
+	'Ifshin 238B',
+	'Ifshin 238C',
+	'Ifshin 238E',
+	'Ifshin 238F',
+
+	'Ifshin 236A',
+	'Ifshin 236B',
+	'Ifshin 236C',
+	'Ifshin 236D',
+	'Ifshin 236E'
+] as const;
+
+export type WorkRooms = (typeof WORK_ROOMS)[number];

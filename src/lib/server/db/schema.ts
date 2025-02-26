@@ -3,6 +3,7 @@ import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { boolean } from 'drizzle-orm/pg-core';
 import { timestamp } from 'drizzle-orm/pg-core';
 import { customAlphabet } from 'nanoid';
+import type { WorkRooms } from '$lib/utils';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey().$defaultFn(cuid2),
@@ -52,7 +53,9 @@ export const ticket = pgTable('ticket', {
 	createdAt: timestamp('created_at').notNull(),
 	issueId: integer('issue_id').notNull(),
 	repository: text('repository').notNull(),
-	title: text('title').notNull()
+	title: text('title').notNull(),
+	location: text('location').notNull().$type<WorkRooms>(),
+	locationDescription: text('location_description')
 });
 
 export const challenge = pgTable('challenge', {
