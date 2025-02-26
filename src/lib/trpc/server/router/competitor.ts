@@ -4,6 +4,7 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { serverEnv } from '$lib/env/server';
 import { createTeamSchema } from '$lib/schemas';
+import type { GithubAppClient } from '$lib/github';
 
 /**
  * This file contains most actions that a competitor will need. It is broken out into multiple routers depending on what the different actions
@@ -181,15 +182,18 @@ const teamRouter = t.router({
 // #############################################
 // #            REPOSITORY ROUTER              #
 // #############################################
+
+async function getAllTeamRepositories(githubApp: GithubAppClient, teamSlug: string) {
+	return await githubApp.rest.teams.listReposInOrg({
+		org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+		team_slug: teamSlug
+	});
+}
+
 const repositoryRouter = t.router({
 	getAll: teamProcedure.query(async ({ ctx }) => {
 		return {
-			repos: (
-				await ctx.githubApp.rest.teams.listReposInOrg({
-					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
-					team_slug: ctx.team.githubSlug
-				})
-			).data.map((repo) => {
+			repos: (await getAllTeamRepositories(ctx.githubApp, ctx.team.githubSlug)).data.map((repo) => {
 				return {
 					id: repo.id,
 					name: repo.name,
@@ -241,7 +245,41 @@ const repositoryRouter = t.router({
 // #              TICKET ROUTER                #
 // #############################################
 
-const ticketRouter = t.router({});
+export type IssueReturn = {
+	id: number;
+	title: string;
+	repoName: string;
+	issueNumber: number;
+};
+
+const ticketRouter = t.router({
+	getAllTeamIssues: teamProcedure.query(async ({ ctx }) => {
+		const repos = await getAllTeamRepositories(ctx.githubApp, ctx.team.githubSlug);
+		const issuesRaw = await Promise.all(
+			repos.data.map(async (repo) => {
+				return await ctx.githubApp.rest.issues.listForRepo({
+					owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					repo: repo.name,
+					state: 'open'
+				});
+			})
+		);
+
+		const issues = issuesRaw.flatMap((issue) => issue.data);
+
+		return {
+			issues: issues.map(
+				(issue) =>
+					({
+						id: issue.id,
+						title: issue.title,
+						repoName: issue.repository_url.split('/').pop() ?? '',
+						issueNumber: issue.number
+					}) satisfies IssueReturn
+			)
+		};
+	})
+});
 
 // #############################################
 // #            COMPETITOR ROUTER              #

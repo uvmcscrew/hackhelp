@@ -16,6 +16,8 @@ const [
 
 export const githubApp = await github__.getInstallationOctokit(appInstallId);
 
+export type GithubAppClient = typeof githubApp;
+
 export const octokit = new Octokit({
 	request: {
 		fetch

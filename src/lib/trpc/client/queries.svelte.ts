@@ -102,6 +102,16 @@ function competitorGetTeamRepos(
 	});
 }
 
+function competitorGetAllTeamIssues(
+	initialData?: RouterOutputs['competitor']['tickets']['getAllTeamIssues']
+) {
+	return createQuery({
+		queryKey: ['issues'],
+		queryFn: () => trpcClient.competitor.tickets.getAllTeamIssues.query(),
+		initialData
+	});
+}
+
 export const queries = {
 	queryWhoami,
 	queryWhoamiWithProfile,
@@ -113,7 +123,8 @@ export const queries = {
 	adminGetTeamById,
 	competitorGetMyTeam,
 	competitorCheckRepoSlug,
-	competitorGetTeamRepos
+	competitorGetTeamRepos,
+	competitorGetAllTeamIssues
 };
 
 export default queries;
