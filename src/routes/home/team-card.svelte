@@ -5,10 +5,8 @@
 	import { Switch } from '$lib/components/ui/switch';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import type { RouterOutputs } from '$lib/trpc/server';
-	import { watch } from 'runed';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import mutations from '$lib/trpc/client/mutations.svelte';
-	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	type Props = {
 		teamData: RouterOutputs['competitor']['team']['get'];
@@ -37,42 +35,28 @@
 			<Label for="canJoin" class="text-base">Can Join</Label>
 		</div>
 		<div class="col-start-1 row-start-3 inline-flex items-center lg:col-start-2 lg:row-start-2">
-			<Tooltip.Provider delayDuration={canJoinEnabled ? 500 : 50} disableCloseOnTriggerClick>
-				<Tooltip.Root>
-					<Tooltip.Trigger
-						><Switch
-							id="canJoin"
-							class="mr-2"
-							checked={canJoinState}
-							disabled={!canJoinEnabled}
-							onCheckedChange={async (checked) => {
-								canJoinState = false;
-								canJoinEnabled = false;
-								const { teamIsJoinable } = await $teamJoinStateMutation.mutateAsync({
-									canJoin: checked
-								});
-								canJoinState = teamIsJoinable;
-								setTimeout(() => {
-									canJoinEnabled = true;
-								}, 1000);
-							}}
-						/></Tooltip.Trigger
-					>
-					<Tooltip.Content
-						class=" outline-primary text-secondary-foreground bg-secondary outline-1 "
-					>
-						{#if canJoinEnabled}
-							{#if canJoinState}
-								Anyone with the code can join
-							{:else}
-								Click to enable joining
-							{/if}
-						{:else}
-							Disabled for a few seconds to prevent spam
-						{/if}
-					</Tooltip.Content>
-				</Tooltip.Root>
-			</Tooltip.Provider>
+			<Switch
+				id="canJoin"
+				class="mr-2"
+				checked={canJoinState}
+				disabled={!canJoinEnabled}
+				title={canJoinEnabled
+					? canJoinState
+						? 'Anyone with the code can join'
+						: 'Click to enable joining'
+					: 'Disabled for a few seconds to prevent spam'}
+				onCheckedChange={async (checked) => {
+					canJoinState = false;
+					canJoinEnabled = false;
+					const { teamIsJoinable } = await $teamJoinStateMutation.mutateAsync({
+						canJoin: checked
+					});
+					canJoinState = teamIsJoinable;
+					setTimeout(() => {
+						canJoinEnabled = true;
+					}, 1000);
+				}}
+			/>
 			{#if $teamJoinStateMutation.isPending}
 				<LoaderCircle class="h-6 w-6 animate-spin" />
 			{/if}
