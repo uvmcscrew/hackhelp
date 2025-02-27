@@ -249,6 +249,19 @@ function adminChangeTicketStatus(opts?: BaseMutationProps) {
 	});
 }
 
+function competitorUpdateTeam(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['competitor_team'],
+		mutationFn: (data: RouterInputs['competitor']['team']['updateProperties']) =>
+			trpcClient.competitor.team.updateProperties.mutate(data),
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['team'] }),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
 export const mutations = {
 	requestInvite,
 	refreshInvite,
@@ -262,7 +275,8 @@ export const mutations = {
 	adminDeleteTicket,
 	adminAssignTicket,
 	adminUnassignTicket,
-	adminChangeTicketStatus
+	adminChangeTicketStatus,
+	competitorUpdateTeam
 };
 
 export default mutations;

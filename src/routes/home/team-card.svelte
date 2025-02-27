@@ -7,6 +7,7 @@
 	import type { RouterOutputs } from '$lib/trpc/server';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import mutations from '$lib/trpc/client/mutations.svelte';
+	import TeamModifySheet from './team-modify-sheet.svelte';
 
 	type Props = {
 		teamData: RouterOutputs['competitor']['team']['get'];
@@ -76,7 +77,7 @@
 		<div
 			class="col-span-2 col-start-1 row-span-2 row-start-4 flex h-full w-full items-center justify-center lg:col-start-3 lg:row-start-2"
 		>
-			<Button size="lg">Modify Team</Button>
+			<TeamModifySheet />
 		</div>
 	</Card.Footer>
 </Card.Root>
