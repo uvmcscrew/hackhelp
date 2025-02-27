@@ -156,10 +156,93 @@ function adminSelfAssignTicket(opts?: BaseMutationProps) {
 		mutationKey: ['admin self assign ticket'],
 		mutationFn: (data: RouterInputs['admin']['tickets']['selfAssign']) =>
 			trpcClient.admin.tickets.selfAssign.mutate(data),
-		onSettled: async () =>
+		onSettled: async (data) =>
 			await Promise.allSettled([
 				queryClient.invalidateQueries({ queryKey: ['admin', 'tickets'] }),
-				queryClient.invalidateQueries({ queryKey: ['admin', 'mytickets'] })
+				queryClient.invalidateQueries({ queryKey: ['admin', 'mytickets'] }),
+				data &&
+					data?.ticket &&
+					queryClient.invalidateQueries({ queryKey: ['admin', 'ticket', data.ticket.id] })
+			]),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
+function adminAssignTicket(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['admin self assign ticket'],
+		mutationFn: (data: RouterInputs['admin']['tickets']['assignTo']) =>
+			trpcClient.admin.tickets.assignTo.mutate(data),
+		onSettled: async (data) =>
+			await Promise.allSettled([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'tickets'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'mytickets'] }),
+				data &&
+					data?.ticket &&
+					queryClient.invalidateQueries({ queryKey: ['admin', 'ticket', data.ticket.id] })
+			]),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
+function adminUnassignTicket(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['admin unassign ticket'],
+		mutationFn: (data: RouterInputs['admin']['tickets']['unassign']) =>
+			trpcClient.admin.tickets.unassign.mutate(data),
+		onSettled: async (data) =>
+			await Promise.allSettled([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'tickets'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'mytickets'] }),
+				data &&
+					data?.ticket &&
+					queryClient.invalidateQueries({ queryKey: ['admin', 'ticket', data.ticket.id] })
+			]),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
+function adminDeleteTicket(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['admin delete ticket'],
+		mutationFn: (data: RouterInputs['admin']['tickets']['deleteTicket']) =>
+			trpcClient.admin.tickets.deleteTicket.mutate(data),
+		onSettled: async (data) =>
+			await Promise.allSettled([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'tickets'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'mytickets'] }),
+				data &&
+					data?.ticket &&
+					queryClient.cancelQueries({ queryKey: ['admin', 'ticket', data.ticket.id] })
+			]),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
+function adminChangeTicketStatus(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['admin change ticket status'],
+		mutationFn: (data: RouterInputs['admin']['tickets']['updateTicketStatus']) =>
+			trpcClient.admin.tickets.updateTicketStatus.mutate(data),
+		onSettled: async (data) =>
+			await Promise.allSettled([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'tickets'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'mytickets'] }),
+				data &&
+					data?.ticket &&
+					queryClient.cancelQueries({ queryKey: ['admin', 'ticket', data.ticket.id] })
 			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
@@ -175,7 +258,11 @@ export const mutations = {
 	createTeamRepo,
 	competitorUpdateTeamJoinable,
 	competitorCreateTicket,
-	adminSelfAssignTicket
+	adminSelfAssignTicket,
+	adminDeleteTicket,
+	adminAssignTicket,
+	adminUnassignTicket,
+	adminChangeTicketStatus
 };
 
 export default mutations;

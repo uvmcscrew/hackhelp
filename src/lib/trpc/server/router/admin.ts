@@ -3,6 +3,7 @@ import { eq, ne, desc } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { serverEnv } from '$lib/env/server';
+import { TICKET_RESOLUTION_STATUS } from '$lib/server/db/schema';
 
 /**
  * This file contains most administrative actions. It is broken out into multiple routers depending on what the different actions
@@ -209,7 +210,13 @@ const ticketRouter = t.router({
 
 			const [ticket] = await ctx.db
 				.update(ctx.dbSchema.ticket)
-				.set({ assignedMentor: ctx.user.id })
+				.set({
+					assignedMentor: ctx.user.id,
+					resolutionStatus:
+						existingTicket.resolutionStatus === 'open'
+							? 'assigned'
+							: existingTicket.resolutionStatus
+				})
 				.where(eq(ctx.dbSchema.ticket.id, input.ticketId))
 				.returning();
 
@@ -218,6 +225,71 @@ const ticketRouter = t.router({
 				repo: ticket.repository,
 				issue_number: ticket.issueNumber,
 				body: `This issue has been assigned to @${ctx.user.username} (${ctx.user.fullName}).`
+			});
+
+			return { ticket };
+		}),
+	assignTo: adminProcedure
+		.input(z.object({ ticketId: z.string(), userId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			const [existingTicket] = await ctx.db
+				.select()
+				.from(ctx.dbSchema.ticket)
+				.where(eq(ctx.dbSchema.ticket.id, input.ticketId));
+			if (!existingTicket) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+			}
+
+			// Check if the ticket is already assigned to someone else
+			const [ticket] = await ctx.db
+				.update(ctx.dbSchema.ticket)
+				.set({
+					assignedMentor: input.userId,
+					resolutionStatus:
+						existingTicket.resolutionStatus === 'open'
+							? 'assigned'
+							: existingTicket.resolutionStatus
+				})
+				.where(eq(ctx.dbSchema.ticket.id, input.ticketId))
+				.returning();
+
+			await ctx.githubApp.rest.issues.createComment({
+				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				repo: ticket.repository,
+				issue_number: ticket.issueNumber,
+				body: `This issue has been assigned to @${input.userId}.`
+			});
+			return { ticket };
+		}),
+
+	unassign: adminProcedure
+		.input(z.object({ ticketId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			const [existingTicket] = await ctx.db
+				.select()
+				.from(ctx.dbSchema.ticket)
+				.where(eq(ctx.dbSchema.ticket.id, input.ticketId));
+			if (!existingTicket) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+			}
+
+			const [ticket] = await ctx.db
+				.update(ctx.dbSchema.ticket)
+				.set({
+					assignedMentor: null,
+					resolutionStatus:
+						existingTicket.resolutionStatus === 'assigned'
+							? 'open'
+							: existingTicket.resolutionStatus
+				})
+				.where(eq(ctx.dbSchema.ticket.id, input.ticketId))
+				.returning();
+
+			await ctx.githubApp.rest.issues.createComment({
+				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				repo: ticket.repository,
+				issue_number: ticket.issueNumber,
+				body: `This issue has been unassigned.`
 			});
 
 			return { ticket };
@@ -242,6 +314,53 @@ const ticketRouter = t.router({
 				repo: ticket.ticket.repository
 			});
 			return { ticket, langs: repoLanguages.data };
+		}),
+	deleteTicket: adminProcedure
+		.input(z.object({ ticketId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			const [ticket] = await ctx.db
+				.delete(ctx.dbSchema.ticket)
+				.where(eq(ctx.dbSchema.ticket.id, input.ticketId))
+				.returning();
+			if (!ticket) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+			}
+
+			await ctx.githubApp.rest.issues.createComment({
+				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				repo: ticket.repository,
+				issue_number: ticket.issueNumber,
+				body: `The ticket has been deleted by an admin.`
+			});
+
+			return { ticket };
+		}),
+
+	updateTicketStatus: adminProcedure
+		.input(
+			z.object({
+				ticketId: z.string(),
+				status: z.enum(TICKET_RESOLUTION_STATUS)
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			const [ticket] = await ctx.db
+				.update(ctx.dbSchema.ticket)
+				.set({ resolutionStatus: input.status })
+				.where(eq(ctx.dbSchema.ticket.id, input.ticketId))
+				.returning();
+			if (!ticket) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+			}
+
+			await ctx.githubApp.rest.issues.createComment({
+				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				repo: ticket.repository,
+				issue_number: ticket.issueNumber,
+				body: `The ticket status has been updated to ${input.status}.`
+			});
+
+			return { ticket };
 		})
 });
 

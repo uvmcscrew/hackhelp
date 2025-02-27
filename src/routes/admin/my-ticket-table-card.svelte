@@ -6,12 +6,17 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import { clientEnv } from '$lib/env/client';
+	import mutations from '$lib/trpc/client/mutations.svelte';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import { formatDistance } from 'date-fns';
 	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
+	import UserXIcon from 'lucide-svelte/icons/user-x';
+
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 
 	let tixQuery = queries.adminGetMyAssignedTickets();
+
+	let unassignMutation = mutations.adminUnassignTicket();
 </script>
 
 <Card.Card class="">
@@ -25,12 +30,14 @@
 	<Card.Content>
 		<Table.Root>
 			<Table.Header>
-				<Table.Head class="w-max">Title</Table.Head>
-				<Table.Head>Issue Link</Table.Head>
-				<Table.Head>Challenge</Table.Head>
-				<Table.Head class="">Created</Table.Head>
-				<Table.Head class="w-30">Status</Table.Head>
-				<Table.Head class="">Actions</Table.Head>
+				<Table.Row>
+					<Table.Head class="w-max">Title</Table.Head>
+					<Table.Head>Issue Link</Table.Head>
+					<Table.Head>Challenge</Table.Head>
+					<Table.Head class="">Created</Table.Head>
+					<Table.Head class="w-30">Status</Table.Head>
+					<Table.Head class="">Actions</Table.Head>
+				</Table.Row>
 			</Table.Header>
 			<Table.Body>
 				{#if $tixQuery.data}
@@ -64,6 +71,15 @@
 							>
 							<Table.Cell><TicketStatusBadge status={ticket.resolutionStatus} /></Table.Cell>
 							<Table.Cell>
+								<Button
+									variant="outline"
+									size="icon"
+									disabled={$unassignMutation.isPending}
+									title="Unassign this ticket from myself"
+									onclick={async () => {
+										await $unassignMutation.mutateAsync({ ticketId: ticket.id });
+									}}><UserXIcon class="size-4" /></Button
+								>
 								<Button
 									variant="outline"
 									size="icon"

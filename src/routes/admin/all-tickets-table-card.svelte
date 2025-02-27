@@ -31,12 +31,14 @@
 	<Card.Content>
 		<Table.Root>
 			<Table.Header>
-				<Table.Head class="w-max">Title</Table.Head>
-				<Table.Head>Issue Link</Table.Head>
-				<Table.Head>Challenge Link</Table.Head>
-				<Table.Head class="">Created</Table.Head>
-				<Table.Head class="w-30">Status</Table.Head>
-				<Table.Head class="">Actions</Table.Head>
+				<Table.Row>
+					<Table.Head class="w-max">Title</Table.Head>
+					<Table.Head>Issue Link</Table.Head>
+					<Table.Head>Challenge Link</Table.Head>
+					<Table.Head class="">Created</Table.Head>
+					<Table.Head class="w-30">Status</Table.Head>
+					<Table.Head class="">Actions</Table.Head>
+				</Table.Row>
 			</Table.Header>
 			<Table.Body>
 				{#if $tixQuery.data}
