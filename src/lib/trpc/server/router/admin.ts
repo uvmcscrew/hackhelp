@@ -205,6 +205,13 @@ const ticketRouter = t.router({
 				.where(eq(ctx.dbSchema.ticket.id, input.ticketId))
 				.returning();
 
+			await ctx.githubApp.rest.issues.createComment({
+				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				repo: ticket.repository,
+				issue_number: ticket.issueNumber,
+				body: `This issue has been assigned to @${ctx.user.username} (${ctx.user.fullName}).`
+			});
+
 			return { ticket };
 		})
 });
