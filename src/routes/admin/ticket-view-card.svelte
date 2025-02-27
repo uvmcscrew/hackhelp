@@ -7,6 +7,7 @@
 	import { clientEnv } from '$lib/env/client';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
+	import TicketAssigneeCombobox from './ticket-assignee-combobox.svelte';
 
 	let ticketId = $derived.by(() => {
 		return page.url.searchParams.get('ticketId');
@@ -22,6 +23,7 @@
 				<Card.Title class="h-full">Ticket Viewer</Card.Title>
 			</Card.Header>
 			<Card.Content class="flex flex-col justify-start gap-y-4">
+				<TicketAssigneeCombobox initialId={$ticketQuery.data.ticket.user?.id} />
 				<!-- Repo information card -->
 				<Card.Card class="h-full w-full">
 					<Card.Header class="flex flex-row items-center justify-between">

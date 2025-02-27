@@ -56,6 +56,13 @@ const userRouter = t.router({
 	allAccounts: adminProcedure.query(async ({ ctx }) => {
 		const users = await ctx.db.select().from(ctx.dbSchema.user);
 		return { users };
+	}),
+	getAdmins: adminProcedure.query(async ({ ctx }) => {
+		const admins = await ctx.db
+			.select()
+			.from(ctx.dbSchema.user)
+			.where(eq(ctx.dbSchema.user.isOrgAdmin, true));
+		return { admins };
 	})
 });
 

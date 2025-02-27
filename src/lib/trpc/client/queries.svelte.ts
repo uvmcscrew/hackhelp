@@ -41,6 +41,13 @@ function adminListAllUsers(initialData?: RouterOutputs['admin']['users']['all'])
 	});
 }
 
+function adminListAllAdmins() {
+	return createQuery({
+		queryKey: ['admin', 'adminlist'],
+		queryFn: () => trpcClient.admin.users.getAdmins.query()
+	});
+}
+
 function adminGetUserById(
 	userId: string,
 	initialData?: RouterOutputs['admin']['users']['getById']
@@ -159,6 +166,7 @@ export const queries = {
 	queryWhoamiWithProfile,
 	hasPendingInvite,
 	adminListAllUsers,
+	adminListAllAdmins,
 	adminGetUserById,
 	adminGetUserByUsername,
 	adminGetAllTeams,
