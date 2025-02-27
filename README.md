@@ -93,12 +93,33 @@ then visit http://localhost:5173
 
 ```sh
 # Counting excluding installed ui components
-tokei -t=Typescript,Svelte,Javascript,CSS,HTML -e src/lib/components/ui
+# see .tokeignore
+tokei
 # Counting everything
-tokei -t=Typescript,Svelte,Javascript,CSS,HTML
+tokei --no-ignore
 ```
 
-#### Svelte Query
+##### Feb 26th 2025 at 21:32
+
+```
+===============================================================================
+ Language            Files        Lines         Code     Comments       Blanks
+===============================================================================
+ CSS                     1           78           56            0           22
+ HTML                    1           12           12            0            0
+ JavaScript              2           53           43            6            4
+ JSON                    3          130          130            0            0
+ Markdown                1          109            0           67           42
+ SVG                     1           11           10            1            0
+ TypeScript             41         2300         1928           86          286
+-------------------------------------------------------------------------------
+ Svelte                 41         1268         1208            0           60
+ |- JavaScript          36          648          547            5           96
+ (Total)                           1916         1755            5          156
+===============================================================================
+ Total                  91         3961         3387          160          414
+===============================================================================
+```
 
 ## Credits
 
