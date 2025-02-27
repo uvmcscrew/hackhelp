@@ -9,7 +9,7 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import RepoCreatorSheet from './repo-creator-sheet.svelte';
 	import SquareArrowOutUpRight from 'lucide-svelte/icons/square-arrow-out-up-right';
-	import GithubIcon from 'lucide-svelte/icons/github';
+	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 	import { Badge } from '$lib/components/ui/badge';
 	import { watch } from 'runed';
 	import { browser } from '$app/environment';
@@ -26,10 +26,11 @@
 	let manualRefreshing = $state(false);
 </script>
 
-<Tabs.Root class="col-span-1 col-start-1 row-span-1 row-start-2 flex flex-col">
+<Tabs.Root value="repos" class="col-span-1 col-start-1 row-span-1 row-start-2 flex flex-col">
 	<Tabs.List class="w-fit">
-		<Tabs.Trigger value="challenge">Challenge</Tabs.Trigger>
 		<Tabs.Trigger value="repos">Repositories</Tabs.Trigger>
+
+		<Tabs.Trigger value="challenge">Challenge</Tabs.Trigger>
 	</Tabs.List>
 	<Tabs.Content value="empty" class="h-auto shrink-0 grow">
 		<Card.Root class="col-span-1 col-start-1 row-span-1 row-start-2 h-full"></Card.Root>
@@ -63,9 +64,9 @@
 									<a
 										href={repo.htmlUrl}
 										target="_blank"
-										class="hover:bg-muted/50 data-[state=selected]:bg-muted inline-flex w-full border-b p-2 transition-colors"
+										class="hover:bg-muted/50 inline-flex w-full items-center border-b p-2 transition-colors"
 									>
-										<GithubIcon class="mr-2 h-6 w-6" /> <span>{repo.name}</span>
+										<GithubIcon class="fill-foreground mr-2 size-5" /> <span>{repo.name}</span>
 
 										<SquareArrowOutUpRight class="ml-auto h-5 w-5" />
 										<Badge hoverEffects={false} variant="outline" class="ml-2"

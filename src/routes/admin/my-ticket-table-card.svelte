@@ -7,7 +7,7 @@
 	import { clientEnv } from '$lib/env/client';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import { formatDistance } from 'date-fns';
-	import GithubIcon from 'lucide-svelte/icons/github';
+	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 
 	let tixQuery = queries.adminGetMyAssignedTickets();
 </script>
@@ -35,12 +35,12 @@
 					{#each $tixQuery.data.tickets as ticket}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
-							<Table.Cell
+							<Table.Cell class="pl-0"
 								><Button
 									href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
 									variant="link"
 								>
-									<GithubIcon class="mr-2 size-4" />{ticket.repository}#{ticket.issueNumber}
+									<GithubIcon class="mr-2 size-6" />{ticket.repository}#{ticket.issueNumber}
 								</Button></Table.Cell
 							>
 							<Table.Cell>
@@ -49,7 +49,7 @@
 										href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.challengeRepo}`}
 										variant="link"
 									>
-										<GithubIcon class="mr-2 size-4" />{ticket.repository}#{ticket.issueNumber}
+										<GithubIcon class="fill-foreground mr-2 size-6" />{ticket.challengeRepo}
 									</Button>
 									>
 								{:else}

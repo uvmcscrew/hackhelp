@@ -6,12 +6,13 @@
 	import * as Table from '$lib/components/ui/table';
 	import { clientEnv } from '$lib/env/client';
 	import queries from '$lib/trpc/client/queries.svelte';
-	import GithubIcon from 'lucide-svelte/icons/github';
+	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 	import { formatRelative, formatDistance } from 'date-fns';
 	import UserPen from 'lucide-svelte/icons/user-pen';
 	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
 
 	let tixQuery = queries.adminGetAllOpenTickets();
+	let accountQuery = queries.queryWhoamiNoInitial();
 </script>
 
 <Card.Card class="">
@@ -41,8 +42,11 @@
 								><Button
 									href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
 									variant="link"
+									class="px-0"
 								>
-									<GithubIcon class="mr-2 size-4" />{ticket.repository}#{ticket.issueNumber}
+									<GithubIcon
+										class=" fill-primary !size-5"
+									/>{ticket.repository}#{ticket.issueNumber}
 								</Button></Table.Cell
 							>
 							<Table.Cell>
@@ -51,7 +55,9 @@
 										href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.challengeRepo}`}
 										variant="link"
 									>
-										<GithubIcon class="mr-2 size-4" />{ticket.repository}#{ticket.issueNumber}
+										<GithubIcon
+											class="fill-primary !size-5"
+										/>{ticket.challengeRepo}#{ticket.issueNumber}
 									</Button>
 									>
 								{:else}

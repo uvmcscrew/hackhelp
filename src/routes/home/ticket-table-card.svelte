@@ -7,6 +7,7 @@
 	import { clientEnv } from '$lib/env/client';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import TicketCreateSheet from './ticket-create-sheet.svelte';
+	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 
 	let ticketsQuery = queries.competitorGetOpenTickets();
 </script>
@@ -21,9 +22,10 @@
 			<Table.Header>
 				<Table.Row>
 					<Table.Head class="w-max">Title</Table.Head>
-					<Table.Head>Issue Link</Table.Head>
+					<Table.Head class="text-left">Issue Link</Table.Head>
 					<Table.Head class="w-min">Status</Table.Head>
 					<Table.Head>Assigned Mentor</Table.Head>
+					<Table.Head>Actions</Table.Head>
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
@@ -31,12 +33,16 @@
 					{#each $ticketsQuery.data.tickets as ticket}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
-							<Table.Cell>
+							<Table.Cell class="">
 								<a
 									href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
 									target="_blank"
-									class={buttonVariants({ variant: 'link' })}
+									class={buttonVariants({
+										variant: 'link',
+										class: 'inline-flex items-center px-0'
+									})}
 								>
+									<GithubIcon class="fill-primary !size-5" />
 									{`${ticket.repository}#${ticket.issueNumber}`}
 								</a>
 							</Table.Cell>
