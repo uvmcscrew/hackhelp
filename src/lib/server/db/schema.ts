@@ -47,7 +47,8 @@ export const team = pgTable('team', {
 	selectedChallengeId: text('selected_challenge_id').references(() => challenge.id)
 });
 
-export type TicketResolutionStatus = 'open' | 'assigned' | 'inProgress' | 'closed';
+export const TICKET_RESOLUTION_STATUS = ['open', 'assigned', 'inProgress', 'closed'] as const;
+export type TicketResolutionStatus = (typeof TICKET_RESOLUTION_STATUS)[number];
 
 export const ticket = pgTable('ticket', {
 	id: text('id').primaryKey().$defaultFn(cuid2),

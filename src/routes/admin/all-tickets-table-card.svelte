@@ -11,6 +11,8 @@
 	import UserPen from 'lucide-svelte/icons/user-pen';
 	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
 	import mutations from '$lib/trpc/client/mutations.svelte';
+	import { page } from '$app/state';
+	import { goto, pushState } from '$app/navigation';
 
 	let tixQuery = queries.adminGetAllOpenTickets();
 	let accountQuery = queries.queryWhoamiNoInitial();
@@ -18,7 +20,7 @@
 	let selfAssignMutation = mutations.adminSelfAssignTicket();
 </script>
 
-<Card.Card class="">
+<Card.Card class="h-full">
 	<Card.Header class="flex flex-row items-center justify-between">
 		<span class="flex flex-col gap-y-2">
 			<Card.Title class="h-full">All Tickets</Card.Title>
@@ -46,6 +48,7 @@
 									href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
 									variant="link"
 									class="px-0"
+									target="_blank"
 								>
 									<GithubIcon
 										class=" fill-primary !size-5"
@@ -57,6 +60,8 @@
 									<Button
 										href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.challengeRepo}`}
 										variant="link"
+										class="px-0"
+										target="_blank"
 									>
 										<GithubIcon
 											class="fill-primary !size-5"
@@ -81,7 +86,13 @@
 									variant="outline"
 									size="icon"><UserPen class="size-4" /></Button
 								>
-								<Button variant="outline" size="icon"><SquareChevronRight class="size-4" /></Button>
+								<Button
+									variant="outline"
+									size="icon"
+									onclick={async () => {
+										await goto(`/admin?ticketId=${ticket.id}`);
+									}}><SquareChevronRight class="size-4" /></Button
+								>
 							</Table.Cell>
 						</Table.Row>
 					{/each}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -7,12 +8,13 @@
 	import { clientEnv } from '$lib/env/client';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import { formatDistance } from 'date-fns';
+	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 
 	let tixQuery = queries.adminGetMyAssignedTickets();
 </script>
 
-<Card.Card class="">
+<Card.Card class="h-full">
 	<Card.Header class="flex flex-row items-center justify-between">
 		<span class="flex flex-col gap-y-2">
 			<Card.Title class="h-full">My Tickets</Card.Title>
@@ -39,6 +41,7 @@
 								><Button
 									href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
 									variant="link"
+									target="_blank"
 								>
 									<GithubIcon class="mr-2 size-6" />{ticket.repository}#{ticket.issueNumber}
 								</Button></Table.Cell
@@ -60,7 +63,15 @@
 								>{formatDistance(ticket.createdAt, Date.now(), { addSuffix: true })}</Table.Cell
 							>
 							<Table.Cell><TicketStatusBadge status={ticket.resolutionStatus} /></Table.Cell>
-							<Table.Cell></Table.Cell>
+							<Table.Cell>
+								<Button
+									variant="outline"
+									size="icon"
+									onclick={async () => {
+										await goto(`/admin?ticketId=${ticket.id}`);
+									}}><SquareChevronRight class="size-4" /></Button
+								>
+							</Table.Cell>
 						</Table.Row>
 					{/each}
 					{#if $tixQuery.data.tickets.length === 0}

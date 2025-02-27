@@ -145,6 +145,15 @@ function adminGetMyAssignedTickets() {
 	});
 }
 
+function adminGetTicketById(ticketId: string | null) {
+	return createQuery({
+		queryKey: ['admin', 'ticket', ticketId],
+		queryFn: () => trpcClient.admin.tickets.getTicketById.query({ ticketId: ticketId ?? '' }),
+		enabled: !!ticketId,
+		staleTime: 300_000
+	});
+}
+
 export const queries = {
 	queryWhoami,
 	queryWhoamiWithProfile,
@@ -161,7 +170,8 @@ export const queries = {
 	competitorGetOpenTickets,
 	adminGetAllOpenTickets,
 	adminGetMyAssignedTickets,
-	queryWhoamiNoInitial
+	queryWhoamiNoInitial,
+	adminGetTicketById
 };
 
 export default queries;

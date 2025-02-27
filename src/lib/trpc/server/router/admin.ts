@@ -181,6 +181,7 @@ const ticketRouter = t.router({
 				eq(ctx.dbSchema.ticket.challengeId, ctx.dbSchema.challenge.id)
 			)
 			.orderBy(desc(ctx.dbSchema.ticket.createdAt));
+
 		return { tickets };
 	}),
 	selfAssign: adminProcedure
@@ -213,6 +214,27 @@ const ticketRouter = t.router({
 			});
 
 			return { ticket };
+		}),
+	getTicketById: adminProcedure
+		.input(z.object({ ticketId: z.string() }))
+		.query(async ({ ctx, input }) => {
+			const [ticket] = await ctx.db
+				.select()
+				.from(ctx.dbSchema.ticket)
+				.where(eq(ctx.dbSchema.ticket.id, input.ticketId))
+				.leftJoin(ctx.dbSchema.user, eq(ctx.dbSchema.ticket.assignedMentor, ctx.dbSchema.user.id))
+				.leftJoin(
+					ctx.dbSchema.challenge,
+					eq(ctx.dbSchema.ticket.challengeId, ctx.dbSchema.challenge.id)
+				);
+			if (!ticket) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+			}
+			const repoLanguages = await ctx.githubApp.rest.repos.listLanguages({
+				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				repo: ticket.ticket.repository
+			});
+			return { ticket, langs: repoLanguages.data };
 		})
 });
 
