@@ -149,6 +149,19 @@ function competitorCreateTicket(opts?: BaseMutationProps) {
 	});
 }
 
+function adminSelfAssignTicket(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['admin self assign ticket'],
+		mutationFn: (data: RouterInputs['admin']['tickets']['selfAssign']) =>
+			trpcClient.admin.tickets.selfAssign.mutate(data),
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['tickets'] }),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
 export const mutations = {
 	requestInvite,
 	refreshInvite,
@@ -157,7 +170,8 @@ export const mutations = {
 	competitorLeaveTeam,
 	createTeamRepo,
 	competitorUpdateTeamJoinable,
-	competitorCreateTicket
+	competitorCreateTicket,
+	adminSelfAssignTicket
 };
 
 export default mutations;

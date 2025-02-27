@@ -181,7 +181,22 @@ const ticketRouter = t.router({
 			)
 			.orderBy(desc(ctx.dbSchema.ticket.createdAt));
 		return { tickets };
-	})
+	}),
+	selfAssign: adminProcedure
+		.input(z.object({ ticketId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			const [ticket] = await ctx.db
+				.update(ctx.dbSchema.ticket)
+				.set({ assignedMentor: ctx.user.id })
+				.where(eq(ctx.dbSchema.ticket.id, input.ticketId))
+				.returning();
+
+			if (!ticket) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+			}
+
+			return { ticket };
+		})
 });
 
 // #############################################

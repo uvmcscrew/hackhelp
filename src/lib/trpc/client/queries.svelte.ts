@@ -10,6 +10,13 @@ function queryWhoami(initialData: RouterOutputs['account']['whoami']) {
 	});
 }
 
+function queryWhoamiNoInitial() {
+	return createQuery({
+		queryKey: ['user'],
+		queryFn: () => trpcClient.account.whoami.query()
+	});
+}
+
 function queryWhoamiWithProfile(initialData: RouterOutputs['account']['whoamiWithProfile']) {
 	return createQuery({
 		queryKey: ['user', 'profile'],
@@ -153,7 +160,8 @@ export const queries = {
 	competitorGetAllTeamIssues,
 	competitorGetOpenTickets,
 	adminGetAllOpenTickets,
-	adminGetMyAssignedTickets
+	adminGetMyAssignedTickets,
+	queryWhoamiNoInitial
 };
 
 export default queries;
