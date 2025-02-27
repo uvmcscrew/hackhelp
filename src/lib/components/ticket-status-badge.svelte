@@ -10,7 +10,7 @@
 </script>
 
 {#if status === 'open'}
-	<Badge hoverEffects={false} class="bg-uvm-gold text-background">Open</Badge>
+	<Badge hoverEffects={false} class="bg-uvm-gold text-black">Open</Badge>
 {:else if status === 'assigned'}
 	<Badge hoverEffects={false} class="bg-blue-600/80 text-white">Assigned</Badge>
 {:else if status === 'inProgress'}
