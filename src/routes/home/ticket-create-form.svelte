@@ -26,20 +26,17 @@
 
 	let createIssueMutation = mutations.competitorCreateTicket();
 
-	let form = superForm(
-		defaults({ ...$selectedIssue, location: 'Ifshin 107 (Keller Room)' }, zod(createTicketSchema)),
-		{
-			SPA: true,
-			validators: zod(createTicketSchema),
-			onUpdate: async ({ form }) => {
-				if (form.valid) {
-					posthogHandler((posthog) => posthog.capture('Create Ticket'));
-					$createIssueMutation.mutate(form.data);
-					ticketCreateSheetOpen.set(false);
-				}
+	let form = superForm(defaults({ ...$selectedIssue }, zod(createTicketSchema)), {
+		SPA: true,
+		validators: zod(createTicketSchema),
+		onUpdate: async ({ form }) => {
+			if (form.valid) {
+				posthogHandler((posthog) => posthog.capture('Create Ticket'));
+				$createIssueMutation.mutate(form.data);
+				ticketCreateSheetOpen.set(false);
 			}
 		}
-	);
+	});
 
 	let { form: formData, enhance, submitting, submit } = form;
 
@@ -54,9 +51,7 @@
 					formData.set({
 						title: $selectedIssue.title,
 						issueNumber: $selectedIssue.issueNumber,
-						repository: $selectedIssue.repoName,
-						location: $formData.location,
-						locationDescription: $formData.locationDescription
+						repository: $selectedIssue.repoName
 					});
 				}
 			}
@@ -79,7 +74,7 @@
 		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
-	<Form.Field {form} name="location" aria-disabled={!$selectedIssue}>
+	<!-- <Form.Field {form} name="location" aria-disabled={!$selectedIssue}>
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Room</Form.Label>
@@ -109,8 +104,8 @@
 			the number on your room is 240, you are in Ifshin 240.
 		</Form.Description>
 		<Form.FieldErrors />
-	</Form.Field>
-	<Form.Field {form} name="locationDescription" aria-disabled={!$selectedIssue}>
+	</Form.Field> -->
+	<!-- <Form.Field {form} name="locationDescription" aria-disabled={!$selectedIssue}>
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Location Description</Form.Label>
@@ -126,7 +121,7 @@
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />
-	</Form.Field>
+	</Form.Field> -->
 </form>
 
 <Sheet.Footer class="mt-2 font-mono sm:justify-start">

@@ -307,8 +307,8 @@ const ticketRouter = t.router({
 				issueNumber: input.issueNumber,
 				repository: input.repository,
 				title: input.title,
-				location: input.location,
-				locationDescription: input.locationDescription
+				location: 'Ifshin 240',
+				locationDescription: 'Ifshin 240'
 			})
 			.returning();
 
@@ -317,7 +317,7 @@ const ticketRouter = t.router({
 			owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
 			repo: input.repository,
 			issue_number: input.issueNumber,
-			body: `This issue has been linked to a ticket.  \nRoom: ${input.location}  \nLocation Description: ${input.locationDescription}`
+			body: `This issue has been linked to a ticket.`
 		});
 
 		return { ticket };
