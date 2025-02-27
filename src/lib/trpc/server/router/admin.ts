@@ -144,6 +144,7 @@ const ticketRouter = t.router({
 				id: ctx.dbSchema.ticket.id,
 				title: ctx.dbSchema.ticket.title,
 				assignedMentorName: ctx.dbSchema.user.fullName,
+				assignedMentorId: ctx.dbSchema.ticket.assignedMentor,
 				createdAt: ctx.dbSchema.ticket.createdAt,
 				resolutionStatus: ctx.dbSchema.ticket.resolutionStatus,
 				repository: ctx.dbSchema.ticket.repository,
@@ -185,15 +186,24 @@ const ticketRouter = t.router({
 	selfAssign: adminProcedure
 		.input(z.object({ ticketId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
+			// Check if the ticket exists
+			// and is not already assigned to someone else
+			const [existingTicket] = await ctx.db
+				.select()
+				.from(ctx.dbSchema.ticket)
+				.where(eq(ctx.dbSchema.ticket.id, input.ticketId));
+			if (!existingTicket) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+			}
+			if (existingTicket.assignedMentor !== null) {
+				throw new TRPCError({ code: 'BAD_REQUEST', message: 'Ticket is already assigned' });
+			}
+
 			const [ticket] = await ctx.db
 				.update(ctx.dbSchema.ticket)
 				.set({ assignedMentor: ctx.user.id })
 				.where(eq(ctx.dbSchema.ticket.id, input.ticketId))
 				.returning();
-
-			if (!ticket) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
-			}
 
 			return { ticket };
 		})

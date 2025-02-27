@@ -10,9 +10,12 @@
 	import { formatRelative, formatDistance } from 'date-fns';
 	import UserPen from 'lucide-svelte/icons/user-pen';
 	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
+	import mutations from '$lib/trpc/client/mutations.svelte';
 
 	let tixQuery = queries.adminGetAllOpenTickets();
 	let accountQuery = queries.queryWhoamiNoInitial();
+
+	let selfAssignMutation = mutations.adminSelfAssignTicket();
 </script>
 
 <Card.Card class="">
@@ -69,8 +72,14 @@
 							>
 							<Table.Cell><TicketStatusBadge status={ticket.resolutionStatus} /></Table.Cell>
 							<Table.Cell>
-								<Button title="Assign issue to self" variant="outline" size="icon"
-									><UserPen class="size-4" /></Button
+								<Button
+									title="Assign issue to self"
+									disabled={$accountQuery.data?.user?.id === ticket.assignedMentorId}
+									onclick={async () => {
+										await $selfAssignMutation.mutateAsync({ ticketId: ticket.id });
+									}}
+									variant="outline"
+									size="icon"><UserPen class="size-4" /></Button
 								>
 								<Button variant="outline" size="icon"><SquareChevronRight class="size-4" /></Button>
 							</Table.Cell>

@@ -156,7 +156,11 @@ function adminSelfAssignTicket(opts?: BaseMutationProps) {
 		mutationKey: ['admin self assign ticket'],
 		mutationFn: (data: RouterInputs['admin']['tickets']['selfAssign']) =>
 			trpcClient.admin.tickets.selfAssign.mutate(data),
-		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['tickets'] }),
+		onSettled: async () =>
+			await Promise.allSettled([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'tickets'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'mytickets'] })
+			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
 	});
