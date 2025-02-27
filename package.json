@@ -81,6 +81,7 @@
 		"superjson": "^2.2.2",
 		"svelte": "^5.20.1",
 		"svelte-adapter-bun": "^0.5.2",
+		"svelte-octicons": "^18.11.0",
 		"svelte-sonner": "^0.3.28",
 		"sveltekit-superforms": "^2.23.1",
 		"tailwind-merge": "^2.6.0",
