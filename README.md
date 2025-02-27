@@ -32,9 +32,6 @@ If a user logs in who has the `Owner` role in the configured github organization
 
 ### Team/User Permission Management
 
-> [!WARNING]
-> This portion has not been completed yet.
-
 Teams are required to store all code artifacts in a git repository on GitHub, in the hackathon organization. This is for a few reasons:
 
 1. Git is an industry standard tool, and GitHub often accompanies it. We want to encourage the use of popular tools.
@@ -47,10 +44,7 @@ When a team is created in HackHelp, it is also created as Github Team. Whenever 
 
 ### Ticketing
 
-> [!WARNING]
-> This portion has not been completed yet.
-
-Tickets are an abstraction on top of GitHub issues. When a team creates a ticket, they link it to an issue in their repository. This allows competitors to leave comments in Markdown format, link to their code, and generally utilize the GitHub platform. The HackHelp system only stores high-level competition specific metadata for a ticket; specifically, the team's physical location, what tools/languages/concepts the request pertains to, the assigned mentor who will help them, and whether the ticket is resolved. The resolution status is tracked separately from whether the issue is closed within GitHub to provide teams maximum flexibility.
+Tickets are an abstraction on top of GitHub issues. When a team creates a ticket, they link it to an issue in their repository. This allows competitors to leave comments in Markdown format, link to their code, and generally utilize the GitHub platform. The HackHelp system only stores high-level competition specific metadata for a ticket; specifically, the assigned mentor who will help them, and whether the ticket is resolved. The resolution status is tracked separately from whether the issue is closed within GitHub to provide teams maximum flexibility.
 
 Mentors will have access to the admin dashboard where there will be a feed of tickets. They can assign themselves as the designated help person, and also filter the view for help tickets that the are assigned to and/or are best suited to help with.
 
