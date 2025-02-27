@@ -32,6 +32,7 @@
 						><Button
 							href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${$ticketQuery.data.ticket.ticket.repository}/issues/${$ticketQuery.data.ticket.ticket.issueNumber}`}
 							variant="link"
+							target="_blank"
 							class="px-0"
 							><GithubIcon class=" fill-primary !size-5" />{$ticketQuery.data.ticket.ticket
 								.repository}#{$ticketQuery.data.ticket.ticket.issueNumber}</Button
@@ -40,9 +41,7 @@
 				</Card.Card>
 				<!-- yeet -->
 			</Card.Content>
-			<Card.Footer
-				><Button href="/admin" target="_blank" variant="outline">Close</Button></Card.Footer
-			>
+			<Card.Footer><Button href="/admin" variant="outline">Close</Button></Card.Footer>
 		</Card.Card>
 	</div>
 {:else}

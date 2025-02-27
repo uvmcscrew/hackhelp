@@ -20,7 +20,7 @@
 	let selfAssignMutation = mutations.adminSelfAssignTicket();
 </script>
 
-<Card.Card class="h-full">
+<Card.Card class="">
 	<Card.Header class="flex flex-row items-center justify-between">
 		<span class="flex flex-col gap-y-2">
 			<Card.Title class="h-full">All Tickets</Card.Title>
