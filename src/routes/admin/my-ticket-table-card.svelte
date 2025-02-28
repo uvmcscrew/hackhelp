@@ -33,7 +33,7 @@
 				<Table.Row>
 					<Table.Head class="w-max">Title</Table.Head>
 					<Table.Head>Issue Link</Table.Head>
-					<Table.Head>Challenge</Table.Head>
+					<Table.Head>Challenge Link</Table.Head>
 					<Table.Head class="">Created</Table.Head>
 					<Table.Head class="w-30">Status</Table.Head>
 					<Table.Head class="">Actions</Table.Head>
@@ -44,13 +44,16 @@
 					{#each $tixQuery.data.tickets as ticket}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
-							<Table.Cell class="pl-0"
+							<Table.Cell
 								><Button
 									href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
 									variant="link"
 									target="_blank"
+									class="px-0"
 								>
-									<GithubIcon class="mr-2 size-6" />{ticket.repository}#{ticket.issueNumber}
+									<GithubIcon
+										class="fill-primary size-5!"
+									/>{ticket.repository}#{ticket.issueNumber}
 								</Button></Table.Cell
 							>
 							<Table.Cell>
@@ -59,7 +62,7 @@
 										href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.challengeRepo}`}
 										variant="link"
 									>
-										<GithubIcon class="fill-foreground mr-2 size-6" />{ticket.challengeRepo}
+										<GithubIcon class="fill-foreground size-6" />{ticket.challengeRepo}
 									</Button>
 									>
 								{:else}
