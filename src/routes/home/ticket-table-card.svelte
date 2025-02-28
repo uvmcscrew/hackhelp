@@ -25,7 +25,7 @@
 					<Table.Head class="text-left">Issue Link</Table.Head>
 					<Table.Head class="w-min">Status</Table.Head>
 					<Table.Head>Assigned Mentor</Table.Head>
-					<Table.Head>Actions</Table.Head>
+					<!-- <Table.Head>Actions</Table.Head> -->
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>

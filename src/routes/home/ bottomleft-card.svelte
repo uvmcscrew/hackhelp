@@ -53,13 +53,12 @@
 							<Card.Title>{$team.data?.challenge.title}</Card.Title>
 						</Card.Header>
 
-						<Card.Footer>
+						<Card.Footer class="justify-start px-2">
 							<Button
 								href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${$team.data?.challenge.linkedRepo}`}
 								variant="link"
-								class="w-full"
 							>
-								<GithubIcon class="mr-2 !size-5" />
+								<GithubIcon class="fill-primary !size-5" />
 								{$team.data?.challenge.linkedRepo}
 							</Button>
 						</Card.Footer>
