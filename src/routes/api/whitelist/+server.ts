@@ -30,7 +30,7 @@ export async function POST(event: RequestEvent) {
 			.values({
 				givenName: `${user.firstName} ${user.lastName}`,
 				email: user.email,
-				username: user.ghUsername,
+				username: user.githubUsername,
 				isWhitelisted: true,
 				isBanned: false,
 				role: 'competitor'
