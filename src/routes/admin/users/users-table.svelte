@@ -5,7 +5,9 @@
 	import type { PageProps } from './$types';
 	import CheckIcon from 'lucide-svelte/icons/check';
 	import XIcon from 'lucide-svelte/icons/x';
-	import UserTableDropdown from './user-table-dropdown.svelte';
+	import UserRoundCheckIcon from 'lucide-svelte/icons/user-round-check';
+	import mutations from '$lib/trpc/client/mutations.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	type UserData = RouterOutputs['admin']['users']['all'];
 
@@ -16,6 +18,7 @@
 	let props: Props = $props();
 
 	let users = queries.adminListAllUsers(props.users);
+	let whitelistUserMutation = mutations.adminWhitelistUser();
 </script>
 
 <Table.Root>
@@ -27,7 +30,7 @@
 			<Table.Head class="w-32">Role</Table.Head>
 
 			<Table.Head class="w-[100px]">Whitelisted</Table.Head>
-			<Table.Head class=" w-36">Assigned to Team</Table.Head>
+			<Table.Head class=" w-36">Joined Team</Table.Head>
 			<Table.Head></Table.Head>
 		</Table.Row>
 	</Table.Header>
@@ -57,7 +60,16 @@
 							<XIcon class="h-5 w-5 text-red-500" />
 						{/if}
 					</Table.Cell>
-					<Table.Cell><UserTableDropdown /></Table.Cell>
+					<Table.Cell>
+						<Button
+							onclick={async () => {
+								await $whitelistUserMutation.mutateAsync({ userId: user.user.id });
+							}}
+							disabled={$whitelistUserMutation.isPending || user.profile?.isWhitelisted}
+							variant="outline"
+							size="icon"><UserRoundCheckIcon /></Button
+						>
+					</Table.Cell>
 				</Table.Row>
 			{/each}
 		{/if}
