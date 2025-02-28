@@ -275,6 +275,19 @@ function teamSelectChallenge(opts?: BaseMutationProps) {
 	});
 }
 
+function adminWhitelistUser(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['admin whitelist user'],
+		mutationFn: (data: RouterInputs['admin']['users']['whitelistById']) =>
+			trpcClient.admin.users.whitelistById.mutate(data),
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['admin', 'userlist'] }),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
 export const mutations = {
 	requestInvite,
 	refreshInvite,
@@ -290,7 +303,8 @@ export const mutations = {
 	adminUnassignTicket,
 	adminChangeTicketStatus,
 	competitorUpdateTeam,
-	teamSelectChallenge
+	teamSelectChallenge,
+	adminWhitelistUser
 };
 
 export default mutations;

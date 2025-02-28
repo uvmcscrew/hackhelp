@@ -15,20 +15,20 @@
 
 	let props: Props = $props();
 
-	let users = queries.adminGetAllTeams(props.teams);
+	let teams = queries.adminGetAllTeams(props.teams);
 </script>
 
 <Table.Root>
 	<Table.Header>
 		<Table.Row>
 			<Table.Head class="w-min">Name</Table.Head>
-			<Table.Head class="w-[100px]">Members</Table.Head>
-			<Table.Head />
+			<Table.Head class=" w-8">Members</Table.Head>
+			<Table.Head></Table.Head>
 		</Table.Row>
 	</Table.Header>
 	<Table.Body>
-		{#if $users.data}
-			{#each $users.data.teams as team}
+		{#if $teams.data}
+			{#each $teams.data.teams as team}
 				<Table.Row>
 					<Table.Cell class="font-medium">{team.name}</Table.Cell>
 					<Table.Cell>0</Table.Cell>

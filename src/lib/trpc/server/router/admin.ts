@@ -1,5 +1,5 @@
 import { adminProcedure, t } from '../shared';
-import { eq, ne, desc } from 'drizzle-orm';
+import { eq, ne, desc, and } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { serverEnv } from '$lib/env/server';
@@ -64,7 +64,20 @@ const userRouter = t.router({
 			.from(ctx.dbSchema.user)
 			.where(eq(ctx.dbSchema.user.isOrgAdmin, true));
 		return { admins };
-	})
+	}),
+	whitelistById: adminProcedure
+		.input(z.object({ userId: z.string().nonempty() }))
+		.mutation(async ({ ctx, input }) => {
+			const [user] = await ctx.db
+				.update(ctx.dbSchema.profile)
+				.set({ isWhitelisted: true })
+				.where(eq(ctx.dbSchema.profile.linkedUserId, input.userId))
+				.returning();
+			if (!user) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+			}
+			return { user };
+		})
 });
 
 // #############################################
@@ -73,20 +86,48 @@ const userRouter = t.router({
 
 const teamRouter = t.router({
 	all: adminProcedure.query(async ({ ctx }) => {
-		const teams = await ctx.db.query.team.findMany({});
+		const teams = await ctx.db
+			.select({
+				id: ctx.dbSchema.team.id,
+				name: ctx.dbSchema.team.name,
+				githubId: ctx.dbSchema.team.githubId,
+				githubSlug: ctx.dbSchema.team.githubSlug,
+				memberCount: ctx.db.$count(
+					ctx.dbSchema.user,
+					eq(ctx.dbSchema.user.teamId, ctx.dbSchema.team.id)
+				),
+				joinCode: ctx.dbSchema.team.joinCode,
+				canJoin: ctx.dbSchema.team.canJoin,
+				selectedChallengeId: ctx.dbSchema.team.selectedChallengeId,
+				challengeName: ctx.dbSchema.challenge.title,
+				challengeRepo: ctx.dbSchema.challenge.linkedRepo
+			})
+			.from(ctx.dbSchema.team)
+			.leftJoin(
+				ctx.dbSchema.challenge,
+				eq(ctx.dbSchema.team.selectedChallengeId, ctx.dbSchema.challenge.id)
+			);
 		return { teams };
 	}),
 	getById: adminProcedure
 		.input(z.object({ teamId: z.string().nonempty() }))
 		.query(async ({ ctx, input }) => {
-			const [team] = await ctx.db
+			const [teamData] = await ctx.db
 				.select()
 				.from(ctx.dbSchema.team)
-				.where(eq(ctx.dbSchema.team.id, input.teamId));
-			if (!team) {
+				.where(eq(ctx.dbSchema.team.id, input.teamId))
+				.leftJoin(
+					ctx.dbSchema.challenge,
+					eq(ctx.dbSchema.team.selectedChallengeId, ctx.dbSchema.challenge.id)
+				);
+			if (!teamData) {
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
 			}
-			return { team };
+			const members = await ctx.db
+				.select()
+				.from(ctx.dbSchema.user)
+				.where(eq(ctx.dbSchema.user.teamId, teamData.team.id));
+			return { team: teamData, members };
 		}),
 	createOne: adminProcedure
 		.input(z.object({ name: z.string().nonempty() }))
@@ -132,10 +173,32 @@ const teamRouter = t.router({
 				throw new TRPCError({ code: 'BAD_REQUEST', message: 'User is already on a team' });
 			}
 
+			// Make sure user does not already belong to a team
+			// If they do, remove them from that team
+			if (user.teamId !== null) {
+				const [oldTeam] = await ctx.db
+					.select()
+					.from(ctx.dbSchema.team)
+					.where(eq(ctx.dbSchema.team.id, user.teamId));
+
+				await ctx.githubApp.rest.teams.removeMembershipForUserInOrg({
+					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					team_slug: oldTeam.githubSlug,
+					username: user.username
+				});
+			}
+
+			// Update DB and github permissions
 			await ctx.db
 				.update(ctx.dbSchema.user)
 				.set({ teamId: input.teamId })
 				.where(eq(ctx.dbSchema.user.id, input.userId));
+
+			await ctx.githubApp.rest.teams.addOrUpdateMembershipForUserInOrg({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				team_slug: team.githubSlug,
+				username: user.username
+			});
 
 			return { team };
 		})
@@ -240,24 +303,34 @@ const ticketRouter = t.router({
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
 			}
 
+			// Check if the user exists and is an admin (qualifier for being a mentor)
+			const [user] = await ctx.db
+				.select()
+				.from(ctx.dbSchema.user)
+				.where(and(eq(ctx.dbSchema.user.id, input.userId), eq(ctx.dbSchema.user.isOrgAdmin, true)));
+			if (!user) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Admin not found' });
+			}
+
 			// Check if the ticket is already assigned to someone else
 			const [ticket] = await ctx.db
 				.update(ctx.dbSchema.ticket)
 				.set({
-					assignedMentor: input.userId,
+					assignedMentor: user.id,
 					resolutionStatus:
 						existingTicket.resolutionStatus === 'open'
 							? 'assigned'
 							: existingTicket.resolutionStatus
 				})
 				.where(eq(ctx.dbSchema.ticket.id, input.ticketId))
+
 				.returning();
 
 			await ctx.githubApp.rest.issues.createComment({
 				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
 				repo: ticket.repository,
 				issue_number: ticket.issueNumber,
-				body: `This issue has been assigned to @${input.userId}.`
+				body: `This issue has been assigned to @${user.username}.`
 			});
 			return { ticket };
 		}),
