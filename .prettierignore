@@ -2,3 +2,13 @@
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+bun.lock
+
+# install componetns
+node_modules
+src/lib/components/ui
+
+# codegen & build output
+drizzle
+.svelte-kit
+build

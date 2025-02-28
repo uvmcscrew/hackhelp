@@ -9,7 +9,7 @@ export const load = async (event: ServerLoadEvent) => {
 	}
 
 	try {
-		const res = await  trpcCreateCaller(createCallerContext(event)).admin.teams.getById({
+		const res = await trpcCreateCaller(createCallerContext(event)).admin.teams.getById({
 			teamId: event.params.teamId
 		});
 		return { teamRes: res };
