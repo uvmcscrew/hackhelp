@@ -16,10 +16,6 @@
 			text: 'Dashboard'
 		},
 		{
-			href: '/admin/tickets',
-			text: 'Tickets'
-		},
-		{
 			href: '/admin/teams',
 			text: 'Teams'
 		},
