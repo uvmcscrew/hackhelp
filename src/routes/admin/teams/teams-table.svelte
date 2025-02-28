@@ -30,6 +30,7 @@
 					<Table.Head class="">Name</Table.Head>
 					<Table.Head class=" w-8">Members</Table.Head>
 					<Table.Head>Prompt Selected</Table.Head>
+					<Table.Head>Join Code</Table.Head>
 					<Table.Head class="sr-only w-min">Actions</Table.Head>
 				</Table.Row>
 			</Table.Header>
@@ -53,6 +54,11 @@
 									<XIcon class="stroke-destructive fill-destructive" />
 								{/if}
 							</Table.Cell>
+							{#if team.joinCode}
+								<Table.Cell>{team.joinCode}</Table.Cell>
+							{:else}
+								<Table.Cell class="text-muted-foreground italic">Not Set</Table.Cell>
+							{/if}
 
 							<Table.Cell>
 								<Button variant="outline" size="icon" href="/admin/teams?teamId={team.id}"
