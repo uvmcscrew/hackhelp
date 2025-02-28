@@ -6,6 +6,10 @@
 	let props: PageProps = $props();
 </script>
 
+<svelte:head>
+	<title>Users | HackHelp Admin</title>
+</svelte:head>
+
 <div class="w-screen px-48 pt-8">
 	<div class="flex flex-row items-center justify-between">
 		<h1 class="py-2 text-2xl font-semibold">Users</h1>
