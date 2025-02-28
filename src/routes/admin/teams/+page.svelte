@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import type { PageProps } from './$types';
+	import TeamViewCard from './team-view-card.svelte';
 	import TeamsTable from './teams-table.svelte';
 
 	let props: PageProps = $props();
@@ -10,10 +11,7 @@
 	<title>Teams | HackHelp Admin</title>
 </svelte:head>
 
-<div class="w-screen px-48 pt-8">
-	<div class="flex flex-row items-center justify-between">
-		<h1 class="py-2 text-2xl font-semibold">Teams</h1>
-		<div class="flex flex-row"><Button>Create Team</Button></div>
-	</div>
+<div class="bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-4 grid-rows-3 gap-2 p-2">
 	<TeamsTable teams={props.data} />
+	<TeamViewCard />
 </div>

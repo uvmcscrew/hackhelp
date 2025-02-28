@@ -79,13 +79,14 @@ function adminGetAllTeams(initialData?: RouterOutputs['admin']['teams']['all']) 
 }
 
 function adminGetTeamById(
-	teamId: string,
+	teamId: string | null,
 	initialData?: RouterOutputs['admin']['teams']['getById']
 ) {
 	return createQuery({
 		queryKey: ['admin', 'team', teamId],
-		queryFn: () => trpcClient.admin.teams.getById.query({ teamId }),
-		initialData
+		queryFn: () => trpcClient.admin.teams.getById.query({ teamId: teamId ?? '' }),
+		initialData,
+		enabled: !!teamId
 	});
 }
 
