@@ -65,9 +65,7 @@
 										class="px-0"
 										target="_blank"
 									>
-										<GithubIcon
-											class="fill-primary !size-5"
-										/>{ticket.challengeRepo}#{ticket.issueNumber}
+										<GithubIcon class="fill-primary !size-5" />{ticket.challengeRepo}
 									</Button>
 									>
 								{:else}

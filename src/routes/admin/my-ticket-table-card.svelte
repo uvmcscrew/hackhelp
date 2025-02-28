@@ -61,6 +61,7 @@
 									<Button
 										href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.challengeRepo}`}
 										variant="link"
+										target="_blank"
 									>
 										<GithubIcon class="fill-foreground size-6" />{ticket.challengeRepo}
 									</Button>
