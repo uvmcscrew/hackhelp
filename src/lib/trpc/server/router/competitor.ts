@@ -55,7 +55,16 @@ const teamRouter = t.router({
 			.from(ctx.dbSchema.user)
 			.where(eq(ctx.dbSchema.user.teamId, ctx.team.id))
 			.leftJoin(ctx.dbSchema.profile, eq(ctx.dbSchema.user.id, ctx.dbSchema.profile.linkedUserId));
-		return { team: ctx.team, members };
+
+		if (ctx.team.selectedChallengeId === null) {
+			return { team: ctx.team, members, challenge: null };
+		}
+		const [challenge] = await ctx.db
+			.select()
+			.from(ctx.dbSchema.challenge)
+			.where(eq(ctx.dbSchema.challenge.id, ctx.team.selectedChallengeId));
+
+		return { team: ctx.team, members, challenge };
 	}),
 	updateProperties: teamProcedure
 		.input(
@@ -176,7 +185,68 @@ const teamRouter = t.router({
 		});
 
 		return { team: ctx.team };
-	})
+	}),
+	getChallenges: teamProcedure.query(async ({ ctx }) => {
+		// If challenges are not enabled, return nothing
+		if (!serverEnv.PUBLIC_SHOW_CHALLENGES) {
+			return { challenges: [] };
+		}
+
+		// Get the challenges, including a special field using the sql`` operator to get a count of teams assigned to each challenges
+		const challenges = await ctx.db
+			.select({
+				id: ctx.dbSchema.challenge.id,
+				title: ctx.dbSchema.challenge.title,
+				linkedRepo: ctx.dbSchema.challenge.linkedRepo,
+				teamsAssigned: ctx.db.$count(
+					ctx.dbSchema.team,
+					eq(ctx.dbSchema.team.selectedChallengeId, ctx.dbSchema.challenge.id)
+				)
+			})
+			.from(ctx.dbSchema.challenge);
+
+		return { challenges };
+	}),
+	selectChallenge: teamProcedure
+		.input(z.object({ challengeId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			if (!serverEnv.PUBLIC_SHOW_CHALLENGES) {
+				throw new TRPCError({ code: 'FORBIDDEN', message: 'Challenges are not enabled' });
+			}
+
+			if (ctx.team.selectedChallengeId !== null) {
+				throw new TRPCError({
+					code: 'FORBIDDEN',
+					message: 'Team has already selected a challenge'
+				});
+			}
+
+			const [challenge] = await ctx.db
+				.select()
+				.from(ctx.dbSchema.challenge)
+				.where(eq(ctx.dbSchema.challenge.id, input.challengeId));
+
+			if (!challenge) {
+				throw new TRPCError({ code: 'NOT_FOUND', message: 'Challenge not found' });
+			}
+
+			const [team] = await ctx.db
+				.update(ctx.dbSchema.team)
+				.set({ selectedChallengeId: challenge.id })
+				.where(eq(ctx.dbSchema.team.id, ctx.user.teamId))
+				.returning();
+
+			// Permit them to see the challenge repository
+			await ctx.githubApp.rest.teams.addOrUpdateRepoPermissionsInOrg({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				team_slug: team.githubSlug,
+				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				repo: challenge.linkedRepo,
+				permission: 'pull'
+			});
+
+			return { team };
+		})
 });
 
 // #############################################
@@ -184,16 +254,18 @@ const teamRouter = t.router({
 // #############################################
 
 async function getAllTeamRepositories(githubApp: GithubAppClient, teamSlug: string) {
-	return await githubApp.rest.teams.listReposInOrg({
-		org: serverEnv.PUBLIC_GITHUB_ORGNAME,
-		team_slug: teamSlug
-	});
+	return (
+		await githubApp.rest.teams.listReposInOrg({
+			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+			team_slug: teamSlug
+		})
+	).data.filter((repo) => !repo.name.startsWith('prompt'));
 }
 
 const repositoryRouter = t.router({
 	getAll: teamProcedure.query(async ({ ctx }) => {
 		return {
-			repos: (await getAllTeamRepositories(ctx.githubApp, ctx.team.githubSlug)).data.map((repo) => {
+			repos: (await getAllTeamRepositories(ctx.githubApp, ctx.team.githubSlug)).map((repo) => {
 				return {
 					id: repo.id,
 					name: repo.name,
@@ -256,7 +328,7 @@ const ticketRouter = t.router({
 	getAllTeamIssues: teamProcedure.query(async ({ ctx }) => {
 		const repos = await getAllTeamRepositories(ctx.githubApp, ctx.team.githubSlug);
 		const issuesRaw = await Promise.all(
-			repos.data.map(async (repo) => {
+			repos.map(async (repo) => {
 				return await ctx.githubApp.rest.issues.listForRepo({
 					owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
 					repo: repo.name,

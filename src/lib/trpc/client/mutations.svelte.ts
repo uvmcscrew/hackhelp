@@ -262,6 +262,19 @@ function competitorUpdateTeam(opts?: BaseMutationProps) {
 	});
 }
 
+function teamSelectChallenge(opts?: BaseMutationProps) {
+	const queryClient = useQueryClient();
+
+	return createMutation({
+		mutationKey: ['team select challenge'],
+		mutationFn: (data: RouterInputs['competitor']['team']['selectChallenge']) =>
+			trpcClient.competitor.team.selectChallenge.mutate(data),
+		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['team'] }),
+		onSuccess: opts?.onSuccess,
+		onError: opts?.onError
+	});
+}
+
 export const mutations = {
 	requestInvite,
 	refreshInvite,
@@ -276,7 +289,8 @@ export const mutations = {
 	adminAssignTicket,
 	adminUnassignTicket,
 	adminChangeTicketStatus,
-	competitorUpdateTeam
+	competitorUpdateTeam,
+	teamSelectChallenge
 };
 
 export default mutations;

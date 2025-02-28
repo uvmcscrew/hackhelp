@@ -161,6 +161,15 @@ function adminGetTicketById(ticketId: string | null) {
 	});
 }
 
+function competitorGetChallenges(enabled: boolean = true) {
+	return createQuery({
+		queryKey: ['challenges'],
+		queryFn: () => trpcClient.competitor.team.getChallenges.query(),
+		refetchInterval: 5_000,
+		enabled
+	});
+}
+
 export const queries = {
 	queryWhoami,
 	queryWhoamiWithProfile,
@@ -179,7 +188,8 @@ export const queries = {
 	adminGetAllOpenTickets,
 	adminGetMyAssignedTickets,
 	queryWhoamiNoInitial,
-	adminGetTicketById
+	adminGetTicketById,
+	competitorGetChallenges
 };
 
 export default queries;

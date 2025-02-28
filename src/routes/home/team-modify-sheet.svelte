@@ -3,15 +3,9 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import XIcon from 'lucide-svelte/icons/x';
-	import CheckIcon from 'lucide-svelte/icons/check';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import queries from '$lib/trpc/client/queries.svelte';
-	import { Debounced } from 'runed';
 	import mutations from '$lib/trpc/client/mutations.svelte';
-	import TicketCreateCombobox from './ticket-create-combobox.svelte';
-	import { ticketCreateSheetOpen } from './ticket-create.svelte';
-	import TicketCreateForm from './ticket-create-form.svelte';
 	import { delay } from '$lib/utils';
 
 	let sheetOpen = $state(false);

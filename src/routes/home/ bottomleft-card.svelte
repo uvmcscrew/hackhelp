@@ -16,8 +16,11 @@
 	import { Button } from '$lib/components/ui/button';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
+	import ChallengeSelectorSheet from './challenge-selector-sheet.svelte';
+	import { clientEnv } from '$lib/env/client';
 
 	let repos = queries.competitorGetTeamRepos();
+	let team = queries.competitorGetMyTeam();
 
 	let repoCountString = $derived(`${$repos.data?.repos.length ?? '?'}/3`);
 
@@ -38,9 +41,33 @@
 	<Tabs.Content value="challenge" class="h-auto shrink-0 grow">
 		<Card.Root class="col-span-1 col-start-1 row-span-1 row-start-2 h-full">
 			<Card.Header class="flex h-14 flex-row items-center justify-between">
-				<Card.Title>Your Challenge</Card.Title>
+				<Card.Title class="inline-flex items-center gap-x-2">Challenge</Card.Title>
+				{#if $team.data?.team.selectedChallengeId === null}
+					<ChallengeSelectorSheet />
+				{/if}
 			</Card.Header>
-			<Card.Content>No challenge selected?</Card.Content>
+			<Card.Content>
+				{#if $team.data?.challenge !== null}
+					<Card.Root>
+						<Card.Header>
+							<Card.Title>{$team.data?.challenge.title}</Card.Title>
+						</Card.Header>
+
+						<Card.Footer>
+							<Button
+								href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${$team.data?.challenge.linkedRepo}`}
+								variant="link"
+								class="w-full"
+							>
+								<GithubIcon class="mr-2 !size-5" />
+								{$team.data?.challenge.linkedRepo}
+							</Button>
+						</Card.Footer>
+					</Card.Root>
+				{:else}
+					<span class="text-muted-foreground italic">No challenge selected</span>
+				{/if}</Card.Content
+			>
 			<Card.Footer class="grid w-fit grid-cols-2 grid-rows-3"></Card.Footer>
 		</Card.Root>
 	</Tabs.Content>

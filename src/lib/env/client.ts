@@ -5,7 +5,8 @@ import { z } from 'zod';
 
 export const clientEnv = createEnv({
 	client: {
-		PUBLIC_GITHUB_ORGNAME: z.string().nonempty()
+		PUBLIC_GITHUB_ORGNAME: z.string().nonempty(),
+		PUBLIC_SHOW_CHALLENGES: z.coerce.boolean().default(true)
 	},
 	clientPrefix: 'PUBLIC_',
 	runtimeEnv,
