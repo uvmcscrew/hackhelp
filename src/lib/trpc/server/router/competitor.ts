@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { serverEnv } from '$lib/env/server';
 import { createTeamSchema, createTicketSchema } from '$lib/schemas';
 import type { GithubAppClient } from '$lib/github';
+import { MAX_TEAMS_PER_CHALLENGE } from '$lib/utils';
 
 /**
  * This file contains most actions that a competitor will need. It is broken out into multiple routers depending on what the different actions
@@ -222,12 +223,23 @@ const teamRouter = t.router({
 			}
 
 			const [challenge] = await ctx.db
-				.select()
+				.select({
+					id: ctx.dbSchema.challenge.id,
+					linkedRepo: ctx.dbSchema.challenge.linkedRepo,
+					teamsAssigned: ctx.db.$count(
+						ctx.dbSchema.team,
+						eq(ctx.dbSchema.team.selectedChallengeId, ctx.dbSchema.challenge.id)
+					)
+				})
 				.from(ctx.dbSchema.challenge)
 				.where(eq(ctx.dbSchema.challenge.id, input.challengeId));
 
 			if (!challenge) {
 				throw new TRPCError({ code: 'NOT_FOUND', message: 'Challenge not found' });
+			}
+
+			if (challenge.teamsAssigned >= MAX_TEAMS_PER_CHALLENGE) {
+				throw new TRPCError({ code: 'FORBIDDEN', message: 'Challenge is full' });
 			}
 
 			const [team] = await ctx.db
