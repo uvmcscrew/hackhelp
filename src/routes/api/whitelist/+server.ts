@@ -38,6 +38,7 @@ export async function POST(event: RequestEvent) {
 			.onConflictDoUpdate({
 				target: schema.profile.username,
 				set: {
+					username: user.githubUsername.toLowerCase(),
 					givenName: `${user.firstName} ${user.lastName}`,
 					email: user.email,
 					isWhitelisted: true,
