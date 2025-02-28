@@ -47,4 +47,6 @@ export async function POST(event: RequestEvent) {
 				}
 			});
 	}
+
+	return Response.json({ message: 'Whitelist updated' });
 }
