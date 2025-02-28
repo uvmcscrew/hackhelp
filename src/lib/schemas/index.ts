@@ -1,4 +1,3 @@
-import { WORK_ROOMS } from '$lib/utils';
 import { z } from 'zod';
 
 export const createTeamSchema = z.object({
@@ -13,3 +12,12 @@ export const createTicketSchema = z.object({
 	repository: z.string().nonempty(),
 	issueNumber: z.coerce.number().int().positive()
 });
+
+export const batchWhitelistSchema = z.object({
+	firstName: z.string().nonempty(),
+	lastName: z.string().nonempty(),
+	email: z.string().email(),
+	ghUsername: z.string().nonempty()
+});
+
+export type BatchWhitelist = z.infer<typeof batchWhitelistSchema>;
