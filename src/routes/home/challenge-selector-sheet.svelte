@@ -4,7 +4,7 @@
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import mutations from '$lib/trpc/client/mutations.svelte';
-	import { delay } from '$lib/utils';
+	import { delay, MAX_TEAMS_PER_CHALLENGE } from '$lib/utils';
 	import * as Card from '$lib/components/ui/card';
 
 	let sheetOpen = $state(false);
@@ -36,7 +36,7 @@
 								<Card.Title>{challenge.title}</Card.Title>
 							</Card.Header>
 							<Card.Content>
-								There are {challenge.teamsAssigned} teams signed up for this challenge.
+								{MAX_TEAMS_PER_CHALLENGE - challenge.teamsAssigned} slots remaining
 							</Card.Content>
 							<Card.Footer>
 								<Button

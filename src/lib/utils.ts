@@ -27,6 +27,8 @@ export function posthogHandler(posthogFn: (ph: PostHog) => void) {
 	}
 }
 
+export const MAX_TEAMS_PER_CHALLENGE = 6;
+
 export const WORK_ROOMS = [
 	'Kalkin 225',
 	'Kalkin 110',
