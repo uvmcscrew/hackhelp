@@ -22,7 +22,7 @@
 	let queryClient = useQueryClient();
 </script>
 
-<Card.Card class="">
+<Card.Card class=" max-h-full overflow-y-scroll">
 	<Card.Header class="flex flex-row items-center justify-between">
 		<span class="flex flex-col gap-y-2">
 			<Card.Title class="h-full">All Tickets</Card.Title>

@@ -54,10 +54,10 @@
 		<UserDropdown user={data.user} />
 	</div>
 </header>
-<div class=" bg-background h-[calc(100vh-4rem-2rem)] w-screen">
+<div class=" bg-background min-h-[calc(100vh-4rem-2rem)] w-screen">
 	{@render children()}
 </div>
 
-<footer class=" bg-background flex h-8 justify-center border-t">
+<!-- <footer class=" bg-background flex h-8 justify-center border-t">
 	<MadeWith />
-</footer>
+</footer> -->
