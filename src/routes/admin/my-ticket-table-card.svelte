@@ -35,6 +35,7 @@
 					<Table.Head>Issue Link</Table.Head>
 					<Table.Head>Challenge Link</Table.Head>
 					<Table.Head class="">Created</Table.Head>
+					<Table.Head class="">Room</Table.Head>
 					<Table.Head class="w-30">Status</Table.Head>
 					<Table.Head class="">Actions</Table.Head>
 				</Table.Row>
@@ -73,6 +74,8 @@
 							<Table.Cell title={ticket.createdAt.toString()}
 								>{formatDistance(ticket.createdAt, Date.now(), { addSuffix: true })}</Table.Cell
 							>
+							<Table.Cell>{ticket.location}</Table.Cell>
+
 							<Table.Cell><TicketStatusBadge status={ticket.resolutionStatus} /></Table.Cell>
 							<Table.Cell>
 								<Button

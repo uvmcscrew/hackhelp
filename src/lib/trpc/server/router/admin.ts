@@ -220,10 +220,12 @@ const ticketRouter = t.router({
 				resolutionStatus: ctx.dbSchema.ticket.resolutionStatus,
 				repository: ctx.dbSchema.ticket.repository,
 				issueNumber: ctx.dbSchema.ticket.issueNumber,
-				challengeRepo: ctx.dbSchema.challenge.title
+				challengeRepo: ctx.dbSchema.challenge.title,
+				location: ctx.dbSchema.ticket.location,
+				locationDescription: ctx.dbSchema.ticket.locationDescription
 			})
 			.from(ctx.dbSchema.ticket)
-			.where(ne(ctx.dbSchema.ticket.resolutionStatus, 'closed'))
+			// .where(ne(ctx.dbSchema.ticket.resolutionStatus, 'closed'))
 			.leftJoin(ctx.dbSchema.user, eq(ctx.dbSchema.ticket.assignedMentor, ctx.dbSchema.user.id))
 			.leftJoin(
 				ctx.dbSchema.challenge,
@@ -242,7 +244,9 @@ const ticketRouter = t.router({
 				resolutionStatus: ctx.dbSchema.ticket.resolutionStatus,
 				repository: ctx.dbSchema.ticket.repository,
 				issueNumber: ctx.dbSchema.ticket.issueNumber,
-				challengeRepo: ctx.dbSchema.challenge.linkedRepo
+				challengeRepo: ctx.dbSchema.challenge.linkedRepo,
+				location: ctx.dbSchema.ticket.location,
+				locationDescription: ctx.dbSchema.ticket.locationDescription
 			})
 			.from(ctx.dbSchema.ticket)
 			.where(eq(ctx.dbSchema.ticket.assignedMentor, ctx.user.id))

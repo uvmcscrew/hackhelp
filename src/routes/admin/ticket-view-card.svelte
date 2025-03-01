@@ -33,6 +33,13 @@
 					{/key}
 				{/key}
 
+				<div class="flex flex-col gap-y-1">
+					<h2 class="font-semibold">Location</h2>
+					<p>{$ticketQuery.data.ticket.ticket.location}</p>
+					<h2 class="font-semibold">Location Description</h2>
+					<p>{$ticketQuery.data.ticket.ticket.locationDescription}</p>
+				</div>
+
 				<!-- Repo information card -->
 				<Card.Card class="h-full w-full">
 					<Card.Header class="flex flex-row items-center justify-between">
