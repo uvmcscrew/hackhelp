@@ -11,12 +11,15 @@
 	import TicketStateChanger from './ticket-state-changer.svelte';
 	import { Label } from '$lib/components/ui/label';
 	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
+	import { useQueryClient } from '@tanstack/svelte-query';
 
 	let ticketId = $derived.by(() => {
 		return page.url.searchParams.get('ticketId');
 	});
 
 	let ticketQuery = $derived(queries.adminGetTicketById(ticketId));
+
+	let queryClient = useQueryClient();
 </script>
 
 {#if ticketId && $ticketQuery.data}
@@ -27,8 +30,12 @@
 			</Card.Header>
 			<Card.Content class="flex flex-col justify-start gap-y-4">
 				<div class="my-4 flex flex-col gap-y-2">
-					<Label>Current Status</Label>
-					<TicketStatusBadge status={$ticketQuery.data.ticket.ticket.resolutionStatus} />
+					<Button
+						onclick={async () =>
+							await queryClient.invalidateQueries({
+								queryKey: ['admin', 'ticket', $ticketQuery.data.ticket.ticket.id]
+							})}
+					></Button>
 				</div>
 
 				{#key ticketId}
@@ -65,6 +72,10 @@
 					>
 				</Card.Card>
 				<!-- yeet -->
+				<div class="my-4 mb-2 flex flex-col gap-y-2">
+					<Label>Current Status</Label>
+					<TicketStatusBadge status={$ticketQuery.data.ticket.ticket.resolutionStatus} />
+				</div>
 				{#key ticketId}
 					<TicketStateChanger {ticketId} />
 				{/key}
