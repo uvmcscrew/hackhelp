@@ -210,7 +210,7 @@ const teamRouter = t.router({
 
 const ticketRouter = t.router({
 	openTickets: adminProcedure.query(async ({ ctx }) => {
-		const tickets = await ctx.db
+		let tickets = await ctx.db
 			.select({
 				id: ctx.dbSchema.ticket.id,
 				title: ctx.dbSchema.ticket.title,
@@ -232,6 +232,18 @@ const ticketRouter = t.router({
 				eq(ctx.dbSchema.ticket.challengeId, ctx.dbSchema.challenge.id)
 			)
 			.orderBy(desc(ctx.dbSchema.ticket.createdAt));
+
+		tickets = tickets.sort((a, b) => {
+			// if a ticket is closed, sort to the bottom
+			if (a.resolutionStatus !== 'closed' && b.resolutionStatus === 'closed') {
+				return -1;
+			}
+			if (a.resolutionStatus === 'closed' && b.resolutionStatus !== 'closed') {
+				return 1;
+			}
+			// next, sort by creation date
+			return a.createdAt > b.createdAt ? -1 : 1;
+		});
 		return { tickets };
 	}),
 	myTickets: adminProcedure.query(async ({ ctx }) => {
