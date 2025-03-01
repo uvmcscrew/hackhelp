@@ -9,6 +9,8 @@
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 	import TicketAssigneeCombobox from './ticket-assignee-combobox.svelte';
 	import TicketStateChanger from './ticket-state-changer.svelte';
+	import { Label } from '$lib/components/ui/label';
+	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
 
 	let ticketId = $derived.by(() => {
 		return page.url.searchParams.get('ticketId');
@@ -24,6 +26,11 @@
 				<Card.Title class="h-full">Ticket Viewer</Card.Title>
 			</Card.Header>
 			<Card.Content class="flex flex-col justify-start gap-y-4">
+				<div class="my-4 flex flex-col gap-y-2">
+					<Label>Current Status</Label>
+					<TicketStatusBadge status={$ticketQuery.data.ticket.ticket.resolutionStatus} />
+				</div>
+
 				{#key ticketId}
 					{#key $ticketQuery.data.ticket.user?.id}
 						<TicketAssigneeCombobox
