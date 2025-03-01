@@ -8,6 +8,7 @@
 	import { clientEnv } from '$lib/env/client';
 	import mutations from '$lib/trpc/client/mutations.svelte';
 	import queries from '$lib/trpc/client/queries.svelte';
+	import { useQueryClient } from '@tanstack/svelte-query';
 	import { formatDistance } from 'date-fns';
 	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
 	import UserXIcon from 'lucide-svelte/icons/user-x';
@@ -17,6 +18,8 @@
 	let tixQuery = queries.adminGetMyAssignedTickets();
 
 	let unassignMutation = mutations.adminUnassignTicket();
+
+	let queryClient = useQueryClient();
 </script>
 
 <Card.Card class="">
@@ -25,7 +28,11 @@
 			<Card.Title class="h-full">My Tickets</Card.Title>
 			<Card.Description>Help Tickets assigned to me</Card.Description>
 		</span>
-		<Button size="default">View All Tickets</Button>
+		<Button
+			size="default"
+			onclick={async () =>
+				await queryClient.invalidateQueries({ queryKey: ['admin', 'mytickets'] })}>Refresh</Button
+		>
 	</Card.Header>
 	<Card.Content>
 		<Table.Root>

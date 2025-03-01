@@ -38,7 +38,6 @@ export const WORK_ROOMS = [
 	'337B',
 	'337C',
 	// 'Ifshin 337',
-	'240 ',
 	'358',
 
 	'238A',

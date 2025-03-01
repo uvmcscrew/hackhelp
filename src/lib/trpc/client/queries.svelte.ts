@@ -141,7 +141,7 @@ function adminGetAllOpenTickets() {
 	return createQuery({
 		queryKey: ['admin', 'tickets'],
 		queryFn: () => trpcClient.admin.tickets.openTickets.query(),
-		refetchInterval: 30_000
+		refetchInterval: 10_000
 	});
 }
 
@@ -149,7 +149,7 @@ function adminGetMyAssignedTickets() {
 	return createQuery({
 		queryKey: ['admin', 'mytickets'],
 		queryFn: () => trpcClient.admin.tickets.myTickets.query(),
-		refetchInterval: 30_000
+		refetchInterval: 10_000
 	});
 }
 
@@ -158,6 +158,7 @@ function adminGetTicketById(ticketId: string | null) {
 		queryKey: ['admin', 'ticket', ticketId],
 		queryFn: () => trpcClient.admin.tickets.getTicketById.query({ ticketId: ticketId ?? '' }),
 		enabled: !!ticketId,
+		refetchInterval: 15_000,
 		staleTime: 300_000
 	});
 }
@@ -166,7 +167,7 @@ function competitorGetChallenges(enabled: boolean = true) {
 	return createQuery({
 		queryKey: ['challenges'],
 		queryFn: () => trpcClient.competitor.team.getChallenges.query(),
-		refetchInterval: 5_000,
+		refetchInterval: 60_000,
 		enabled
 	});
 }

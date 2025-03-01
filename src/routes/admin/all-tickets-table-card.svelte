@@ -12,11 +12,14 @@
 	import mutations from '$lib/trpc/client/mutations.svelte';
 	import { page } from '$app/state';
 	import { goto, pushState } from '$app/navigation';
+	import { useQueryClient } from '@tanstack/svelte-query';
 
 	let tixQuery = queries.adminGetAllOpenTickets();
 	let accountQuery = queries.queryWhoamiNoInitial();
 
 	let selfAssignMutation = mutations.adminSelfAssignTicket();
+
+	let queryClient = useQueryClient();
 </script>
 
 <Card.Card class="">
@@ -25,7 +28,11 @@
 			<Card.Title class="h-full">All Tickets</Card.Title>
 			<Card.Description>All Help Tickets</Card.Description>
 		</span>
-		<Button size="default">View All Tickets</Button>
+		<Button
+			size="default"
+			onclick={async () => await queryClient.invalidateQueries({ queryKey: ['admin', 'tickets'] })}
+			>Refresh</Button
+		>
 	</Card.Header>
 	<Card.Content>
 		<Table.Root>
