@@ -31,11 +31,13 @@
 			<Card.Content class="flex flex-col justify-start gap-y-4">
 				<div class="my-4 flex flex-col gap-y-2">
 					<Button
+						size="sm"
+						variant="outline"
 						onclick={async () =>
 							await queryClient.invalidateQueries({
 								queryKey: ['admin', 'ticket', $ticketQuery.data.ticket.ticket.id]
-							})}
-					></Button>
+							})}>Refresh</Button
+					>
 				</div>
 
 				{#key ticketId}
