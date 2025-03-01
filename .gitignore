@@ -26,3 +26,5 @@ vite.config.ts.timestamp-*
 hackhelp-pg
 
 whitelist.json
+
+.idea
