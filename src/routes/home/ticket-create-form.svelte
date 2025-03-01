@@ -51,7 +51,9 @@
 					formData.set({
 						title: $selectedIssue.title,
 						issueNumber: $selectedIssue.issueNumber,
-						repository: $selectedIssue.repoName
+						repository: $selectedIssue.repoName,
+						location: $formData.location,
+						locationDescription: $formData.locationDescription
 					});
 				}
 			}
@@ -74,7 +76,7 @@
 		</Form.Control>
 		<Form.FieldErrors />
 	</Form.Field>
-	<!-- <Form.Field {form} name="location" aria-disabled={!$selectedIssue}>
+	<Form.Field {form} name="location" aria-disabled={!$selectedIssue}>
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Room</Form.Label>
@@ -105,7 +107,7 @@
 		</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field> -->
-	<!-- <Form.Field {form} name="locationDescription" aria-disabled={!$selectedIssue}>
+	<Form.Field {form} name="locationDescription" aria-disabled={!$selectedIssue}>
 		<Form.Control>
 			{#snippet children({ props })}
 				<Form.Label>Location Description</Form.Label>

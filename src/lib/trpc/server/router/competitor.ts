@@ -391,8 +391,8 @@ const ticketRouter = t.router({
 				issueNumber: input.issueNumber,
 				repository: input.repository,
 				title: input.title,
-				location: 'Ifshin 240',
-				locationDescription: 'Ifshin 240'
+				location: input.location,
+				locationDescription: input.locationDescription
 			})
 			.returning();
 
