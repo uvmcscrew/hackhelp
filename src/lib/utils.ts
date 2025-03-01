@@ -30,26 +30,35 @@ export function posthogHandler(posthogFn: (ph: PostHog) => void) {
 export const MAX_TEAMS_PER_CHALLENGE = 6;
 
 export const WORK_ROOMS = [
-	'Kalkin 225',
-	'Kalkin 110',
-	'Ifshin 107 (Keller Room)',
+	// 'Kalkin 225',
+	// 'Kalkin 110',
+	// 'Ifshin 107 (Keller Room)',
 
-	'Ifshin 337A',
-	'Ifshin 337',
-	'Ifshin 240',
-	'Ifshin 358',
+	'337A',
+	'337B',
+	'337C',
+	// 'Ifshin 337',
+	'240 ',
+	'358',
 
-	'Ifshin 238A',
-	'Ifshin 238B',
-	'Ifshin 238C',
-	'Ifshin 238E',
-	'Ifshin 238F',
+	'238A',
+	'238B',
+	'238C',
+	'238E',
+	'238F',
+	'238G',
 
-	'Ifshin 236A',
-	'Ifshin 236B',
-	'Ifshin 236C',
-	'Ifshin 236D',
-	'Ifshin 236E'
+	' 235',
+	' 237',
+	'Fac.Lnge - 200',
+
+	'240 - Mentor Room',
+
+	'236A',
+	'236B',
+	'236C',
+	'236D',
+	'236E'
 ] as const;
 
 export type WorkRooms = (typeof WORK_ROOMS)[number];
