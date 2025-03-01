@@ -24,7 +24,7 @@
 
 {#if ticketId && $ticketQuery.data}
 	<div class="col-span-1 col-start-4 row-span-3 row-start-1 pt-11">
-		<Card.Card class="h-full w-full">
+		<Card.Card class="h-full w-full overflow-y-scroll">
 			<Card.Header class="flex flex-row items-center justify-between">
 				<Card.Title class="h-full">Ticket Viewer</Card.Title>
 			</Card.Header>

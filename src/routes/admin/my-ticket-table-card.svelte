@@ -39,11 +39,11 @@
 			<Table.Header>
 				<Table.Row>
 					<Table.Head class="w-max">Title</Table.Head>
-					<Table.Head>Issue Link</Table.Head>
+					<Table.Head class="max-w-40">Issue Link</Table.Head>
 					<Table.Head>Challenge Link</Table.Head>
 					<Table.Head class="">Created</Table.Head>
 					<Table.Head class="">Room</Table.Head>
-					<Table.Head class="w-30">Status</Table.Head>
+					<Table.Head class="">Status</Table.Head>
 					<Table.Head class="">Actions</Table.Head>
 				</Table.Row>
 			</Table.Header>
@@ -52,12 +52,12 @@
 					{#each $tixQuery.data.tickets as ticket}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
-							<Table.Cell
+							<Table.Cell class="max-w-40 overflow-x-scroll"
 								><Button
 									href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
 									variant="link"
 									target="_blank"
-									class="px-0"
+									class="max-w-40 overflow-x-scroll px-0"
 								>
 									<GithubIcon
 										class="fill-primary size-5!"
@@ -73,7 +73,6 @@
 									>
 										<GithubIcon class="fill-foreground size-6" />{ticket.challengeRepo}
 									</Button>
-									>
 								{:else}
 									No challenge
 								{/if}

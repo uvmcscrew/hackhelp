@@ -27,7 +27,7 @@
 </script>
 
 <header
-	class="bg-background sticky top-0 flex h-16 w-screen items-center justify-between gap-4 border-b px-4 md:px-6"
+	class="bg-background sticky top-0 z-50 flex h-16 w-screen items-center justify-between gap-4 border-b px-4 md:px-6"
 >
 	<Logo />
 
