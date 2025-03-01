@@ -1,5 +1,5 @@
 import { protectedProcedure, t } from '../shared';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, and } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { serverEnv } from '$lib/env/server';
@@ -349,7 +349,26 @@ const ticketRouter = t.router({
 			})
 		);
 
-		const issues = issuesRaw.flatMap((issue) => issue.data);
+		const openTickets = await ctx.db
+			.select({
+				issueNumber: ctx.dbSchema.ticket.issueNumber,
+				repoName: ctx.dbSchema.ticket.repository,
+				teamId: ctx.dbSchema.ticket.teamId
+			})
+			.from(ctx.dbSchema.ticket)
+			.where(and(eq(ctx.dbSchema.ticket.teamId, ctx.team.id)));
+
+		// Filter out issues that are already linked to tickets
+
+		const issues = issuesRaw
+			.flatMap((issue) => issue.data)
+			.filter((issue) => {
+				return !openTickets.some(
+					(ticket) =>
+						ticket.issueNumber === issue.number &&
+						ticket.repoName === issue.repository_url.split('/').pop()
+				);
+			});
 
 		return {
 			issues: issues.map(
