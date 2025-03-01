@@ -1,6 +1,5 @@
 <script lang="ts">
 	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
-	import { Badge } from '$lib/components/ui/badge';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
@@ -68,7 +67,6 @@
 									>
 										<GithubIcon class="fill-primary !size-5" />{ticket.challengeRepo}
 									</Button>
-									>
 								{:else}
 									No challenge
 								{/if}

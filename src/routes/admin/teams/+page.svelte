@@ -11,7 +11,9 @@
 	<title>Teams | HackHelp Admin</title>
 </svelte:head>
 
-<div class="bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-4 grid-rows-3 gap-2 p-2">
+<div
+	class="bg-secondary grid min-h-[calc(100vh-4rem-2rem)] w-screen grid-cols-4 grid-rows-3 gap-2 overflow-y-auto p-2"
+>
 	<TeamsTable teams={props.data} />
 	<TeamViewCard />
 </div>

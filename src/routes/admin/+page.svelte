@@ -27,7 +27,9 @@
 	<title>Home | HackHelp Admin</title>
 </svelte:head>
 
-<div class="bg-secondary grid h-[calc(100vh-4rem-2rem)] w-screen grid-cols-4 grid-rows-3 gap-2 p-2">
+<div
+	class="bg-secondary grid min-h-[calc(100vh-4rem-2rem)] w-screen grid-cols-4 grid-rows-3 gap-2 overflow-y-scroll p-2"
+>
 	<Tabs.Root value="alltix" class="col-span-3 col-start-1 row-span-3 row-start-1">
 		<Tabs.List class="grid w-full grid-cols-2">
 			<Tabs.Trigger value="alltix">All Tickets</Tabs.Trigger>

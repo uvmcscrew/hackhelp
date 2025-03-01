@@ -107,7 +107,7 @@
 			creating your ticket.
 		</Form.Description>
 		<Form.FieldErrors />
-	</Form.Field> -->
+	</Form.Field>
 	<Form.Field {form} name="locationDescription" aria-disabled={!$selectedIssue}>
 		<Form.Control>
 			{#snippet children({ props })}
