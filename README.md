@@ -2,6 +2,9 @@
 
 HackHelp is a portal created to simplify team management, GitHub permission handling, & help ticketing for teams at the 2025 UVM Hackathon.
 
+> [!WARNING]
+> This is the final version deployed for the 2025 UVM Hackathon. The version for 2026 and onward are not backwards compatible, as they rely on wiping the database.
+
 ## About HackHelp
 
 For 2025, we decided to standardize on GitHub, and will require everyone to hold their work in the same GitHub organization. Repositories will be private, with teams inside the org given admin permission on their repositories. This way, people can more easily manage access to repositories, event organizers can easily find teams' code, and at the end of the whole thing, we can open source it all.
