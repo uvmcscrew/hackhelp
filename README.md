@@ -4,13 +4,19 @@ HackHelp is a portal created to simplify team management, GitHub permission hand
 
 **See more information on the repo wiki =>** https://github.com/uvmcscrew/hackhelp/wiki
 
-## Contributing
+## Developers: Run it locally
 
-**Prerequisites**
+### Prerequisites
 
 - [Bun](https://bun.sh)
 - A PostgreSQL database
 - Github App Credentials
+
+#### Dev Database with Docker
+
+This project requires a vanilla (i.e. unmodified) PostgreSQL database. If you have [Docker Compose](https://docs.docker.com/compose/) (or the ability to use compose files with Podman/Orbstack/etc), you can use the compose file in this repo to spin up a development database for yourself.
+
+The connection string with the credentials as set in the repo is `postgres://cscrew:database@localhost:32700/hackhelp`
 
 #### Set up environment variables
 
@@ -22,6 +28,8 @@ HackHelp is a portal created to simplify team management, GitHub permission hand
 | `GITHUB_APP_CLIENT_ID`     | OAuth Client ID of the Github App                       |
 | `GITHUB_APP_CLIENT_SECRET` | OAuth Client Secret of the Github App                   |
 | `PUBLIC_GITHUB_ORGNAME`    | The slug of the GitHub Org that HackHelp should control |
+
+### Get Started
 
 #### Install Dependencies
 
