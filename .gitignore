@@ -28,3 +28,5 @@ hackhelp-pg
 whitelist.json
 
 .idea
+
+.tmp

@@ -1,0 +1,13 @@
+services:
+  database:
+    image: postgres:17-alpine
+    container_name: hackhelp-db
+    ports:
+      - 32700:5432
+    environment:
+      - POSTGRES_USER=cscrew
+      - POSTGRES_PASSWORD=database
+      - POSTGRES_DB=hackhelp
+    volumes:
+      - ${PWD}/.tmp/db-data/:/var/lib/postgresql/data/
+# DATABASE_URL=postgres://cscrew:database@localhost:32700/hackhelp
