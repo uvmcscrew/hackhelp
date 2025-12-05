@@ -133,6 +133,7 @@ function competitorGetOpenTickets(
 	return createQuery({
 		queryKey: ['tickets'],
 		queryFn: () => trpcClient.competitor.tickets.getTickets.query(),
+		refetchInterval: 10_000,
 		initialData
 	});
 }
