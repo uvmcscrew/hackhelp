@@ -85,7 +85,7 @@ export const accountRouter = {
 		const pendingInvite = await hasPendingInvite(context);
 		return { hasPendingInvite: pendingInvite };
 	}),
-	sendInvite: protectedProcedure.handler(async ({ context }) => {
+	sendInviteMutation: protectedProcedure.route({ method: "POST" }).handler(async ({ context }) => {
 		const trpclogger = context.logger.child({ procedure: 'account.sendInvite' });
 		// Make sure DB state is accurate
 		const userstatus = await updateInvitedUser(
@@ -115,7 +115,7 @@ export const accountRouter = {
 
 		return { invited: true };
 	}),
-	refreshInvite: protectedProcedure.handler(async ({ context }) => {
+	refreshInviteMutation: protectedProcedure.route({ method: "POST" }).handler(async ({ context }) => {
 		const trpclogger = context.logger.child({ procedure: 'account.refreshInvite' });
 
 		// Make sure DB state is accurate
@@ -196,7 +196,7 @@ export async function authenticatedUserOrgStatus(username: string, accessToken: 
 }
 
 export const authRouter = ({
-	getOAuthUrl: o.handler(async ({ context }) => {
+	getOAuthUrlMutation: o.route({ method: "POST" }).handler(async ({ context }) => {
 		const state = generateState();
 		const url = githubOAuth.createAuthorizationURL(state, ['read:user', 'user:email']);
 

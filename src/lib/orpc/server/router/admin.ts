@@ -54,19 +54,20 @@ const userRouter ={
 			}
 			return { user };
 		}),
-	allAccounts: adminProcedure.handler(async ({ context }) => {
+	getAllAccounts: adminProcedure.handler(async ({ context }) => {
 		const users = await context.db.select().from(context.dbSchema.user);
 		return { users };
 	}),
-	getAdmins: adminProcedure.handler(async ({ context }) => {
+	getAdmins: adminProcedure.route({ method: "GET" }).handler(async ({ context }) => {
 		const admins = await context.db
 			.select()
 			.from(context.dbSchema.user)
 			.where(eq(context.dbSchema.user.isOrgAdmin, true));
 		return { admins };
 	}),
-	whitelistById: adminProcedure
+	whitelistByIdMutation: adminProcedure
 		.input(z.object({ userId: z.string().nonempty() }))
+		.route({ method: "POST" })
 		.handler(async ({ context, input }) => {
 			const [user] = await context.db
 				.update(context.dbSchema.profile)
@@ -85,7 +86,7 @@ const userRouter ={
 // #############################################
 
 const teamRouter = {
-	all: adminProcedure.handler(async ({ context }) => {
+	getAll: adminProcedure.handler(async ({ context }) => {
 		const teams = await context.db
 			.select({
 				id: context.dbSchema.team.id,
@@ -131,6 +132,7 @@ const teamRouter = {
 		}),
 	createOne: adminProcedure
 		.input(z.object({ name: z.string().nonempty() }))
+		.route({ method: "POST" })
 		.handler(async ({ context, input }) => {
 			const ghTeam = await context.githubApp.rest.teams.create({
 				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
@@ -152,6 +154,7 @@ const teamRouter = {
 				override: z.boolean().default(false)
 			})
 		)
+		.route({ method: "POST" })
 		.handler(async ({ context, input }) => {
 			const [user] = await context.db
 				.select()
@@ -209,7 +212,7 @@ const teamRouter = {
 // #############################################
 
 const ticketRouter = {
-	openTickets: adminProcedure.handler(async ({ context }) => {
+	getOpenTickets: adminProcedure.handler(async ({ context }) => {
 		let tickets = await context.db
 			.select({
 				id: context.dbSchema.ticket.id,
@@ -246,7 +249,7 @@ const ticketRouter = {
 		});
 		return { tickets };
 	}),
-	myTickets: adminProcedure.handler(async ({ context }) => {
+	getMyTickets: adminProcedure.handler(async ({ context }) => {
 		const tickets = await context.db
 			.select({
 				id: context.dbSchema.ticket.id,
@@ -271,8 +274,9 @@ const ticketRouter = {
 
 		return { tickets };
 	}),
-	selfAssign: adminProcedure
+	selfAssignMutation: adminProcedure
 		.input(z.object({ ticketId: z.string() }))
+		.route({ method: "POST" })
 		.handler(async ({ context, input }) => {
 			// Check if the ticket exists
 			// and is not already assigned to someone else
@@ -308,8 +312,9 @@ const ticketRouter = {
 
 			return { ticket };
 		}),
-	assignTo: adminProcedure
+	assignToMutation: adminProcedure
 		.input(z.object({ ticketId: z.string(), userId: z.string() }))
+		.route({ method: "POST" })
 		.handler(async ({ context, input }) => {
 			const [existingTicket] = await context.db
 				.select()
@@ -351,8 +356,9 @@ const ticketRouter = {
 			return { ticket };
 		}),
 
-	unassign: adminProcedure
+	unassignMutation: adminProcedure
 		.input(z.object({ ticketId: z.string() }))
+		.route({ method: "POST" })
 		.handler(async ({ context, input }) => {
 			const [existingTicket] = await context.db
 				.select()
@@ -406,6 +412,7 @@ const ticketRouter = {
 		}),
 	deleteTicket: adminProcedure
 		.input(z.object({ ticketId: z.string() }))
+		.route({ method: "DELETE" })
 		.handler(async ({ context, input }) => {
 			const [ticket] = await context.db
 				.delete(context.dbSchema.ticket)
@@ -425,13 +432,14 @@ const ticketRouter = {
 			return { ticket };
 		}),
 
-	updateTicketStatus: adminProcedure
+	updateTicketStatusMutation: adminProcedure
 		.input(
 			z.object({
 				ticketId: z.string(),
 				status: z.enum(TICKET_RESOLUTION_STATUS)
 			})
 		)
+		.route({ method: "POST" })
 		.handler(async ({ context, input }) => {
 			const [ticket] = await context.db
 				.update(context.dbSchema.ticket)

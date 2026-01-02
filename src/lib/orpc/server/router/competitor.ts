@@ -46,7 +46,7 @@ const teamProcedure = protectedProcedure.use(enforceUserIsInTeam);
 // #############################################
 
 const teamRouter = {
-	get: teamProcedure.handler(async ({ context }) => {
+	getTeam: teamProcedure.handler(async ({ context }) => {
 		const members = await context.db
 			.select({
 				id: context.dbSchema.user.id,
@@ -74,6 +74,7 @@ const teamRouter = {
 				description: z.string().default('')
 			})
 		)
+		.route({ method:"POST" })
 		.handler(async ({ context, input }) => {
 			const ghUpdate = await context.githubApp.rest.teams.updateInOrg({
 				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
@@ -94,6 +95,7 @@ const teamRouter = {
 		}),
 	updateJoinable: teamProcedure
 		.input(z.object({ canJoin: z.boolean() }))
+		.route({ method:"POST" })
 		.handler(async ({ context, input }) => {
 			if (context.team.canJoin === input.canJoin) {
 				return { teamIsJoinable: input.canJoin };
@@ -111,7 +113,7 @@ const teamRouter = {
 
 			return { teamIsJoinable: input.canJoin };
 		}),
-	create: protectedProcedure.input(createTeamSchema).handler(async ({ context, input }) => {
+	create: protectedProcedure.input(createTeamSchema).route({ method:"POST" }).handler(async ({ context, input }) => {
 		const ghTeam = await context.githubApp.rest.teams.create({
 			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
 			name: input.name,
@@ -140,8 +142,9 @@ const teamRouter = {
 
 		return { team };
 	}),
-	joinTeam: protectedProcedure
+	joinTeamMutation: protectedProcedure
 		.input(z.object({ teamJoinCode: z.string().nonempty().max(6).min(6) }))
+		.route({ method:"POST" })
 		.handler(async ({ context, input }) => {
 			if (context.user.teamId !== null) {
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'User is already in a team' });
@@ -173,7 +176,7 @@ const teamRouter = {
 
 			return { team };
 		}),
-	leaveTeam: teamProcedure.handler(async ({ context }) => {
+	leaveTeam: teamProcedure.route({ method:"DELETE" }).handler(async ({ context }) => {
 		await context.db
 			.update(context.dbSchema.user)
 			.set({ teamId: null })
@@ -210,6 +213,7 @@ const teamRouter = {
 	}),
 	selectChallenge: teamProcedure
 		.input(z.object({ challengeId: z.string() }))
+		.route({ method:"POST" })
 		.handler(async ({ context, input }) => {
 			if (!serverEnv.PUBLIC_SHOW_CHALLENGES) {
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Challenges are not enabled' });
@@ -399,7 +403,7 @@ const ticketRouter = {
 			.orderBy(desc(context.dbSchema.ticket.createdAt));
 		return { tickets };
 	}),
-	create: teamProcedure.input(createTicketSchema).handler(async ({ context, input }) => {
+	create: teamProcedure.input(createTicketSchema).route({ method:"POST" }).handler(async ({ context, input }) => {
 		// Create the ticket in the database
 		const [ticket] = await context.db
 			.insert(context.dbSchema.ticket)
