@@ -30,14 +30,14 @@
 			<Label>Team Name</Label>
 			<Input
 				bind:value={teamName}
-				disabled={$teamNameMutation.isPending || submitting}
+				disabled={teamNameMutation.isPending || submitting}
 				placeholder="Team Name"
 				class="w-full"
 			/>
 		</div>
 		<Sheet.Footer class="mt-4 flex w-full justify-start gap-x-2">
 			<Button
-				disabled={$teamNameMutation.isPending || submitting}
+				disabled={teamNameMutation.isPending || submitting}
 				onclick={async () => {
 					submitting = true;
 					await teamNameMutation.mutateAsync({ name: teamName });
@@ -46,7 +46,7 @@
 					sheetOpen = false;
 				}}
 			>
-				{#if $teamNameMutation.isPending || submitting}
+				{#if teamNameMutation.isPending || submitting}
 					Updating <LoaderCircle class="mr-2 size-4 animate-spin" />
 				{:else}
 					Update

@@ -30,7 +30,7 @@
 				console.log('marking ticket open', ticketId);
 				await changeTicketStatusMutation.mutateAsync({ status: 'open', ticketId });
 			}}
-			disabled={$changeTicketStatusMutation.isPending}
+			disabled={changeTicketStatusMutation.isPending}
 			class="bg-uvm-gold  text-black"
 			size="sm">Set Open</Button
 		>
@@ -39,7 +39,7 @@
 				console.log('marking ticket in progress', ticketId);
 				await changeTicketStatusMutation.mutateAsync({ status: 'inProgress', ticketId });
 			}}
-			disabled={$changeTicketStatusMutation.isPending}
+			disabled={changeTicketStatusMutation.isPending}
 			class=" bg-purple-600/80 text-white"
 			size="sm">Mark In Progress</Button
 		>
@@ -48,7 +48,7 @@
 				console.log('marking ticket in progress', ticketId);
 				await changeTicketStatusMutation.mutateAsync({ status: 'closed', ticketId });
 			}}
-			disabled={$changeTicketStatusMutation.isPending}
+			disabled={changeTicketStatusMutation.isPending}
 			class=" bg-green-600/80 text-white"
 			size="sm">Resolve</Button
 		>

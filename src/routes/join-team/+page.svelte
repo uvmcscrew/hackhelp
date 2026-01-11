@@ -71,7 +71,7 @@
 				<Form.FieldErrors />
 			</Form.Field>
 			<Form.Button disabled={$submitting}>
-				{#if $submitting || $createTeamMutation.isPending}
+				{#if $submitting || createTeamMutation.isPending}
 					Submitting... <LoaderCircle class="h-6 w-6 animate-spin" />
 				{:else}
 					Create Team

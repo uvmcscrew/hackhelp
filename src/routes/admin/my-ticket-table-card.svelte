@@ -87,7 +87,7 @@
 								<Button
 									variant="outline"
 									size="icon"
-									disabled={$unassignMutation.isPending}
+									disabled={unassignMutation.isPending}
 									title="Unassign this ticket from myself"
 									onclick={async () => {
 										await unassignMutation.mutateAsync({ ticketId: ticket.id });

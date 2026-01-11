@@ -40,7 +40,7 @@
 		}
 	}
 
-	let mutationLoading = $derived($assignToMutation.isPending || $unassignFromMutation.isPending);
+	let mutationLoading = $derived(assignToMutation.isPending || unassignFromMutation.isPending);
 
 	// We want to refocus the trigger button when the user selects
 	// an item from the list so users can continue navigating the

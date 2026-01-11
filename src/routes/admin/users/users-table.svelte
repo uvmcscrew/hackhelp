@@ -65,7 +65,7 @@
 							onclick={async () => {
 								await whitelistUserMutation.mutateAsync({ userId: user.user.id });
 							}}
-							disabled={$whitelistUserMutation.isPending || user.profile?.isWhitelisted}
+							disabled={whitelistUserMutation.isPending || user.profile?.isWhitelisted}
 							variant="outline"
 							size="icon"><UserRoundCheckIcon /></Button
 						>

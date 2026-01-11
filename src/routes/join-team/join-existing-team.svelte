@@ -27,13 +27,13 @@
 			<Input
 				id="teamJoinCode"
 				bind:value={teamJoinCode}
-				disabled={$joinTeamMutation.isPending}
+				disabled={joinTeamMutation.isPending}
 				minlength={6}
 				maxlength={6}
 			/>
 		</span>
-		<Button disabled={$joinTeamMutation.isPending} onclick={joinTeam} class="mt-auto"
-			>{#if $joinTeamMutation.isPending}
+		<Button disabled={joinTeamMutation.isPending} onclick={joinTeam} class="mt-auto"
+			>{#if joinTeamMutation.isPending}
 				Joining... <LoaderCircle class="h-6 w-6 animate-spin" />
 			{:else}
 				Join Team

@@ -58,7 +58,7 @@
 					}, 1000);
 				}}
 			/>
-			{#if $teamJoinStateMutation.isPending}
+			{#if teamJoinStateMutation.isPending}
 				<LoaderCircle class="h-6 w-6 animate-spin" />
 			{/if}
 		</div>

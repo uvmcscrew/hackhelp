@@ -40,7 +40,7 @@
 							</Card.Content>
 							<Card.Footer>
 								<Button
-									disabled={$challengeSelectMutation.isPending ||
+									disabled={challengeSelectMutation.isPending ||
 										submitting ||
 										selectedChallengeId === challenge.id}
 									onclick={() => {
@@ -65,7 +65,7 @@
 
 		<Sheet.Footer class="mt-4 flex w-full justify-start gap-x-2">
 			<Button
-				disabled={$challengeSelectMutation.isPending || submitting}
+				disabled={challengeSelectMutation.isPending || submitting}
 				onclick={async () => {
 					submitting = true;
 					await challengeSelectMutation.mutateAsync({ challengeId: selectedChallengeId });
@@ -74,7 +74,7 @@
 					sheetOpen = false;
 				}}
 			>
-				{#if $challengeSelectMutation.isPending || submitting}
+				{#if challengeSelectMutation.isPending || submitting}
 					Submitting <LoaderCircle class="mr-2 size-4 animate-spin" />
 				{:else}
 					Submit
