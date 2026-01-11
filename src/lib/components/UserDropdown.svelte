@@ -8,13 +8,15 @@
 	import { goto } from '$app/navigation';
 	import { queries } from '$lib/trpc/client/queries.svelte';
 	import { posthogHandler } from '$lib/utils';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	type Props = {
 		user: User;
 	};
 	const { user }: Props = $props();
 
-	let accountData = queries.queryWhoami({ user });
+	let accountData = createQuery(orpc.account.whoami.queryOptions);
 	const image = `https://avatars.githubusercontent.com/u/${$accountData.data.user.githubId}`;
 </script>
 
