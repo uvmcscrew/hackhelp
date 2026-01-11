@@ -22,7 +22,7 @@
 	let repos = queries.competitorGetTeamRepos();
 	let team = queries.competitorGetMyTeam();
 
-	let repoCountString = $derived(`${$repos.data?.repos.length ?? '?'}/3`);
+	let repoCountString = $derived(`${repos.data?.repos.length ?? '?'}/3`);
 
 	const queryClient = useQueryClient();
 
@@ -42,24 +42,24 @@
 		<Card.Root class="col-span-1 col-start-1 row-span-1 row-start-2 h-full">
 			<Card.Header class="flex h-14 flex-row items-center justify-between">
 				<Card.Title class="inline-flex items-center gap-x-2">Challenge</Card.Title>
-				{#if $team.data?.team.selectedChallengeId === null}
+				{#if team.data?.team.selectedChallengeId === null}
 					<ChallengeSelectorSheet />
 				{/if}
 			</Card.Header>
 			<Card.Content>
-				{#if $team.data?.challenge !== null}
+				{#if team.data?.challenge !== null}
 					<Card.Root>
 						<Card.Header>
-							<Card.Title>{$team.data?.challenge.title}</Card.Title>
+							<Card.Title>{team.data?.challenge.title}</Card.Title>
 						</Card.Header>
 
 						<Card.Footer class="justify-start px-2">
 							<Button
-								href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${$team.data?.challenge.linkedRepo}`}
+								href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${team.data?.challenge.linkedRepo}`}
 								variant="link"
 							>
 								<GithubIcon class="fill-primary !size-5" />
-								{$team.data?.challenge.linkedRepo}
+								{team.data?.challenge.linkedRepo}
 							</Button>
 						</Card.Footer>
 					</Card.Root>
@@ -82,10 +82,10 @@
 				<RepoCreatorSheet />
 			</Card.Header>
 			<Card.Content>
-				{#if $repos.data}
-					{#if $repos.data.repos.length > 0}
+				{#if repos.data}
+					{#if repos.data.repos.length > 0}
 						<ul>
-							{#each $repos.data.repos as repo}
+							{#each repos.data.repos as repo}
 								<li>
 									<a
 										href={repo.htmlUrl}
@@ -106,7 +106,7 @@
 									</a>
 								</li>
 							{/each}
-							{#if $repos.data.repos.length >= 3}
+							{#if repos.data.repos.length >= 3}
 								<li class="text-muted-foreground mt-2 w-full text-center text-sm italic">
 									Repository limit reached. <br /> Delete a repo in GitHub to add more. <br />
 									<Button

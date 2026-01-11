@@ -28,9 +28,9 @@
 			</Sheet.Description>
 		</Sheet.Header>
 		<div class="flex flex-col gap-y-2">
-			{#if $challenges.data}
-				{#if $challenges.data.challenges.length > 0}
-					{#each $challenges.data?.challenges as challenge}
+			{#if challenges.data}
+				{#if challenges.data.challenges.length > 0}
+					{#each challenges.data?.challenges as challenge}
 						<Card.Root>
 							<Card.Header>
 								<Card.Title>{challenge.title}</Card.Title>
@@ -40,7 +40,7 @@
 							</Card.Content>
 							<Card.Footer>
 								<Button
-									disabled={$challengeSelectMutation.isPending ||
+									disabled={challengeSelectMutation.isPending ||
 										submitting ||
 										selectedChallengeId === challenge.id}
 									onclick={() => {
@@ -65,16 +65,16 @@
 
 		<Sheet.Footer class="mt-4 flex w-full justify-start gap-x-2">
 			<Button
-				disabled={$challengeSelectMutation.isPending || submitting}
+				disabled={challengeSelectMutation.isPending || submitting}
 				onclick={async () => {
 					submitting = true;
-					await $challengeSelectMutation.mutateAsync({ challengeId: selectedChallengeId });
+					await challengeSelectMutation.mutateAsync({ challengeId: selectedChallengeId });
 					await delay(1000);
 					submitting = false;
 					sheetOpen = false;
 				}}
 			>
-				{#if $challengeSelectMutation.isPending || submitting}
+				{#if challengeSelectMutation.isPending || submitting}
 					Submitting <LoaderCircle class="mr-2 size-4 animate-spin" />
 				{:else}
 					Submit
