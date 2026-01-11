@@ -17,7 +17,7 @@
 	let issuesQuery = queries.competitorGetAllTeamIssues();
 
 	const selectedIssue = $derived(
-		$issuesQuery.data?.issues.find((iss) => iss.id.toString() === $issueId)
+		issuesQuery.data?.issues.find((iss) => iss.id.toString() === $issueId)
 	);
 
 	watch(
@@ -65,8 +65,8 @@
 				<Command.List>
 					<Command.Empty>No matching issue</Command.Empty>
 					<Command.Group>
-						{#if $issuesQuery.data}
-							{#each $issuesQuery.data?.issues as issueData}
+						{#if issuesQuery.data}
+							{#each issuesQuery.data?.issues as issueData}
 								<Command.Item
 									value={issueData.id.toString()}
 									onSelect={() => {

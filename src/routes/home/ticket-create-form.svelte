@@ -32,7 +32,7 @@
 		onUpdate: async ({ form }) => {
 			if (form.valid) {
 				posthogHandler((posthog) => posthog.capture('Create Ticket'));
-				$createIssueMutation.mutate(form.data);
+				createIssueMutation.mutate(form.data);
 				ticketCreateSheetOpen.set(false);
 			}
 		}
@@ -45,7 +45,7 @@
 		(curr, prev) => {
 			if (curr !== prev) {
 				selectedIssue.set(
-					$issuesQuery.data?.issues.find((iss) => iss.id.toString() === curr) || null
+					issuesQuery.data?.issues.find((iss) => iss.id.toString() === curr) || null
 				);
 				if ($selectedIssue !== null) {
 					formData.set({

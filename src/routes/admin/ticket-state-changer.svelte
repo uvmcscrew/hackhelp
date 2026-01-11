@@ -28,7 +28,7 @@
 		<Button
 			onclick={async () => {
 				console.log('marking ticket open', ticketId);
-				await $changeTicketStatusMutation.mutateAsync({ status: 'open', ticketId });
+				await changeTicketStatusMutation.mutateAsync({ status: 'open', ticketId });
 			}}
 			disabled={$changeTicketStatusMutation.isPending}
 			class="bg-uvm-gold  text-black"
@@ -37,7 +37,7 @@
 		<Button
 			onclick={async () => {
 				console.log('marking ticket in progress', ticketId);
-				await $changeTicketStatusMutation.mutateAsync({ status: 'inProgress', ticketId });
+				await changeTicketStatusMutation.mutateAsync({ status: 'inProgress', ticketId });
 			}}
 			disabled={$changeTicketStatusMutation.isPending}
 			class=" bg-purple-600/80 text-white"
@@ -46,7 +46,7 @@
 		<Button
 			onclick={async () => {
 				console.log('marking ticket in progress', ticketId);
-				await $changeTicketStatusMutation.mutateAsync({ status: 'closed', ticketId });
+				await changeTicketStatusMutation.mutateAsync({ status: 'closed', ticketId });
 			}}
 			disabled={$changeTicketStatusMutation.isPending}
 			class=" bg-green-600/80 text-white"

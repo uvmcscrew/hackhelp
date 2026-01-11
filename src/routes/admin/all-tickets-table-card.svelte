@@ -48,8 +48,8 @@
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#if $tixQuery.data}
-					{#each $tixQuery.data.tickets as ticket}
+				{#if tixQuery.data}
+					{#each tixQuery.data.tickets as ticket}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
 							<Table.Cell class="max-w-48 overflow-x-scroll"
@@ -86,9 +86,9 @@
 							<Table.Cell>
 								<Button
 									title="Assign issue to self"
-									disabled={$accountQuery.data?.user?.id === ticket.assignedMentorId}
+									disabled={accountQuery.data?.user?.id === ticket.assignedMentorId}
 									onclick={async () => {
-										await $selfAssignMutation.mutateAsync({ ticketId: ticket.id });
+										await selfAssignMutation.mutateAsync({ ticketId: ticket.id });
 									}}
 									variant="outline"
 									size="icon"><UserPen class="size-4" /></Button
@@ -103,7 +103,7 @@
 							</Table.Cell>
 						</Table.Row>
 					{/each}
-					{#if $tixQuery.data.tickets.length === 0}
+					{#if tixQuery.data.tickets.length === 0}
 						<Table.Row>
 							<Table.Cell colspan={6} class="text-muted-foreground text-center italic">
 								No tickets found.

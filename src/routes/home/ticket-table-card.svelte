@@ -29,8 +29,8 @@
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#if $ticketsQuery.data}
-					{#each $ticketsQuery.data.tickets as ticket}
+				{#if ticketsQuery.data}
+					{#each ticketsQuery.data.tickets as ticket}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
 							<Table.Cell class="">
@@ -55,7 +55,7 @@
 						</Table.Row>
 					{/each}
 
-					{#if $ticketsQuery.data.tickets.length === 0}
+					{#if ticketsQuery.data.tickets.length === 0}
 						<Table.Row>
 							<Table.Cell colspan={4} class="text-muted-foreground text-center italic">
 								No tickets found.

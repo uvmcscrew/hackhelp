@@ -19,7 +19,7 @@
 		}
 	];
 
-	if ($account.data.user.teamId !== null) {
+	if (account.data.user.teamId !== null) {
 		links.push({
 			href: '/home/tickets',
 			text: 'Tickets'

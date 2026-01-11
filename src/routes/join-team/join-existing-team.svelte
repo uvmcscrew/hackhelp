@@ -12,7 +12,7 @@
 	const joinTeamMutation = mutations.competitorJoinTeam();
 
 	async function joinTeam() {
-		await $joinTeamMutation.mutateAsync({ teamJoinCode });
+		await joinTeamMutation.mutateAsync({ teamJoinCode });
 		await goto('/home');
 	}
 </script>

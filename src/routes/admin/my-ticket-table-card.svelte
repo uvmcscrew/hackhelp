@@ -48,8 +48,8 @@
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#if $tixQuery.data}
-					{#each $tixQuery.data.tickets as ticket}
+				{#if tixQuery.data}
+					{#each tixQuery.data.tickets as ticket}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
 							<Table.Cell class="max-w-40 overflow-x-scroll"
@@ -90,7 +90,7 @@
 									disabled={$unassignMutation.isPending}
 									title="Unassign this ticket from myself"
 									onclick={async () => {
-										await $unassignMutation.mutateAsync({ ticketId: ticket.id });
+										await unassignMutation.mutateAsync({ ticketId: ticket.id });
 									}}><UserXIcon class="size-4" /></Button
 								>
 								<Button
@@ -103,7 +103,7 @@
 							</Table.Cell>
 						</Table.Row>
 					{/each}
-					{#if $tixQuery.data.tickets.length === 0}
+					{#if tixQuery.data.tickets.length === 0}
 						<Table.Row>
 							<Table.Cell colspan={6} class="text-muted-foreground text-center italic">
 								No tickets assigned to you

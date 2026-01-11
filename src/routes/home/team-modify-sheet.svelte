@@ -14,7 +14,7 @@
 	const team = queries.competitorGetMyTeam();
 	let teamNameMutation = mutations.competitorUpdateTeam();
 
-	let teamName = $state($team.data?.team.name ?? '');
+	let teamName = $state(team.data?.team.name ?? '');
 </script>
 
 <Sheet.Root bind:open={sheetOpen}>
@@ -40,7 +40,7 @@
 				disabled={$teamNameMutation.isPending || submitting}
 				onclick={async () => {
 					submitting = true;
-					await $teamNameMutation.mutateAsync({ name: teamName });
+					await teamNameMutation.mutateAsync({ name: teamName });
 					await delay(1000);
 					submitting = false;
 					sheetOpen = false;

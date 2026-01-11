@@ -35,8 +35,8 @@
 		</Table.Row>
 	</Table.Header>
 	<Table.Body>
-		{#if $users.data}
-			{#each $users.data.users as user}
+		{#if users.data}
+			{#each users.data.users as user}
 				<Table.Row>
 					<Table.Cell class="font-medium"
 						>{user.profile && user.profile.givenName
@@ -63,7 +63,7 @@
 					<Table.Cell>
 						<Button
 							onclick={async () => {
-								await $whitelistUserMutation.mutateAsync({ userId: user.user.id });
+								await whitelistUserMutation.mutateAsync({ userId: user.user.id });
 							}}
 							disabled={$whitelistUserMutation.isPending || user.profile?.isWhitelisted}
 							variant="outline"

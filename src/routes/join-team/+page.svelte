@@ -22,7 +22,7 @@
 		validators: zod(createTeamSchema),
 		onUpdate: async ({ form }) => {
 			if (form.valid) {
-				const res = await $createTeamMutation.mutateAsync(form.data);
+				const res = await createTeamMutation.mutateAsync(form.data);
 				posthogHandler((posthog) => posthog.capture('Create Team'));
 				await goto('/home');
 			}
@@ -33,11 +33,11 @@
 	let account = queries.queryWhoami(data);
 
 	posthogHandler((posthog) =>
-		posthog.identify($account.data.user.username, {
-			id: $account.data.user.id,
-			username: $account.data.user.username,
-			isOrgAdmin: $account.data.user.isOrgAdmin,
-			isOrgMember: $account.data.user.isOrgMember
+		posthog.identify(account.data.user.username, {
+			id: account.data.user.id,
+			username: account.data.user.username,
+			isOrgAdmin: account.data.user.isOrgAdmin,
+			isOrgMember: account.data.user.isOrgMember
 		})
 	);
 </script>

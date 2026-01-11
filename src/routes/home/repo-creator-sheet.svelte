@@ -24,13 +24,13 @@
 	let createRepoMutation = mutations.createTeamRepo();
 
 	let isValid = $derived(
-		$repoSlugValidQuery.data?.repoExists === false && inputSlugDebounced.current.length > 1
+		repoSlugValidQuery.data?.repoExists === false && inputSlugDebounced.current.length > 1
 	);
 </script>
 
 <Sheet.Root bind:open={sheetOpen}>
 	<Sheet.Trigger
-		disabled={$reposQuery.data ? $reposQuery.data.repos.length >= 3 : true}
+		disabled={reposQuery.data ? reposQuery.data.repos.length >= 3 : true}
 		class={buttonVariants({ variant: 'default', size: 'sm' })}
 	>
 		Create Repository
@@ -53,8 +53,8 @@
 				<span class="col-start-4 row-start-2">
 					{#if $repoSlugValidQuery.isFetching}
 						<LoaderCircle class="h-6 w-6 animate-spin" />
-					{:else if $repoSlugValidQuery.data}
-						{#if $repoSlugValidQuery.data.repoExists}
+					{:else if repoSlugValidQuery.data}
+						{#if repoSlugValidQuery.data.repoExists}
 							<XIcon class="h-6 w-6 stroke-red-500" />
 						{:else}
 							<CheckIcon class="h-6 w-6 stroke-green-500" />
@@ -69,7 +69,7 @@
 			<Button
 				disabled={!isValid || $createRepoMutation.isPending}
 				onclick={async () => {
-					await $createRepoMutation.mutateAsync({ repoName: inputSlugDebounced.current });
+					await createRepoMutation.mutateAsync({ repoName: inputSlugDebounced.current });
 					sheetOpen = false;
 				}}
 			>
