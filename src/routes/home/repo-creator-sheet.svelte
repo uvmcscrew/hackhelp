@@ -17,6 +17,7 @@
 
 	let repoSlugValidQuery = createQuery(() =>
 		orpc.competitor.repositories.repoSlugIsTaken.queryOptions({
+			// @ts-expect-error unique symbol on orpc input
 			input: { repoName: inputSlugDebounced },
 			enabled: sheetOpen
 		})

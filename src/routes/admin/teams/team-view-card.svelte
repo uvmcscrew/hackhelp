@@ -11,6 +11,7 @@
 		return page.url.searchParams.get('teamId');
 	});
 
+	// @ts-expect-error unique symbol on orpc input
 	let teamQuery = createQuery(() => orpc.admin.teams.getById.queryOptions({ input: { teamId } }));
 </script>
 

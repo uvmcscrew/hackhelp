@@ -18,6 +18,7 @@
 	});
 
 	let ticketQuery = createQuery(() =>
+		// @ts-expect-error unique symbol on orpc input
 		orpc.admin.tickets.getTicketById.queryOptions({ input: { ticketId } })
 	);
 
