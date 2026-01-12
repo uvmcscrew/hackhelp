@@ -6,22 +6,25 @@
 	import XIcon from 'lucide-svelte/icons/x';
 	import CheckIcon from 'lucide-svelte/icons/check';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { Debounced } from 'runed';
-	import mutations from '$lib/trpc/client/mutations.svelte';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let sheetOpen = $state(false);
 
 	let inputSlug = $state('');
 	let inputSlugDebounced = new Debounced(() => inputSlug, 500);
 
-	let repoSlugValidQuery = $derived(
-		queries.competitorCheckRepoSlug(inputSlugDebounced.current, sheetOpen)
+	let repoSlugValidQuery = createQuery(() =>
+		orpc.competitor.repositories.repoSlugIsTaken.queryOptions({
+			input: { repoName: inputSlugDebounced },
+			enabled: sheetOpen
+		})
 	);
 
-	let reposQuery = queries.competitorGetTeamRepos();
+	let reposQuery = createQuery(orpc.competitor.repositories.getAll.queryOptions);
 
-	let createRepoMutation = mutations.createTeamRepo();
+	let createRepoMutation = createMutation(orpc.competitor.repositories.create.mutationOptions);
 
 	let isValid = $derived(
 		repoSlugValidQuery.data?.repoExists === false && inputSlugDebounced.current.length > 1

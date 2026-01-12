@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { Label } from '$lib/components/ui/label';
 	import { Switch } from '$lib/components/ui/switch';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import type { RouterOutputs } from '$lib/trpc/server';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import mutations from '$lib/trpc/client/mutations.svelte';
 	import TeamModifySheet from './team-modify-sheet.svelte';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	type Props = {
 		teamData: RouterOutputs['competitor']['team']['get'];
@@ -15,9 +14,9 @@
 
 	let { teamData }: Props = $props();
 
-	const team = queries.competitorGetMyTeam(teamData);
+	let team = createQuery(orpc.competitor.team.getTeam.queryOptions);
 
-	let teamJoinStateMutation = mutations.competitorUpdateTeamJoinable();
+	let teamJoinStateMutation = createMutation(orpc.competitor.team.updateJoinable.mutationOptions);
 
 	let canJoinState = $state(team.data?.team.canJoin ?? false);
 	let canJoinEnabled = $state(true);

@@ -2,25 +2,20 @@
 
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { Label } from '$lib/components/ui/label';
-	import { Switch } from '$lib/components/ui/switch';
-	import queries from '$lib/trpc/client/queries.svelte';
-	import type { RouterOutputs } from '$lib/trpc/server';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import RepoCreatorSheet from './repo-creator-sheet.svelte';
 	import SquareArrowOutUpRight from 'lucide-svelte/icons/square-arrow-out-up-right';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 	import { Badge } from '$lib/components/ui/badge';
-	import { watch } from 'runed';
-	import { browser } from '$app/environment';
 	import { Button } from '$lib/components/ui/button';
-	import { useQueryClient } from '@tanstack/svelte-query';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import ChallengeSelectorSheet from './challenge-selector-sheet.svelte';
 	import { clientEnv } from '$lib/env/client';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
-	let repos = queries.competitorGetTeamRepos();
-	let team = queries.competitorGetMyTeam();
+	let repos = createQuery(orpc.competitor.repositories.getAll.queryOptions);
+	let team = createQuery(orpc.competitor.team.getTeam.queryOptions);
 
 	let repoCountString = $derived(`${repos.data?.repos.length ?? '?'}/3`);
 
