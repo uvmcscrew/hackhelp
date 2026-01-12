@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 import { octokit } from '$lib/github';
 import { logger } from '$lib/logger';
 import { nanoid } from 'nanoid';
-import { authenticatedUserOrgStatus } from '$lib/trpc/server/router/account';
+import { authenticatedUserOrgStatus } from '$lib/orpc/server/router/account';
 
 export async function GET(event: RequestEvent): Promise<Response> {
 	const reqId = event.request.headers.get('x-railway-request-id') ?? nanoid();
