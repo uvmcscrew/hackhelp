@@ -30,7 +30,7 @@
 
 	let inviteRefreshLoading = $state(false);
 
-	const image = `https://avatars.githubusercontent.com/u/${$accountWithStatus.data.user.githubId}`;
+	const image = `https://avatars.githubusercontent.com/u/${accountWithStatus.data.user.githubId}`;
 
 	let sendInvite = mutations.requestInvite({
 		onSuccess: () =>
@@ -48,11 +48,11 @@
 	let leaveTeam = mutations.competitorLeaveTeam();
 
 	posthogHandler((posthog) =>
-		posthog.identify($accountWithStatus.data.user.username, {
-			id: $accountWithStatus.data.user.id,
-			username: $accountWithStatus.data.user.username,
-			isOrgAdmin: $accountWithStatus.data.user.isOrgAdmin,
-			isOrgMember: $accountWithStatus.data.user.isOrgMember
+		posthog.identify(accountWithStatus.data.user.username, {
+			id: accountWithStatus.data.user.id,
+			username: accountWithStatus.data.user.username,
+			isOrgAdmin: accountWithStatus.data.user.isOrgAdmin,
+			isOrgMember: accountWithStatus.data.user.isOrgMember
 		})
 	);
 </script>
@@ -60,11 +60,11 @@
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
 	<h1 class="w-full text-center text-2xl font-semibold">Account</h1>
 	<div class="text-foreground flex w-full justify-center">
-		{#if $accountWithStatus.data.user.isOrgMember}
+		{#if accountWithStatus.data.user.isOrgMember}
 			<Button
 				variant="link"
 				class="hover:cursor-pointer"
-				href={$accountWithStatus.data.user.isOrgAdmin ? '/admin' : '/home'}
+				href={accountWithStatus.data.user.isOrgAdmin ? '/admin' : '/home'}
 				><ArrowLeft class="h-8 w-8 " />Back</Button
 			>
 		{/if}
@@ -78,15 +78,15 @@
 			</Avatar.Root>
 			<div class="flex flex-col pl-4">
 				<span class="inline-flex gap-x-2">
-					<h2 class="text-2xl font-medium">{$accountWithStatus.data.user.fullName}</h2>
-					{#if $accountWithStatus.data.user.isOrgAdmin}
+					<h2 class="text-2xl font-medium">{accountWithStatus.data.user.fullName}</h2>
+					{#if accountWithStatus.data.user.isOrgAdmin}
 						<Badge class="ml-2 rounded-full bg-purple-400 px-2 py-1" hoverEffects={false}
 							>Administrator</Badge
 						>
 					{/if}
 				</span>
 				<span class="text-secondary-foreground font-mono"
-					>{$accountWithStatus.data.user.username}</span
+					>{accountWithStatus.data.user.username}</span
 				>
 			</div>
 			<div class="ml-auto grid place-content-start">
@@ -108,9 +108,9 @@
 		<CardContent class="flex flex-col gap-y-2">
 			<div class="flex flex-row items-center justify-between">
 				<span class="text-secondary-foreground font-semibold">Organization Membership: </span>
-				{#if $accountWithStatus.data.user.isOrgMember}
+				{#if accountWithStatus.data.user.isOrgMember}
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined</Badge>
-				{:else if $accountWithStatus.data.userStatus.isWhitelisted}
+				{:else if accountWithStatus.data.userStatus.isWhitelisted}
 					<Badge class="rounded-full bg-amber-400 px-2" hoverEffects={false}>Pending Invite</Badge>
 				{:else}
 					<Badge class="rounded-full bg-red-400 px-2" hoverEffects={false}
@@ -119,20 +119,20 @@
 				{/if}
 			</div>
 			<div class="flex flex-row items-center justify-end gap-x-3">
-				{#if !$accountWithStatus.data.user.isOrgMember && $accountWithStatus.data.userStatus.isWhitelisted}
-					{#if $hasInvite.data}
-						{#if $hasInvite.data.hasPendingInvite}
+				{#if !accountWithStatus.data.user.isOrgMember && accountWithStatus.data.userStatus.isWhitelisted}
+					{#if hasInvite.data}
+						{#if hasInvite.data.hasPendingInvite}
 							<Button
 								size="sm"
 								variant="outline"
 								class="p-2 text-center  hover:cursor-pointer "
 								onclick={async () => {
 									inviteRefreshLoading = true;
-									await $refreshInvite.mutateAsync();
+									await refreshInvite.mutateAsync();
 									await delay(3500);
 									inviteRefreshLoading = false;
 								}}
-								disabled={$refreshInvite.isPending || inviteRefreshLoading}
+								disabled={refreshInvite.isPending || inviteRefreshLoading}
 							>
 								{#if inviteRefreshLoading}
 									<RefreshCW class="mr-1 h-6 w-6 animate-spin" /> Refreshing...
@@ -152,12 +152,12 @@
 							<Button
 								size="sm"
 								onclick={async () => {
-									await $sendInvite.mutateAsync();
+									await sendInvite.mutateAsync();
 								}}
-								disabled={$sendInvite.isPending || inviteRefreshLoading}
+								disabled={sendInvite.isPending || inviteRefreshLoading}
 								class=" w-[8.25rem] bg-blue-500 p-2 text-center text-white hover:cursor-pointer  hover:bg-blue-500/80"
 							>
-								{#if $sendInvite.isPending}
+								{#if sendInvite.isPending}
 									<LoaderCircle class="mr-1 h-6 w-6 animate-spin" /> Inviting...
 								{:else}
 									Request Invitation
@@ -171,7 +171,7 @@
 			</div>
 			<div class="flex flex-row items-center justify-between">
 				<span class="text-secondary-foreground font-semibold">Team Membership: </span>
-				{#if $accountWithStatus.data.user.teamId !== null}
+				{#if accountWithStatus.data.user.teamId !== null}
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined Team</Badge>
 				{:else}
 					<Badge class="rounded-full bg-red-400 px-2" hoverEffects={false}>Not in Team</Badge>
@@ -179,9 +179,9 @@
 			</div>
 
 			<div class="flex flex-row items-center justify-end">
-				{#if $accountWithStatus.data.user.teamId !== null}
-					<Button variant="destructive" onclick={async () => await $leaveTeam.mutateAsync()}>
-						{#if $leaveTeam.isPending}
+				{#if accountWithStatus.data.user.teamId !== null}
+					<Button variant="destructive" onclick={async () => await leaveTeam.mutateAsync()}>
+						{#if leaveTeam.isPending}
 							<LoaderCircle class="mr-1 h-6 w-6 animate-spin" /> Leaving...
 						{:else}
 							Leave Team

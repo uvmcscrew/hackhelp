@@ -8,16 +8,17 @@
 	import { cn } from '$lib/utils.js';
 	import { Label } from '$lib/components/ui/label';
 	import queries from '$lib/trpc/client/queries.svelte';
-	import { issueId, ticketCreateSheetOpen } from './ticket-create.svelte';
 	import { watch } from 'runed';
 
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
+	let { ticketCreateSheetOpen = $bindable(), issueId = $bindable() } = $props();
+
 	let issuesQuery = queries.competitorGetAllTeamIssues();
 
 	const selectedIssue = $derived(
-		$issuesQuery.data?.issues.find((iss) => iss.id.toString() === $issueId)
+		issuesQuery.data?.issues.find((iss) => iss.id.toString() === $issueId)
 	);
 
 	watch(
@@ -65,8 +66,8 @@
 				<Command.List>
 					<Command.Empty>No matching issue</Command.Empty>
 					<Command.Group>
-						{#if $issuesQuery.data}
-							{#each $issuesQuery.data?.issues as issueData}
+						{#if issuesQuery.data}
+							{#each issuesQuery.data?.issues as issueData}
 								<Command.Item
 									value={issueData.id.toString()}
 									onSelect={() => {

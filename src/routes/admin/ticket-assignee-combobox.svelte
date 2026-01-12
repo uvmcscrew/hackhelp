@@ -26,7 +26,7 @@
 
 	let adminsQuery = queries.adminListAllAdmins();
 
-	const selected = $derived($adminsQuery.data?.admins.find((a) => a.id === value));
+	const selected = $derived(adminsQuery.data?.admins.find((a) => a.id === value));
 
 	let assignToMutation = mutations.adminAssignTicket();
 	let unassignFromMutation = mutations.adminUnassignTicket();
@@ -34,13 +34,13 @@
 	async function updateMentor(ticketId: string, userId?: string) {
 		// If the assigned mentor has changed AND the dialog box is not open, update
 		if (userId === undefined || userId.length === 0) {
-			return await $unassignFromMutation.mutateAsync({ ticketId });
+			return await unassignFromMutation.mutateAsync({ ticketId });
 		} else {
-			return await $assignToMutation.mutateAsync({ ticketId, userId });
+			return await assignToMutation.mutateAsync({ ticketId, userId });
 		}
 	}
 
-	let mutationLoading = $derived($assignToMutation.isPending || $unassignFromMutation.isPending);
+	let mutationLoading = $derived(assignToMutation.isPending || unassignFromMutation.isPending);
 
 	// We want to refocus the trigger button when the user selects
 	// an item from the list so users can continue navigating the
@@ -84,8 +84,8 @@
 					<Command.List>
 						<Command.Empty>No matching user</Command.Empty>
 						<Command.Group>
-							{#if $adminsQuery.data}
-								{#each $adminsQuery.data.admins as adminData}
+							{#if adminsQuery.data}
+								{#each adminsQuery.data.admins as adminData}
 									<Command.Item
 										value={adminData.id}
 										onSelect={() => {
@@ -123,7 +123,7 @@
 		<Button
 			onclick={async () => {
 				open = false;
-				await $unassignFromMutation.mutateAsync({ ticketId: props.ticketId });
+				await unassignFromMutation.mutateAsync({ ticketId: props.ticketId });
 				value = '';
 			}}
 			disabled={mutationLoading}

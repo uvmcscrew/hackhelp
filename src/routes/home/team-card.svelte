@@ -19,7 +19,7 @@
 
 	let teamJoinStateMutation = mutations.competitorUpdateTeamJoinable();
 
-	let canJoinState = $state($team.data?.team.canJoin ?? false);
+	let canJoinState = $state(team.data?.team.canJoin ?? false);
 	let canJoinEnabled = $state(true);
 </script>
 
@@ -28,7 +28,7 @@
 		<Card.Title>My Team</Card.Title>
 	</Card.Header>
 	<Card.Content class="h-max grow">
-		<h2 class="text-2xl font-semibold">{$team.data?.team.name}</h2>
+		<h2 class="text-2xl font-semibold">{team.data?.team.name}</h2>
 	</Card.Content>
 	<Card.Footer class=" grid grid-cols-2 grid-rows-4 gap-y-2 lg:grid-cols-4 lg:grid-rows-3">
 		<span class="text-muted-foreground col-span-2 row-start-1 text-base">Join Details</span>
@@ -49,7 +49,7 @@
 				onCheckedChange={async (checked) => {
 					canJoinState = false;
 					canJoinEnabled = false;
-					const { teamIsJoinable } = await $teamJoinStateMutation.mutateAsync({
+					const { teamIsJoinable } = await teamJoinStateMutation.mutateAsync({
 						canJoin: checked
 					});
 					canJoinState = teamIsJoinable;
@@ -58,7 +58,7 @@
 					}, 1000);
 				}}
 			/>
-			{#if $teamJoinStateMutation.isPending}
+			{#if teamJoinStateMutation.isPending}
 				<LoaderCircle class="h-6 w-6 animate-spin" />
 			{/if}
 		</div>
@@ -70,7 +70,7 @@
 		<div class="col-start-2 row-start-3 inline-flex h-8 items-center">
 			{#if canJoinState}
 				<span class="bg-accent text-accent-foreground rounded-sm p-1 font-mono"
-					>{$team.data?.team.joinCode}</span
+					>{team.data?.team.joinCode}</span
 				>
 			{/if}
 		</div>

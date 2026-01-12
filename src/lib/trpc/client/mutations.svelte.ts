@@ -11,7 +11,7 @@ export type BaseMutationProps = {
 function requestInvite(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['userInvite'],
 		mutationFn: () => trpcClient.account.sendInvite.mutate(),
 		onMutate: async () => {
@@ -25,13 +25,13 @@ function requestInvite(opts?: BaseMutationProps) {
 			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function refreshInvite(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['user refresh invite'],
 		mutationFn: () => trpcClient.account.refreshInvite.mutate(),
 		onMutate: async () => {
@@ -45,13 +45,13 @@ function refreshInvite(opts?: BaseMutationProps) {
 			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function competitorCreateTeam(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['competitor_team'],
 		mutationFn: (data: RouterInputs['competitor']['team']['create']) =>
 			trpcClient.competitor.team.create.mutate(data),
@@ -61,13 +61,13 @@ function competitorCreateTeam(opts?: BaseMutationProps) {
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['createTeam'] }),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function competitorJoinTeam(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['joinTeam'],
 		mutationFn: (data: RouterInputs['competitor']['team']['joinTeam']) =>
 			trpcClient.competitor.team.joinTeam.mutate(data),
@@ -81,13 +81,13 @@ function competitorJoinTeam(opts?: BaseMutationProps) {
 			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function competitorLeaveTeam(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['competitor_team'],
 		mutationFn: () => trpcClient.competitor.team.leaveTeam.mutate(),
 		onMutate: async () => {
@@ -101,13 +101,13 @@ function competitorLeaveTeam(opts?: BaseMutationProps) {
 			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function createTeamRepo(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['create repo'],
 		mutationFn: (data: RouterInputs['competitor']['repositories']['create']) =>
 			trpcClient.competitor.repositories.create.mutate(data),
@@ -117,26 +117,26 @@ function createTeamRepo(opts?: BaseMutationProps) {
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['repositories'] }),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function competitorUpdateTeamJoinable(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['change team joinable'],
 		mutationFn: (data: RouterInputs['competitor']['team']['updateJoinable']) =>
 			trpcClient.competitor.team.updateJoinable.mutate(data),
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['team'] }),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function competitorCreateTicket(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['create ticket'],
 		mutationFn: (data: RouterInputs['competitor']['tickets']['create']) =>
 			trpcClient.competitor.tickets.create.mutate(data),
@@ -146,13 +146,13 @@ function competitorCreateTicket(opts?: BaseMutationProps) {
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['tickets'] }),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function adminSelfAssignTicket(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['admin self assign ticket'],
 		mutationFn: (data: RouterInputs['admin']['tickets']['selfAssign']) =>
 			trpcClient.admin.tickets.selfAssign.mutate(data),
@@ -166,13 +166,13 @@ function adminSelfAssignTicket(opts?: BaseMutationProps) {
 			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function adminAssignTicket(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['admin self assign ticket'],
 		mutationFn: (data: RouterInputs['admin']['tickets']['assignTo']) =>
 			trpcClient.admin.tickets.assignTo.mutate(data),
@@ -186,13 +186,13 @@ function adminAssignTicket(opts?: BaseMutationProps) {
 			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function adminUnassignTicket(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['admin unassign ticket'],
 		mutationFn: (data: RouterInputs['admin']['tickets']['unassign']) =>
 			trpcClient.admin.tickets.unassign.mutate(data),
@@ -206,13 +206,13 @@ function adminUnassignTicket(opts?: BaseMutationProps) {
 			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function adminDeleteTicket(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['admin delete ticket'],
 		mutationFn: (data: RouterInputs['admin']['tickets']['deleteTicket']) =>
 			trpcClient.admin.tickets.deleteTicket.mutate(data),
@@ -226,13 +226,13 @@ function adminDeleteTicket(opts?: BaseMutationProps) {
 			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function adminChangeTicketStatus(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['admin change ticket status'],
 		mutationFn: (data: RouterInputs['admin']['tickets']['updateTicketStatus']) =>
 			trpcClient.admin.tickets.updateTicketStatus.mutate(data),
@@ -246,46 +246,46 @@ function adminChangeTicketStatus(opts?: BaseMutationProps) {
 			]),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function competitorUpdateTeam(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['competitor_team'],
 		mutationFn: (data: RouterInputs['competitor']['team']['updateProperties']) =>
 			trpcClient.competitor.team.updateProperties.mutate(data),
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['team'] }),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function teamSelectChallenge(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['team select challenge'],
 		mutationFn: (data: RouterInputs['competitor']['team']['selectChallenge']) =>
 			trpcClient.competitor.team.selectChallenge.mutate(data),
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['team'] }),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 function adminWhitelistUser(opts?: BaseMutationProps) {
 	const queryClient = useQueryClient();
 
-	return createMutation({
+	return createMutation(() => ({
 		mutationKey: ['admin whitelist user'],
 		mutationFn: (data: RouterInputs['admin']['users']['whitelistById']) =>
 			trpcClient.admin.users.whitelistById.mutate(data),
 		onSettled: async () => await queryClient.invalidateQueries({ queryKey: ['admin', 'userlist'] }),
 		onSuccess: opts?.onSuccess,
 		onError: opts?.onError
-	});
+	}));
 }
 
 export const mutations = {

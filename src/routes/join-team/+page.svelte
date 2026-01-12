@@ -7,7 +7,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import queries from '$lib/trpc/client/queries.svelte';
 	import { posthogHandler } from '$lib/utils';
-	import { zod } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { createTeamSchema } from '$lib/schemas';
 	import mutations from '$lib/trpc/client/mutations.svelte';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
@@ -17,12 +17,12 @@
 
 	let createTeamMutation = mutations.competitorCreateTeam();
 
-	const form = superForm(defaults(zod(createTeamSchema)), {
+	const form = superForm(defaults(zod4(createTeamSchema)), {
 		SPA: true,
-		validators: zod(createTeamSchema),
+		validators: zod4(createTeamSchema),
 		onUpdate: async ({ form }) => {
 			if (form.valid) {
-				const res = await $createTeamMutation.mutateAsync(form.data);
+				const res = await createTeamMutation.mutateAsync(form.data);
 				posthogHandler((posthog) => posthog.capture('Create Team'));
 				await goto('/home');
 			}
@@ -33,11 +33,11 @@
 	let account = queries.queryWhoami(data);
 
 	posthogHandler((posthog) =>
-		posthog.identify($account.data.user.username, {
-			id: $account.data.user.id,
-			username: $account.data.user.username,
-			isOrgAdmin: $account.data.user.isOrgAdmin,
-			isOrgMember: $account.data.user.isOrgMember
+		posthog.identify(account.data.user.username, {
+			id: account.data.user.id,
+			username: account.data.user.username,
+			isOrgAdmin: account.data.user.isOrgAdmin,
+			isOrgMember: account.data.user.isOrgMember
 		})
 	);
 </script>
@@ -71,7 +71,7 @@
 				<Form.FieldErrors />
 			</Form.Field>
 			<Form.Button disabled={$submitting}>
-				{#if $submitting || $createTeamMutation.isPending}
+				{#if $submitting || createTeamMutation.isPending}
 					Submitting... <LoaderCircle class="h-6 w-6 animate-spin" />
 				{:else}
 					Create Team

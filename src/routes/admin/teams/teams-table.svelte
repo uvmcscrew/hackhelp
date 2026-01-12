@@ -35,8 +35,8 @@
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#if $teams.data}
-					{#each $teams.data.teams as team}
+				{#if teams.data}
+					{#each teams.data.teams as team}
 						<Table.Row>
 							<Table.Cell class="font-medium">{team.name}</Table.Cell>
 							<Table.Cell>{team.memberCount}</Table.Cell>

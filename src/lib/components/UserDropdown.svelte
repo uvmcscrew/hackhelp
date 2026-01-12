@@ -32,9 +32,9 @@
 		<span class="sr-only">Toggle user menu</span>
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
-		<DropdownMenu.Label>{$accountData.data.user.fullName}</DropdownMenu.Label>
+		<DropdownMenu.Label>{accountData.data.user.fullName}</DropdownMenu.Label>
 		<DropdownMenu.Separator />
-		{#if $accountData.data.user.isOrgAdmin}
+		{#if accountData.data.user.isOrgAdmin}
 			<DropdownMenu.Item class="w-full hover:cursor-pointer"
 				>{#snippet child({ props })}
 					<a {...props} href="/admin"> Admin</a>
