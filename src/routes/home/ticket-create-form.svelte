@@ -3,7 +3,7 @@
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { createTicketSchema } from '$lib/schemas';
 	import { posthogHandler, WORK_ROOMS } from '$lib/utils';
-	import SuperDebug, { defaults, superForm } from 'sveltekit-superforms';
+	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import * as Form from '$lib/components/ui/form';
 
@@ -28,7 +28,7 @@
 	let form = superForm(defaults({ ...selectedIssue }, zod4(createTicketSchema)), {
 		SPA: true,
 		validators: zod4(createTicketSchema),
-		onUpdate: async ({ form }) => {
+		onUpdate: ({ form }) => {
 			if (form.valid) {
 				posthogHandler((posthog) => posthog.capture('Create Ticket'));
 				createIssueMutation.mutate(form.data);
@@ -68,7 +68,7 @@
 					{...props}
 					bind:value={$formData.title}
 					disabled={!selectedIssue}
-					placeholder={(!selectedIssue && 'Please select an issue first') || ''}
+					placeholder={selectedIssue ? '' : 'Please select an issue first'}
 				/>
 			{/snippet}
 		</Form.Control>
@@ -92,7 +92,7 @@
 							: 'Please select an issue first'}
 					</Select.Trigger>
 					<Select.Content>
-						{#each WORK_ROOMS as location}
+						{#each WORK_ROOMS as location (location)}
 							<Select.Item value={location} label={location} />
 						{/each}
 					</Select.Content>
@@ -122,7 +122,7 @@
 			{/snippet}
 		</Form.Control>
 		<Form.FieldErrors />
-	</Form.Field> -->
+	</Form.Field>
 </form>
 
 <Sheet.Footer class="mt-2 font-mono sm:justify-start">

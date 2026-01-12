@@ -34,7 +34,7 @@
 			</Table.Header>
 			<Table.Body>
 				{#if teams.data}
-					{#each teams.data.teams as team}
+					{#each teams.data.teams as team (team.id)}
 						<Table.Row>
 							<Table.Cell class="font-medium">{team.name}</Table.Cell>
 							<Table.Cell>{team.memberCount}</Table.Cell>

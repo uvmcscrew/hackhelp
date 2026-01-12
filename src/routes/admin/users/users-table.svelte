@@ -35,7 +35,7 @@
 	</Table.Header>
 	<Table.Body>
 		{#if users.data}
-			{#each users.data.users as user}
+			{#each users.data.users as user (user.user.id)}
 				<Table.Row>
 					<Table.Cell class="font-medium"
 						>{user.profile && user.profile.givenName

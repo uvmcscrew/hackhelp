@@ -47,7 +47,7 @@
 			</Table.Header>
 			<Table.Body>
 				{#if tixQuery.data}
-					{#each tixQuery.data.tickets as ticket}
+					{#each tixQuery.data.tickets as ticket (ticket.id)}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
 							<Table.Cell class="max-w-48 overflow-x-scroll"
@@ -84,7 +84,7 @@
 							<Table.Cell>
 								<Button
 									title="Assign issue to self"
-									disabled={accountQuery.data?.user?.id === ticket.assignedMentorId}
+									disabled={accountQuery.data?.user.id === ticket.assignedMentorId}
 									onclick={async () => {
 										await selfAssignMutation.mutateAsync({ ticketId: ticket.id });
 									}}
@@ -95,6 +95,7 @@
 									variant="outline"
 									size="icon"
 									onclick={async () => {
+										// eslint-disable-next-line svelte/no-navigation-without-resolve
 										await goto(`/admin?ticketId=${ticket.id}`);
 									}}><SquareChevronRight class="size-4" /></Button
 								>

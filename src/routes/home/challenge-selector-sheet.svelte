@@ -34,7 +34,7 @@
 		<div class="flex flex-col gap-y-2">
 			{#if challenges.data}
 				{#if challenges.data.challenges.length > 0}
-					{#each challenges.data?.challenges as challenge}
+					{#each challenges.data.challenges as challenge (challenge.id)}
 						<Card.Root>
 							<Card.Header>
 								<Card.Title>{challenge.title}</Card.Title>

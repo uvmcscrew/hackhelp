@@ -22,6 +22,7 @@
 	import { delay, posthogHandler } from '$lib/utils';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { resolve } from '$app/paths';
 
 	let { data: initialData }: PageProps = $props();
 
@@ -40,8 +41,11 @@
 				toast.success('Invitation created', {
 					action: {
 						label: 'View',
-						onClick: () =>
-							goto(`https://github.com/orgs/${clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation`)
+						onClick: () => {
+							window.location.assign(
+								`https://github.com/orgs/${clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation`
+							);
+						}
 					}
 				})
 		})
@@ -101,7 +105,7 @@
 					onclick={async () => {
 						await fetch('/auth/logout', { method: 'POST' });
 						posthogHandler((posthog) => posthog.reset());
-						await goto('/auth/login');
+						await goto(resolve('/auth/login'));
 					}}><DoorOpen class="h-8 w-8" />Sign Out</Button
 				>
 			</div>

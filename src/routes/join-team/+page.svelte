@@ -12,6 +12,7 @@
 	import { goto } from '$app/navigation';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { resolve } from '$app/paths';
 
 	let { data: initialData }: PageProps = $props();
 
@@ -22,9 +23,9 @@
 		validators: zod4(createTeamSchema),
 		onUpdate: async ({ form }) => {
 			if (form.valid) {
-				const res = await createTeamMutation.mutateAsync(form.data);
+				void createTeamMutation.mutateAsync(form.data);
 				posthogHandler((posthog) => posthog.capture('Create Team'));
-				await goto('/home');
+				await goto(resolve('/home'));
 			}
 		}
 	});

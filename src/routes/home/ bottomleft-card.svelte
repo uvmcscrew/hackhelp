@@ -80,7 +80,7 @@
 				{#if repos.data}
 					{#if repos.data.repos.length > 0}
 						<ul>
-							{#each repos.data.repos as repo}
+							{#each repos.data.repos as repo (repo.id)}
 								<li>
 									<a
 										href={repo.htmlUrl}

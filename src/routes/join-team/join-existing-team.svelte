@@ -1,5 +1,6 @@
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
@@ -14,7 +15,7 @@
 
 	async function joinTeam() {
 		await joinTeamMutation.mutateAsync({ teamJoinCode });
-		await goto('/home');
+		await goto(resolve('/home'));
 	}
 </script>
 

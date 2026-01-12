@@ -30,7 +30,7 @@
 					<Card.Content class="flex flex-col justify-start gap-y-4">
 						<h2 class="text-lg">Members</h2>
 						<ul class="text-sm">
-							{#each teamQuery.data.members as member}
+							{#each teamQuery.data.members as member (member.id)}
 								<li class="">
 									{member.fullName}
 									<span class="text-muted-foreground ml-1 italic">@{member.username}</span>

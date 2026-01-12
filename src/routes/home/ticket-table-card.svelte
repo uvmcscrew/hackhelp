@@ -30,7 +30,7 @@
 			</Table.Header>
 			<Table.Body>
 				{#if ticketsQuery.data}
-					{#each ticketsQuery.data.tickets as ticket}
+					{#each ticketsQuery.data.tickets as ticket (ticket.id)}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
 							<Table.Cell class="">

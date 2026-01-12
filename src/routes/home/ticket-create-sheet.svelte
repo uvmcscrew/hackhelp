@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Sheet from '$lib/components/ui/sheet';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
 	import TicketCreateCombobox from './ticket-create-combobox.svelte';
 	import TicketCreateForm from './ticket-create-form.svelte';
 

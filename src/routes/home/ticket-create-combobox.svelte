@@ -12,18 +12,20 @@
 	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let open = $state(false);
+	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion, svelte/no-top-level-browser-globals
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
-	let { ticketCreateSheetOpen = $bindable<string>(), issueId = $bindable<string>() } = $props();
+	let { ticketCreateSheetOpen = $bindable(false), issueId = $bindable<string | null>(null) } =
+		$props();
 
 	let issuesQuery = createQuery(orpc.competitor.tickets.getAllTeamIssues.queryOptions);
 
 	const selectedIssue = $derived(
-		issuesQuery.data?.issues.find((iss) => iss.id.toString() === $issueId)
+		issuesQuery.data?.issues.find((iss) => iss.id.toString() === issueId)
 	);
 
 	watch(
-		() => $ticketCreateSheetOpen,
+		() => ticketCreateSheetOpen,
 		(curr, prev) => {
 			if (curr === false && prev === true) {
 				issueId = null;
@@ -37,7 +39,7 @@
 	// rest of the form with the keyboard.
 	function closeAndFocusTrigger() {
 		open = false;
-		tick().then(() => {
+		void tick().then(() => {
 			triggerRef.focus();
 		});
 	}
@@ -68,7 +70,7 @@
 					<Command.Empty>No matching issue</Command.Empty>
 					<Command.Group>
 						{#if issuesQuery.data}
-							{#each issuesQuery.data?.issues as issueData}
+							{#each issuesQuery.data.issues as issueData (issueData.id)}
 								<Command.Item
 									value={issueData.id.toString()}
 									onSelect={() => {
