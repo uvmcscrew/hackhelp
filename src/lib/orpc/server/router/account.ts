@@ -10,6 +10,7 @@ import { githubApp, octokit } from '$lib/github';
 import { generateState } from 'arctic';
 import { githubOAuth } from '$lib/server/auth';
 import type { User } from '$lib/server/db/schema';
+import z from 'zod';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -85,7 +86,7 @@ export const accountRouter = {
 		const pendingInvite = await hasPendingInvite(context);
 		return { hasPendingInvite: pendingInvite };
 	}),
-	sendInviteMutation: protectedProcedure.route({ method: "POST" }).handler(async ({ context }) => {
+	sendInviteMutation: protectedProcedure.route({ method: 'POST' }).handler(async ({ context }) => {
 		const trpclogger = context.logger.child({ procedure: 'account.sendInvite' });
 		// Make sure DB state is accurate
 		const userstatus = await updateInvitedUser(
@@ -115,49 +116,51 @@ export const accountRouter = {
 
 		return { invited: true };
 	}),
-	refreshInviteMutation: protectedProcedure.route({ method: "POST" }).handler(async ({ context }) => {
-		const trpclogger = context.logger.child({ procedure: 'account.refreshInvite' });
+	refreshInviteMutation: protectedProcedure
+		.route({ method: 'POST' })
+		.handler(async ({ context }) => {
+			const trpclogger = context.logger.child({ procedure: 'account.refreshInvite' });
 
-		// Make sure DB state is accurate
-		const userstatus = await updateInvitedUser(
-			context.user.username,
-			{ client: context.db, schema: context.dbSchema },
-			context.githubApp
-		);
-		if (userstatus.isOrgMember) {
-			trpclogger.info('User is already a member of the organization');
-			return { refreshed: true, isMember: true };
-		}
-
-		const pendingInvite = await hasPendingInvite(context);
-		if (!pendingInvite) {
-			trpclogger.warn('User does not have a pending invite');
-			return { refreshed: false, isMember: false };
-		}
-
-		const orgmembers = await context.githubApp.rest.orgs.listMembers({
-			org: serverEnv.PUBLIC_GITHUB_ORGNAME
-		});
-
-		const isMember = orgmembers.data.some((member) => member.login === context.user.username);
-
-		trpclogger.info('User org membership status', { isMember });
-
-		if (isMember) {
-			trpclogger.info('User is a member of the organization, updating user status');
-			const result = await updateInvitedUser(
+			// Make sure DB state is accurate
+			const userstatus = await updateInvitedUser(
 				context.user.username,
 				{ client: context.db, schema: context.dbSchema },
 				context.githubApp
 			);
-			trpclogger.info('User status updated', {
-				isOrgMember: result.isOrgMember,
-				isOrgAdmin: result.isOrgAdmin
-			});
-		}
+			if (userstatus.isOrgMember) {
+				trpclogger.info('User is already a member of the organization');
+				return { refreshed: true, isMember: true };
+			}
 
-		return { refreshed: true, isMember };
-	})
+			const pendingInvite = await hasPendingInvite(context);
+			if (!pendingInvite) {
+				trpclogger.warn('User does not have a pending invite');
+				return { refreshed: false, isMember: false };
+			}
+
+			const orgmembers = await context.githubApp.rest.orgs.listMembers({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME
+			});
+
+			const isMember = orgmembers.data.some((member) => member.login === context.user.username);
+
+			trpclogger.info('User org membership status', { isMember });
+
+			if (isMember) {
+				trpclogger.info('User is a member of the organization, updating user status');
+				const result = await updateInvitedUser(
+					context.user.username,
+					{ client: context.db, schema: context.dbSchema },
+					context.githubApp
+				);
+				trpclogger.info('User status updated', {
+					isOrgMember: result.isOrgMember,
+					isOrgAdmin: result.isOrgAdmin
+				});
+			}
+
+			return { refreshed: true, isMember };
+		})
 };
 
 // #############################################
@@ -195,8 +198,8 @@ export async function authenticatedUserOrgStatus(username: string, accessToken: 
 	return { isInOrg: false, isAdmin: null };
 }
 
-export const authRouter = ({
-	getOAuthUrlMutation: o.route({ method: "POST" }).handler(async ({ context }) => {
+export const authRouter = {
+	getOAuthUrlMutation: o.route({ method: 'POST' }).handler(async ({ context }) => {
 		const state = generateState();
 		const url = githubOAuth.createAuthorizationURL(state, ['read:user', 'user:email']);
 
@@ -211,4 +214,4 @@ export const authRouter = ({
 			url: url.toString()
 		};
 	})
-});
+};
