@@ -8,11 +8,12 @@
 	import { cn } from '$lib/utils.js';
 	import { Label } from '$lib/components/ui/label';
 	import queries from '$lib/trpc/client/queries.svelte';
-	import { issueId, ticketCreateSheetOpen } from './ticket-create.svelte';
 	import { watch } from 'runed';
 
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);
+
+	let { ticketCreateSheetOpen = $bindable(), issueId = $bindable() } = $props();
 
 	let issuesQuery = queries.competitorGetAllTeamIssues();
 
