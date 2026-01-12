@@ -17,7 +17,7 @@
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 
-	let { ticketCreateSheetOpen = $bindable(), issueId = $bindable() } = $props();
+	let { ticketCreateSheetOpen = $bindable<boolean>(), issueId = $bindable<string>() } = $props();
 
 	let issuesQuery = createQuery(orpc.competitor.tickets.getAllTeamIssues.queryOptions);
 

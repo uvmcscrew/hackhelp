@@ -14,7 +14,7 @@
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
-	let { ticketCreateSheetOpen = $bindable(), issueId = $bindable() } = $props();
+	let { ticketCreateSheetOpen = $bindable<string>(), issueId = $bindable<string>() } = $props();
 
 	let issuesQuery = createQuery(orpc.competitor.tickets.getAllTeamIssues.queryOptions);
 
@@ -26,7 +26,7 @@
 		() => $ticketCreateSheetOpen,
 		(curr, prev) => {
 			if (curr === false && prev === true) {
-				issueId.set(null);
+				issueId = null;
 				console.log('Resetting issueId');
 			}
 		}
@@ -72,14 +72,14 @@
 								<Command.Item
 									value={issueData.id.toString()}
 									onSelect={() => {
-										issueId.set(issueData.id.toString());
+										issueId = issueData.id.toString();
 										closeAndFocusTrigger();
 									}}
 								>
 									<Check
 										class={cn(
 											'mr-2 size-4',
-											$issueId !== issueData.id.toString() && 'text-transparent'
+											issueId !== issueData.id.toString() && 'text-transparent'
 										)}
 									/>
 									{issueData.title}
