@@ -30,4 +30,4 @@ whitelist.json
 .idea
 
 .tmp
-.direnv/bin
+.direnv
