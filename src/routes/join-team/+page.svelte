@@ -5,11 +5,9 @@
 	import type { PageProps } from './$types';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { posthogHandler } from '$lib/utils';
 	import { zod4 } from 'sveltekit-superforms/adapters';
 	import { createTeamSchema } from '$lib/schemas';
-	import mutations from '$lib/trpc/client/mutations.svelte';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import { goto } from '$app/navigation';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';

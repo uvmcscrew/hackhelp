@@ -7,10 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils.js';
 	import { Label } from '$lib/components/ui/label';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import { Debounced, watch } from 'runed';
-	import mutations from '$lib/trpc/client/mutations.svelte';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 

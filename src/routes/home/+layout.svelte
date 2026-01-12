@@ -3,7 +3,6 @@
 	import UserDropdown from '$lib/components/UserDropdown.svelte';
 	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
 	import MadeWith from '$lib/components/MadeWith.svelte';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import WidthWarning from '$lib/components/WidthWarning.svelte';
 	import { browser } from '$app/environment';
