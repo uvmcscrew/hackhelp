@@ -11,6 +11,8 @@
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import { Debounced, watch } from 'runed';
 	import mutations from '$lib/trpc/client/mutations.svelte';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	type Props = {
 		ticketId: string;
@@ -24,12 +26,12 @@
 	let value = $state(props.initialMentorId || '');
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
-	let adminsQuery = queries.adminListAllAdmins();
+	let adminsQuery = createQuery(orpc.admin.users.getAdmins.queryOptions);
 
 	const selected = $derived(adminsQuery.data?.admins.find((a) => a.id === value));
 
-	let assignToMutation = mutations.adminAssignTicket();
-	let unassignFromMutation = mutations.adminUnassignTicket();
+	let assignToMutation = createMutation(orpc.admin.tickets.assignToMutation.mutationOptions);
+	let unassignFromMutation = createMutation(orpc.admin.tickets.unassignMutation.mutationOptions);
 
 	async function updateMentor(ticketId: string, userId?: string) {
 		// If the assigned mentor has changed AND the dialog box is not open, update

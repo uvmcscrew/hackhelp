@@ -7,10 +7,14 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import AllTicketsTableCard from './all-tickets-table-card.svelte';
 	import TicketViewCard from './ticket-view-card.svelte';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
 
 	let { data }: PageProps = $props();
 
-	let account = queries.queryWhoami(data);
+	let account = createQuery(() =>
+		orpc.account.whoami.queryOptions({ initialData: { user: data.user } })
+	);
 
 	posthogHandler((posthog) =>
 		posthog.identify(account.data.user.username, {

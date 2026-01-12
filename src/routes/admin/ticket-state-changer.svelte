@@ -11,6 +11,8 @@
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import { Debounced, watch } from 'runed';
 	import mutations from '$lib/trpc/client/mutations.svelte';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
 
 	type Props = {
 		ticketId: string;
@@ -18,7 +20,9 @@
 
 	let { ticketId }: Props = $props();
 
-	let changeTicketStatusMutation = mutations.adminChangeTicketStatus();
+	let changeTicketStatusMutation = createMutation(
+		orpc.admin.tickets.updateTicketStatusMutation.mutationOptions
+	);
 </script>
 
 <div class="my-4 flex flex-col gap-y-2">

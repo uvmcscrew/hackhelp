@@ -22,30 +22,36 @@
 	import { toast } from 'svelte-sonner';
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import { delay, posthogHandler } from '$lib/utils';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let pgProps: PageProps = $props();
 
-	let accountWithStatus = queries.queryWhoamiWithProfile(pgProps.data);
-	let hasInvite = queries.hasPendingInvite();
+	let accountWithStatus = createQuery(() =>
+		orpc.account.whoamiWithProfile.queryOptions({ initialData: pgProps.data })
+	);
+	let hasInvite = createQuery(orpc.account.hasPendingInvite.queryOptions);
 
 	let inviteRefreshLoading = $state(false);
 
 	const image = `https://avatars.githubusercontent.com/u/${accountWithStatus.data.user.githubId}`;
 
-	let sendInvite = mutations.requestInvite({
-		onSuccess: () =>
-			toast.success('Invitation created', {
-				action: {
-					label: 'View',
-					onClick: () =>
-						goto(`https://github.com/orgs/${clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation`)
-				}
-			})
-	});
+	let sendInvite = createMutation(() =>
+		orpc.account.sendInviteMutation.mutationOptions({
+			onSuccess: () =>
+				toast.success('Invitation created', {
+					action: {
+						label: 'View',
+						onClick: () =>
+							goto(`https://github.com/orgs/${clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation`)
+					}
+				})
+		})
+	);
 
-	let refreshInvite = mutations.refreshInvite();
+	let refreshInvite = createMutation(orpc.account.refreshInviteMutation.mutationOptions);
 
-	let leaveTeam = mutations.competitorLeaveTeam();
+	let leaveTeam = createMutation(orpc.competitor.team.leaveTeam.mutationOptions);
 
 	posthogHandler((posthog) =>
 		posthog.identify(accountWithStatus.data.user.username, {

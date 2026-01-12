@@ -23,6 +23,7 @@
     "clean": "rm -rf .svelte-kit build"
   },
   "devDependencies": {
+    "@eslint/compat": "^2.0.1",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^22.19.3",

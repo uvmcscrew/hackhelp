@@ -16,8 +16,8 @@
 	};
 	const { user }: Props = $props();
 
-	let accountData = createQuery(orpc.account.whoami.queryOptions);
-	const image = `https://avatars.githubusercontent.com/u/${$accountData.data.user.githubId}`;
+	let accountData = createQuery(() => orpc.account.whoami.queryOptions({ initialData: { user } }));
+	const image = `https://avatars.githubusercontent.com/u/${accountData.data?.user.githubId}`;
 </script>
 
 <DropdownMenu.Root>

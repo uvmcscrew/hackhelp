@@ -6,6 +6,7 @@ import { serverEnv } from '$lib/env/server';
 import { createTeamSchema, createTicketSchema } from '$lib/schemas';
 import type { GithubAppClient } from '$lib/github';
 import { MAX_TEAMS_PER_CHALLENGE } from '$lib/utils';
+import { ORPCError } from '@orpc/client';
 
 /**
  * This file contains most actions that a competitor will need. It is broken out into multiple routers depending on what the different actions
@@ -14,11 +15,11 @@ import { MAX_TEAMS_PER_CHALLENGE } from '$lib/utils';
 
 const enforceUserIsInTeam = o.middleware(async ({ context, next }) => {
 	if (!context.user || !context.session) {
-		throw new TRPCError({ code: 'UNAUTHORIZED' });
+		throw new ORPCError('UNAUTHORIZED');
 	}
 
 	if (!context.user.teamId) {
-		throw new TRPCError({ code: 'FORBIDDEN' });
+		throw new ORPCError('FORBIDDEN');
 	}
 
 	const [team] = await context.db
@@ -27,7 +28,7 @@ const enforceUserIsInTeam = o.middleware(async ({ context, next }) => {
 		.where(eq(context.dbSchema.team.id, context.user.teamId));
 
 	if (!team) {
-		throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
+		throw new ORPCError('NOT_FOUND', { message: 'Team not found' });
 	}
 
 	return next({
@@ -55,7 +56,10 @@ const teamRouter = {
 			})
 			.from(context.dbSchema.user)
 			.where(eq(context.dbSchema.user.teamId, context.team.id))
-			.leftJoin(context.dbSchema.profile, eq(context.dbSchema.user.id, context.dbSchema.profile.linkedUserId));
+			.leftJoin(
+				context.dbSchema.profile,
+				eq(context.dbSchema.user.id, context.dbSchema.profile.linkedUserId)
+			);
 
 		if (context.team.selectedChallengeId === null) {
 			return { team: context.team, members, challenge: null };
@@ -74,7 +78,7 @@ const teamRouter = {
 				description: z.string().default('')
 			})
 		)
-		.route({ method:"POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			const ghUpdate = await context.githubApp.rest.teams.updateInOrg({
 				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
@@ -89,13 +93,13 @@ const teamRouter = {
 				.where(eq(context.dbSchema.team.id, context.user.teamId))
 				.returning();
 			if (!team) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Team not found' });
 			}
 			return { team };
 		}),
 	updateJoinable: teamProcedure
 		.input(z.object({ canJoin: z.boolean() }))
-		.route({ method:"POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			if (context.team.canJoin === input.canJoin) {
 				return { teamIsJoinable: input.canJoin };
@@ -108,46 +112,49 @@ const teamRouter = {
 				.returning();
 
 			if (!team) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Team not found' });
 			}
 
 			return { teamIsJoinable: input.canJoin };
 		}),
-	create: protectedProcedure.input(createTeamSchema).route({ method:"POST" }).handler(async ({ context, input }) => {
-		const ghTeam = await context.githubApp.rest.teams.create({
-			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
-			name: input.name,
-			description: input.description
-		});
-
-		const [team] = await context.db
-			.insert(context.dbSchema.team)
-			.values({
+	create: protectedProcedure
+		.input(createTeamSchema)
+		.route({ method: 'POST' })
+		.handler(async ({ context, input }) => {
+			const ghTeam = await context.githubApp.rest.teams.create({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
 				name: input.name,
-				githubId: ghTeam.data.id,
-				githubSlug: ghTeam.data.slug
-			})
-			.returning();
+				description: input.description
+			});
 
-		await context.db
-			.update(context.dbSchema.user)
-			.set({ teamId: team.id })
-			.where(eq(context.dbSchema.user.id, context.user.id));
+			const [team] = await context.db
+				.insert(context.dbSchema.team)
+				.values({
+					name: input.name,
+					githubId: ghTeam.data.id,
+					githubSlug: ghTeam.data.slug
+				})
+				.returning();
 
-		await context.githubApp.rest.teams.addOrUpdateMembershipForUserInOrg({
-			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
-			team_slug: team.githubSlug,
-			username: context.user.username
-		});
+			await context.db
+				.update(context.dbSchema.user)
+				.set({ teamId: team.id })
+				.where(eq(context.dbSchema.user.id, context.user.id));
 
-		return { team };
-	}),
+			await context.githubApp.rest.teams.addOrUpdateMembershipForUserInOrg({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				team_slug: team.githubSlug,
+				username: context.user.username
+			});
+
+			return { team };
+		}),
 	joinTeamMutation: protectedProcedure
 		.input(z.object({ teamJoinCode: z.string().nonempty().max(6).min(6) }))
-		.route({ method:"POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			if (context.user.teamId !== null) {
-				throw new TRPCError({ code: 'FORBIDDEN', message: 'User is already in a team' });
+				throw new ORPCError('FORBIDDEN', { message: 'User is already in a team' });
 			}
 
 			const [team] = await context.db
@@ -156,11 +163,11 @@ const teamRouter = {
 				.where(eq(context.dbSchema.team.joinCode, input.teamJoinCode));
 
 			if (!team) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Team not found' });
 			}
 
 			if (!team.canJoin) {
-				throw new TRPCError({ code: 'FORBIDDEN', message: 'Team is not accepting new members' });
+				throw new ORPCError('FORBIDDEN', { message: 'Team is not accepting new members' });
 			}
 
 			await context.db
@@ -176,7 +183,7 @@ const teamRouter = {
 
 			return { team };
 		}),
-	leaveTeam: teamProcedure.route({ method:"DELETE" }).handler(async ({ context }) => {
+	leaveTeam: teamProcedure.route({ method: 'DELETE' }).handler(async ({ context }) => {
 		await context.db
 			.update(context.dbSchema.user)
 			.set({ teamId: null })
@@ -213,7 +220,7 @@ const teamRouter = {
 	}),
 	selectChallenge: teamProcedure
 		.input(z.object({ challengeId: z.string() }))
-		.route({ method:"POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			if (!serverEnv.PUBLIC_SHOW_CHALLENGES) {
 				throw new TRPCError({ code: 'FORBIDDEN', message: 'Challenges are not enabled' });
@@ -281,17 +288,19 @@ async function getAllTeamRepositories(githubApp: GithubAppClient, teamSlug: stri
 const repositoryRouter = {
 	getAll: teamProcedure.handler(async ({ context }) => {
 		return {
-			repos: (await getAllTeamRepositories(context.githubApp, context.team.githubSlug)).map((repo) => {
-				return {
-					id: repo.id,
-					name: repo.name,
-					fullName: repo.full_name,
-					description: repo.description,
-					private: repo.private,
-					htmlUrl: repo.html_url,
-					language: repo.language
-				};
-			})
+			repos: (await getAllTeamRepositories(context.githubApp, context.team.githubSlug)).map(
+				(repo) => {
+					return {
+						id: repo.id,
+						name: repo.name,
+						fullName: repo.full_name,
+						description: repo.description,
+						private: repo.private,
+						htmlUrl: repo.html_url,
+						language: repo.language
+					};
+				}
+			)
 		};
 	}),
 	repoSlugIsTaken: teamProcedure
@@ -399,36 +408,42 @@ const ticketRouter = {
 			})
 			.from(context.dbSchema.ticket)
 			.where(eq(context.dbSchema.ticket.teamId, context.team.id))
-			.leftJoin(context.dbSchema.user, eq(context.dbSchema.ticket.assignedMentor, context.dbSchema.user.id))
+			.leftJoin(
+				context.dbSchema.user,
+				eq(context.dbSchema.ticket.assignedMentor, context.dbSchema.user.id)
+			)
 			.orderBy(desc(context.dbSchema.ticket.createdAt));
 		return { tickets };
 	}),
-	create: teamProcedure.input(createTicketSchema).route({ method:"POST" }).handler(async ({ context, input }) => {
-		// Create the ticket in the database
-		const [ticket] = await context.db
-			.insert(context.dbSchema.ticket)
-			.values({
-				teamId: context.team.id,
-				challengeId: context.team.selectedChallengeId,
-				createdAt: new Date(),
-				issueNumber: input.issueNumber,
-				repository: input.repository,
-				title: input.title,
-				location: input.location,
-				locationDescription: input.locationDescription
-			})
-			.returning();
+	create: teamProcedure
+		.input(createTicketSchema)
+		.route({ method: 'POST' })
+		.handler(async ({ context, input }) => {
+			// Create the ticket in the database
+			const [ticket] = await context.db
+				.insert(context.dbSchema.ticket)
+				.values({
+					teamId: context.team.id,
+					challengeId: context.team.selectedChallengeId,
+					createdAt: new Date(),
+					issueNumber: input.issueNumber,
+					repository: input.repository,
+					title: input.title,
+					location: input.location,
+					locationDescription: input.locationDescription
+				})
+				.returning();
 
-		// Add a comment to the issue
-		await context.githubApp.rest.issues.createComment({
-			owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
-			repo: input.repository,
-			issue_number: input.issueNumber,
-			body: `This issue has been linked to a ticket.`
-		});
+			// Add a comment to the issue
+			await context.githubApp.rest.issues.createComment({
+				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				repo: input.repository,
+				issue_number: input.issueNumber,
+				body: `This issue has been linked to a ticket.`
+			});
 
-		return { ticket };
-	})
+			return { ticket };
+		})
 };
 
 // #############################################

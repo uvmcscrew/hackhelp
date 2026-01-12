@@ -8,6 +8,8 @@
 	import UserRoundCheckIcon from 'lucide-svelte/icons/user-round-check';
 	import mutations from '$lib/trpc/client/mutations.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	type UserData = RouterOutputs['admin']['users']['all'];
 
@@ -17,7 +19,7 @@
 
 	let props: Props = $props();
 
-	let users = queries.adminListAllUsers(props.users);
+	let users = createQuery(() => orpc.admin.users.all.queryOptions({ initialData: props }));
 	let whitelistUserMutation = mutations.adminWhitelistUser();
 </script>
 
