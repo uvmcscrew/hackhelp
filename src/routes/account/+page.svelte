@@ -15,8 +15,6 @@
 	import type { PageProps } from './$types';
 
 	import { goto } from '$app/navigation';
-	import queries from '$lib/trpc/client/queries.svelte';
-	import mutations from '$lib/trpc/client/mutations.svelte';
 	import { clientEnv } from '$lib/env/client';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import { toast } from 'svelte-sonner';
@@ -25,10 +23,10 @@
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 
-	let pgProps: PageProps = $props();
+	let { data: initialData }: PageProps = $props();
 
 	let accountWithStatus = createQuery(() =>
-		orpc.account.whoamiWithProfile.queryOptions({ initialData: pgProps.data })
+		orpc.account.whoamiWithProfile.queryOptions({ initialData })
 	);
 	let hasInvite = createQuery(orpc.account.hasPendingInvite.queryOptions);
 
@@ -134,7 +132,7 @@
 								class="p-2 text-center  hover:cursor-pointer "
 								onclick={async () => {
 									inviteRefreshLoading = true;
-									await refreshInvite.mutateAsync();
+									await refreshInvite.mutateAsync({});
 									await delay(3500);
 									inviteRefreshLoading = false;
 								}}
@@ -158,7 +156,7 @@
 							<Button
 								size="sm"
 								onclick={async () => {
-									await sendInvite.mutateAsync();
+									await sendInvite.mutateAsync({});
 								}}
 								disabled={sendInvite.isPending || inviteRefreshLoading}
 								class=" w-[8.25rem] bg-blue-500 p-2 text-center text-white hover:cursor-pointer  hover:bg-blue-500/80"
@@ -186,7 +184,7 @@
 
 			<div class="flex flex-row items-center justify-end">
 				{#if accountWithStatus.data.user.teamId !== null}
-					<Button variant="destructive" onclick={async () => await leaveTeam.mutateAsync()}>
+					<Button variant="destructive" onclick={async () => await leaveTeam.mutateAsync({})}>
 						{#if leaveTeam.isPending}
 							<LoaderCircle class="mr-1 h-6 w-6 animate-spin" /> Leaving...
 						{:else}
