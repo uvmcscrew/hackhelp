@@ -4,15 +4,16 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import queries from '$lib/trpc/client/queries.svelte';
-	import mutations from '$lib/trpc/client/mutations.svelte';
 	import { delay } from '$lib/utils';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let sheetOpen = $state(false);
 	let submitting = $state(false);
 
-	const team = queries.competitorGetMyTeam();
-	let teamNameMutation = mutations.competitorUpdateTeam();
+	let team = createQuery(orpc.competitor.team.getTeam.queryOptions);
+
+	let teamNameMutation = createMutation(orpc.competitor.team.updateProperties.mutationOptions);
 
 	let teamName = $state(team.data?.team.name ?? '');
 </script>

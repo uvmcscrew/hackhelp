@@ -4,12 +4,13 @@
 	import * as Card from '$lib/components/ui/card';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { Label } from '$lib/components/ui/label';
-	import mutations from '$lib/trpc/client/mutations.svelte';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 
 	let teamJoinCode = $state('');
 
-	const joinTeamMutation = mutations.competitorJoinTeam();
+	const joinTeamMutation = createMutation(orpc.competitor.team.joinTeamMutation.mutationOptions);
 
 	async function joinTeam() {
 		await joinTeamMutation.mutateAsync({ teamJoinCode });

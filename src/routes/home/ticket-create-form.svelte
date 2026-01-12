@@ -9,22 +9,21 @@
 
 	import * as Select from '$lib/components/ui/select';
 
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { Input } from '$lib/components/ui/input';
-	import { browser, dev } from '$app/environment';
-	import type { IssueReturn } from '$lib/trpc/server/router/competitor';
+	import type { IssueReturn } from '$lib/orpc/server/router/competitor';
 	import { watch } from 'runed';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import mutations from '$lib/trpc/client/mutations.svelte';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let { ticketCreateSheetOpen = $bindable(), issueId = $bindable() } = $props();
 
-	let issuesQuery = queries.competitorGetAllTeamIssues();
+	let issuesQuery = createQuery(orpc.competitor.tickets.getAllTeamIssues.queryOptions);
 
 	let selectedIssue = $state<IssueReturn | null>(null);
 
-	let createIssueMutation = mutations.competitorCreateTicket();
+	let createIssueMutation = createMutation(orpc.competitor.tickets.create.mutationOptions);
 
 	let form = superForm(defaults({ ...selectedIssue }, zod4(createTicketSchema)), {
 		SPA: true,

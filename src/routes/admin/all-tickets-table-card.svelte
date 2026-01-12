@@ -4,20 +4,18 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import { clientEnv } from '$lib/env/client';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
-	import { formatRelative, formatDistance } from 'date-fns';
+	import { formatDistance } from 'date-fns';
 	import UserPen from 'lucide-svelte/icons/user-pen';
 	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
-	import mutations from '$lib/trpc/client/mutations.svelte';
-	import { page } from '$app/state';
-	import { goto, pushState } from '$app/navigation';
-	import { useQueryClient } from '@tanstack/svelte-query';
+	import { goto } from '$app/navigation';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
-	let tixQuery = queries.adminGetAllOpenTickets();
-	let accountQuery = queries.queryWhoamiNoInitial();
+	let tixQuery = createQuery(orpc.admin.tickets.getOpenTickets.queryOptions);
+	let accountQuery = createQuery(orpc.account.whoami.queryOptions);
 
-	let selfAssignMutation = mutations.adminSelfAssignTicket();
+	let selfAssignMutation = createMutation(orpc.admin.tickets.selfAssignMutation.mutationOptions);
 
 	let queryClient = useQueryClient();
 </script>

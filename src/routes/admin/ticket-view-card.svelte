@@ -5,19 +5,22 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { clientEnv } from '$lib/env/client';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 	import TicketAssigneeCombobox from './ticket-assignee-combobox.svelte';
 	import TicketStateChanger from './ticket-state-changer.svelte';
 	import { Label } from '$lib/components/ui/label';
 	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
-	import { useQueryClient } from '@tanstack/svelte-query';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let ticketId = $derived.by(() => {
 		return page.url.searchParams.get('ticketId');
 	});
 
-	let ticketQuery = $derived(queries.adminGetTicketById(ticketId));
+	let ticketQuery = createQuery(() =>
+		// @ts-expect-error unique symbol on orpc input
+		orpc.admin.tickets.getTicketById.queryOptions({ input: { ticketId } })
+	);
 
 	let queryClient = useQueryClient();
 </script>
@@ -42,10 +45,7 @@
 
 				{#key ticketId}
 					{#key ticketQuery.data.ticket.user?.id}
-						<TicketAssigneeCombobox
-							{ticketId}
-							initialMentorId={ticketQuery.data.ticket.user?.id}
-						/>
+						<TicketAssigneeCombobox {ticketId} initialMentorId={ticketQuery.data.ticket.user?.id} />
 					{/key}
 				{/key}
 

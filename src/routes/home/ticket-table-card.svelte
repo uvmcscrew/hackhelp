@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
-	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
+	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import { clientEnv } from '$lib/env/client';
-	import queries from '$lib/trpc/client/queries.svelte';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
 	import TicketCreateSheet from './ticket-create-sheet.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 
-	let ticketsQuery = queries.competitorGetOpenTickets();
+	let ticketsQuery = createQuery(orpc.competitor.tickets.getTickets.queryOptions);
 </script>
 
 <Card.Card class="col-span-2 col-start-2 row-span-2 row-start-1">

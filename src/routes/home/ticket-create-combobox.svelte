@@ -7,15 +7,16 @@
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils.js';
 	import { Label } from '$lib/components/ui/label';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { watch } from 'runed';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let open = $state(false);
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
 	let { ticketCreateSheetOpen = $bindable(), issueId = $bindable() } = $props();
 
-	let issuesQuery = queries.competitorGetAllTeamIssues();
+	let issuesQuery = createQuery(orpc.competitor.tickets.getAllTeamIssues.queryOptions);
 
 	const selectedIssue = $derived(
 		issuesQuery.data?.issues.find((iss) => iss.id.toString() === $issueId)

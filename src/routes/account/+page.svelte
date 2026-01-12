@@ -15,37 +15,41 @@
 	import type { PageProps } from './$types';
 
 	import { goto } from '$app/navigation';
-	import queries from '$lib/trpc/client/queries.svelte';
-	import mutations from '$lib/trpc/client/mutations.svelte';
 	import { clientEnv } from '$lib/env/client';
 	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
 	import { toast } from 'svelte-sonner';
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import { delay, posthogHandler } from '$lib/utils';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
-	let pgProps: PageProps = $props();
+	let { data: initialData }: PageProps = $props();
 
-	let accountWithStatus = queries.queryWhoamiWithProfile(pgProps.data);
-	let hasInvite = queries.hasPendingInvite();
+	let accountWithStatus = createQuery(() =>
+		orpc.account.whoamiWithProfile.queryOptions({ initialData })
+	);
+	let hasInvite = createQuery(orpc.account.hasPendingInvite.queryOptions);
 
 	let inviteRefreshLoading = $state(false);
 
 	const image = `https://avatars.githubusercontent.com/u/${accountWithStatus.data.user.githubId}`;
 
-	let sendInvite = mutations.requestInvite({
-		onSuccess: () =>
-			toast.success('Invitation created', {
-				action: {
-					label: 'View',
-					onClick: () =>
-						goto(`https://github.com/orgs/${clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation`)
-				}
-			})
-	});
+	let sendInvite = createMutation(() =>
+		orpc.account.sendInviteMutation.mutationOptions({
+			onSuccess: () =>
+				toast.success('Invitation created', {
+					action: {
+						label: 'View',
+						onClick: () =>
+							goto(`https://github.com/orgs/${clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation`)
+					}
+				})
+		})
+	);
 
-	let refreshInvite = mutations.refreshInvite();
+	let refreshInvite = createMutation(orpc.account.refreshInviteMutation.mutationOptions);
 
-	let leaveTeam = mutations.competitorLeaveTeam();
+	let leaveTeam = createMutation(orpc.competitor.team.leaveTeam.mutationOptions);
 
 	posthogHandler((posthog) =>
 		posthog.identify(accountWithStatus.data.user.username, {
@@ -128,7 +132,7 @@
 								class="p-2 text-center  hover:cursor-pointer "
 								onclick={async () => {
 									inviteRefreshLoading = true;
-									await refreshInvite.mutateAsync();
+									await refreshInvite.mutateAsync({});
 									await delay(3500);
 									inviteRefreshLoading = false;
 								}}
@@ -152,7 +156,7 @@
 							<Button
 								size="sm"
 								onclick={async () => {
-									await sendInvite.mutateAsync();
+									await sendInvite.mutateAsync({});
 								}}
 								disabled={sendInvite.isPending || inviteRefreshLoading}
 								class=" w-[8.25rem] bg-blue-500 p-2 text-center text-white hover:cursor-pointer  hover:bg-blue-500/80"
@@ -180,7 +184,7 @@
 
 			<div class="flex flex-row items-center justify-end">
 				{#if accountWithStatus.data.user.teamId !== null}
-					<Button variant="destructive" onclick={async () => await leaveTeam.mutateAsync()}>
+					<Button variant="destructive" onclick={async () => await leaveTeam.mutateAsync({})}>
 						{#if leaveTeam.isPending}
 							<LoaderCircle class="mr-1 h-6 w-6 animate-spin" /> Leaving...
 						{:else}

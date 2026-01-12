@@ -1,7 +1,7 @@
-import { trpcCreateCaller } from '$lib/trpc/server';
-import { createCallerContext } from '$lib/trpc/server/context';
+import { createOrpcContext } from '$lib/orpc/server/context';
+import { appRouter } from '$lib/orpc/server/router';
+import { ORPCError } from '@orpc/client';
 import { error, type ServerLoadEvent } from '@sveltejs/kit';
-import { TRPCError } from '@trpc/server';
 
 export const load = async (event: ServerLoadEvent) => {
 	if (event.params.teamId === undefined) {
@@ -9,12 +9,15 @@ export const load = async (event: ServerLoadEvent) => {
 	}
 
 	try {
-		const res = await trpcCreateCaller(createCallerContext(event)).admin.teams.getById({
-			teamId: event.params.teamId
-		});
+		const res = await appRouter.admin.teams.getById.callable({ context: createOrpcContext(event) })(
+			{
+				teamId: event.params.teamId
+			}
+		);
+
 		return { teamRes: res };
 	} catch (e) {
-		if (e instanceof TRPCError) {
+		if (e instanceof ORPCError) {
 			if (e.code === 'NOT_FOUND') {
 				return error(404);
 			}

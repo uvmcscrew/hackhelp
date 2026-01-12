@@ -3,14 +3,15 @@
 	import UserDropdown from '$lib/components/UserDropdown.svelte';
 	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
 	import MadeWith from '$lib/components/MadeWith.svelte';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import WidthWarning from '$lib/components/WidthWarning.svelte';
 	import { browser } from '$app/environment';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
 
-	let { data, children }: LayoutProps = $props();
+	let { data: initialData, children }: LayoutProps = $props();
 
-	const account = queries.queryWhoami(data);
+	const account = createQuery(() => orpc.account.whoami.queryOptions({ initialData }));
 
 	const links = [
 		{
@@ -38,7 +39,7 @@
 
 	<div class="flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
 		<ColorModeButton />
-		<UserDropdown user={data.user} />
+		<UserDropdown user={initialData.user} />
 	</div>
 </header>
 <div class="bg-background">{@render children()}</div>

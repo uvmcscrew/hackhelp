@@ -4,14 +4,15 @@
 	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import { clientEnv } from '$lib/env/client';
-	import queries from '$lib/trpc/client/queries.svelte';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
 
 	let teamId = $derived.by(() => {
 		return page.url.searchParams.get('teamId');
 	});
 
-	let teamQuery = $derived(queries.adminGetTeamById(teamId));
+	// @ts-expect-error unique symbol on orpc input
+	let teamQuery = createQuery(() => orpc.admin.teams.getById.queryOptions({ input: { teamId } }));
 </script>
 
 {#if teamId && teamQuery.data}

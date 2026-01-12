@@ -1,7 +1,7 @@
-import { trpcCreateCaller } from '$lib/trpc/server';
-import { createCallerContext } from '$lib/trpc/server/context';
+import { createOrpcContext } from '$lib/orpc/server/context';
+import { appRouter } from '$lib/orpc/server/router';
 import { type ServerLoadEvent } from '@sveltejs/kit';
 
 export const load = async (event: ServerLoadEvent) => {
-	return trpcCreateCaller(createCallerContext(event)).admin.teams.all();
+	return appRouter.admin.teams.getAll.callable({ context: createOrpcContext(event) })();
 };

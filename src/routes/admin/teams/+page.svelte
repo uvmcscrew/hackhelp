@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Button from '$lib/components/ui/button/button.svelte';
 	import type { PageProps } from './$types';
 	import TeamViewCard from './team-view-card.svelte';
 	import TeamsTable from './teams-table.svelte';
