@@ -4,7 +4,7 @@
 	import { createTicketSchema } from '$lib/schemas';
 	import { posthogHandler, WORK_ROOMS } from '$lib/utils';
 	import SuperDebug, { defaults, superForm } from 'sveltekit-superforms';
-	import { zod } from 'sveltekit-superforms/adapters';
+	import { zod4 } from 'sveltekit-superforms/adapters';
 	import * as Form from '$lib/components/ui/form';
 
 	import * as Select from '$lib/components/ui/select';
@@ -26,9 +26,9 @@
 
 	let createIssueMutation = mutations.competitorCreateTicket();
 
-	let form = superForm(defaults({ ...$selectedIssue }, zod(createTicketSchema)), {
+	let form = superForm(defaults({ ...$selectedIssue }, zod4(createTicketSchema)), {
 		SPA: true,
-		validators: zod(createTicketSchema),
+		validators: zod4(createTicketSchema),
 		onUpdate: async ({ form }) => {
 			if (form.valid) {
 				posthogHandler((posthog) => posthog.capture('Create Ticket'));
