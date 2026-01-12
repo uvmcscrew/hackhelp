@@ -67,8 +67,6 @@
     "@tanstack/svelte-query-devtools": "^6.0.3",
     "@tanstack/svelte-query-persist-client": "^6.0.16",
     "@tanstack/table-core": "^8.21.3",
-    "@trpc/client": "^10.45.3",
-    "@trpc/server": "^10.45.3",
     "add": "^2.0.6",
     "arctic": "^3.7.0",
     "bits-ui": "^2.14.4",

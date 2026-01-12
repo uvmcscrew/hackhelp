@@ -31,8 +31,6 @@
         "@tanstack/svelte-query-devtools": "^6.0.3",
         "@tanstack/svelte-query-persist-client": "^6.0.16",
         "@tanstack/table-core": "^8.21.3",
-        "@trpc/client": "^10.45.3",
-        "@trpc/server": "^10.45.3",
         "add": "^2.0.6",
         "arctic": "^3.7.0",
         "bits-ui": "^2.14.4",
@@ -518,10 +516,6 @@
     "@tanstack/svelte-query-persist-client": ["@tanstack/svelte-query-persist-client@6.0.16", "", { "dependencies": { "@tanstack/query-persist-client-core": "5.91.15" }, "peerDependencies": { "@tanstack/svelte-query": "^6.0.14", "svelte": "^5.25.0" } }, "sha512-z3vVjJbeYci8I/ahtC+d2rS2rdG9wHZr3pr5dHvVtAGtgeDMsoSEYBPeY2t5ykdQAvs0OAEw0zqvVeGjUDrckA=="],
 
     "@tanstack/table-core": ["@tanstack/table-core@8.21.3", "", {}, "sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg=="],
-
-    "@trpc/client": ["@trpc/client@10.45.4", "", { "peerDependencies": { "@trpc/server": "10.45.4" } }, "sha512-ItpH5FMIJFt862kbAgC8hf5NJnDLo0FwEvMEX6zSLCenzWD0UH6H/fvAX1suFo1e0wcAmMhiEU1Tl6xKk/Pd1g=="],
-
-    "@trpc/server": ["@trpc/server@10.45.4", "", {}, "sha512-5MuyK5sDuFVGHOT9EMVHgRjP5I5j3RqGymcb5D47UOp8tzn6LH0g1lEgYrAsOZ12vmk1gpxMw/v/y4xHHK/Qdg=="],
 
     "@tybys/wasm-util": ["@tybys/wasm-util@0.10.1", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg=="],
 
