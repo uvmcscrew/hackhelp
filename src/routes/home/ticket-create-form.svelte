@@ -101,8 +101,8 @@
 		</Form.Control>
 		<Form.Description>
 			Note that Kalkin and Ifshin are one building when it comes to room numbers. If you would like
-			to meet your mentor in the mentor room {'Ifshin 240'}, please select that location when
-			creating your ticket.
+			to meet your mentor in the mentor room Ifshin 240, please select that location when creating
+			your ticket.
 		</Form.Description>
 		<Form.FieldErrors />
 	</Form.Field>
