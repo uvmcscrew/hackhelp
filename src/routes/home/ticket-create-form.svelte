@@ -10,7 +10,7 @@
 	import * as Select from '$lib/components/ui/select';
 
 	import { Input } from '$lib/components/ui/input';
-	import type { IssueReturn } from '$lib/trpc/server/router/competitor';
+	import type { IssueReturn } from '$lib/orpc/server/router/competitor';
 	import { watch } from 'runed';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';

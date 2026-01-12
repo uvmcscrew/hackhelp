@@ -2,14 +2,14 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Label } from '$lib/components/ui/label';
 	import { Switch } from '$lib/components/ui/switch';
-	import type { RouterOutputs } from '$lib/trpc/server';
+	import type { RouterOutputs } from '$lib/orpc/server';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import TeamModifySheet from './team-modify-sheet.svelte';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	type Props = {
-		teamData: RouterOutputs['competitor']['team']['get'];
+		teamData: RouterOutputs['competitor']['team']['getTeam'];
 	};
 
 	let { teamData }: Props = $props();

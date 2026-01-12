@@ -3,7 +3,7 @@ import { logger } from '$lib/logger';
 import { nanoid } from 'nanoid';
 import type { RequestEvent } from './$types';
 import { Webhooks } from '@octokit/webhooks';
-import { updateInvitedUser } from '$lib/trpc/server/router';
+import { updateInvitedUser } from '$lib/orpc/server/router';
 import { db, schema } from '$lib/server/db';
 import { githubApp } from '$lib/github';
 
