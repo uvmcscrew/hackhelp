@@ -1,20 +1,16 @@
 <script lang="ts">
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { posthogHandler } from '$lib/utils';
 	import type { PageProps } from './$types';
 	import MyTicketTableCard from './my-ticket-table-card.svelte';
-	import WhitelistCard from './ticket-view-card.svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import AllTicketsTableCard from './all-tickets-table-card.svelte';
 	import TicketViewCard from './ticket-view-card.svelte';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 
-	let { data }: PageProps = $props();
+	let { data: initialData }: PageProps = $props();
 
-	let account = createQuery(() =>
-		orpc.account.whoami.queryOptions({ initialData: { user: data.user } })
-	);
+	let account = createQuery(() => orpc.account.whoami.queryOptions({ initialData }));
 
 	posthogHandler((posthog) =>
 		posthog.identify(account.data.user.username, {

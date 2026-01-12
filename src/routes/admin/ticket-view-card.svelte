@@ -5,7 +5,6 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { clientEnv } from '$lib/env/client';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 	import TicketAssigneeCombobox from './ticket-assignee-combobox.svelte';
 	import TicketStateChanger from './ticket-state-changer.svelte';

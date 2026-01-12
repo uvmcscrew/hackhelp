@@ -1,14 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
-	import { Badge } from '$lib/components/ui/badge';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import { clientEnv } from '$lib/env/client';
 	import { orpc } from '$lib/orpc/client/index.svelte';
-	import mutations from '$lib/trpc/client/mutations.svelte';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { formatDistance } from 'date-fns';
 	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
