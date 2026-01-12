@@ -2,7 +2,6 @@ import { o, protectedProcedure } from '../shared';
 import { eq } from 'drizzle-orm';
 import { serverEnv } from '$lib/env/server';
 import type { Context } from '../context';
-import { TRPCError } from '@trpc/server';
 import type { db as dbClient, schema as dbSchema } from '$lib/server/db';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RequestError } from 'octokit';
@@ -10,7 +9,7 @@ import { githubApp, octokit } from '$lib/github';
 import { generateState } from 'arctic';
 import { githubOAuth } from '$lib/server/auth';
 import type { User } from '$lib/server/db/schema';
-import z from 'zod';
+import { ORPCError } from '@orpc/server';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -87,7 +86,7 @@ export const accountRouter = {
 		return { hasPendingInvite: pendingInvite };
 	}),
 	sendInviteMutation: protectedProcedure.route({ method: 'POST' }).handler(async ({ context }) => {
-		const trpclogger = context.logger.child({ procedure: 'account.sendInvite' });
+		const rpclogger = context.logger.child({ procedure: 'account.sendInvite' });
 		// Make sure DB state is accurate
 		const userstatus = await updateInvitedUser(
 			context.user.username,
@@ -95,17 +94,16 @@ export const accountRouter = {
 			context.githubApp
 		);
 		if (userstatus.isOrgMember) {
-			trpclogger.info('User is already a member of the organization');
-			throw new TRPCError({
-				message: 'You are already a member of the organization',
-				code: 'UNAUTHORIZED'
+			rpclogger.info('User is already a member of the organization');
+			throw new ORPCError('UNAUTHORIZED', {
+				message: 'You are already a member of the organization'
 			});
 		}
 
 		const pendingInvite = await hasPendingInvite(context);
 		if (pendingInvite) {
-			trpclogger.warn('User already has a pending invite');
-			throw new TRPCError({ message: 'You already have a pending invite', code: 'UNAUTHORIZED' });
+			rpclogger.warn('User already has a pending invite');
+			throw new ORPCError('UNAUTHORIZED', { message: 'You already have a pending invite' });
 		}
 
 		await context.githubApp.rest.orgs.createInvitation({
@@ -119,7 +117,7 @@ export const accountRouter = {
 	refreshInviteMutation: protectedProcedure
 		.route({ method: 'POST' })
 		.handler(async ({ context }) => {
-			const trpclogger = context.logger.child({ procedure: 'account.refreshInvite' });
+			const rpclogger = context.logger.child({ procedure: 'account.refreshInvite' });
 
 			// Make sure DB state is accurate
 			const userstatus = await updateInvitedUser(
@@ -128,13 +126,13 @@ export const accountRouter = {
 				context.githubApp
 			);
 			if (userstatus.isOrgMember) {
-				trpclogger.info('User is already a member of the organization');
+				rpclogger.info('User is already a member of the organization');
 				return { refreshed: true, isMember: true };
 			}
 
 			const pendingInvite = await hasPendingInvite(context);
 			if (!pendingInvite) {
-				trpclogger.warn('User does not have a pending invite');
+				rpclogger.warn('User does not have a pending invite');
 				return { refreshed: false, isMember: false };
 			}
 
@@ -144,16 +142,16 @@ export const accountRouter = {
 
 			const isMember = orgmembers.data.some((member) => member.login === context.user.username);
 
-			trpclogger.info('User org membership status', { isMember });
+			rpclogger.info('User org membership status', { isMember });
 
 			if (isMember) {
-				trpclogger.info('User is a member of the organization, updating user status');
+				rpclogger.info('User is a member of the organization, updating user status');
 				const result = await updateInvitedUser(
 					context.user.username,
 					{ client: context.db, schema: context.dbSchema },
 					context.githubApp
 				);
-				trpclogger.info('User status updated', {
+				rpclogger.info('User status updated', {
 					isOrgMember: result.isOrgMember,
 					isOrgAdmin: result.isOrgAdmin
 				});

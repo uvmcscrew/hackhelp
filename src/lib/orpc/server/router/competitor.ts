@@ -1,6 +1,5 @@
 import { protectedProcedure, o } from '../shared';
 import { desc, eq, and } from 'drizzle-orm';
-import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { serverEnv } from '$lib/env/server';
 import { createTeamSchema, createTicketSchema } from '$lib/schemas';
@@ -223,12 +222,11 @@ const teamRouter = {
 		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			if (!serverEnv.PUBLIC_SHOW_CHALLENGES) {
-				throw new TRPCError({ code: 'FORBIDDEN', message: 'Challenges are not enabled' });
+				throw new ORPCError('FORBIDDEN', { message: 'Challenges are not enabled' });
 			}
 
 			if (context.team.selectedChallengeId !== null) {
-				throw new TRPCError({
-					code: 'FORBIDDEN',
+				throw new ORPCError('FORBIDDEN', {
 					message: 'Team has already selected a challenge'
 				});
 			}
@@ -246,11 +244,11 @@ const teamRouter = {
 				.where(eq(context.dbSchema.challenge.id, input.challengeId));
 
 			if (!challenge) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Challenge not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Challenge not found' });
 			}
 
 			if (challenge.teamsAssigned >= MAX_TEAMS_PER_CHALLENGE) {
-				throw new TRPCError({ code: 'FORBIDDEN', message: 'Challenge is full' });
+				throw new ORPCError('FORBIDDEN', { message: 'Challenge is full' });
 			}
 
 			const [team] = await context.db

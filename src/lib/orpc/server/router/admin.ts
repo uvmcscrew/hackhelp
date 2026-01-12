@@ -1,9 +1,9 @@
 import { adminProcedure } from '../shared';
 import { eq, desc, and } from 'drizzle-orm';
-import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { serverEnv } from '$lib/env/server';
 import { TICKET_RESOLUTION_STATUS } from '$lib/server/db/schema';
+import { ORPCError } from '@orpc/client';
 
 /**
  * This file contains most administrative actions. It is broken out into multiple routers depending on what the different actions
@@ -14,12 +14,15 @@ import { TICKET_RESOLUTION_STATUS } from '$lib/server/db/schema';
 // #               USER ROUTER                 #
 // #############################################
 
-const userRouter ={
+const userRouter = {
 	all: adminProcedure.handler(async ({ context }) => {
 		const users = await context.db
 			.select()
 			.from(context.dbSchema.user)
-			.leftJoin(context.dbSchema.profile, eq(context.dbSchema.user.id, context.dbSchema.profile.linkedUserId));
+			.leftJoin(
+				context.dbSchema.profile,
+				eq(context.dbSchema.user.id, context.dbSchema.profile.linkedUserId)
+			);
 		return { users };
 	}),
 	getById: adminProcedure
@@ -34,7 +37,7 @@ const userRouter ={
 					eq(context.dbSchema.user.id, context.dbSchema.profile.linkedUserId)
 				);
 			if (!user) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'User not found' });
 			}
 			return { user };
 		}),
@@ -50,7 +53,7 @@ const userRouter ={
 					eq(context.dbSchema.user.id, context.dbSchema.profile.linkedUserId)
 				);
 			if (!user) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'User not found' });
 			}
 			return { user };
 		}),
@@ -58,7 +61,7 @@ const userRouter ={
 		const users = await context.db.select().from(context.dbSchema.user);
 		return { users };
 	}),
-	getAdmins: adminProcedure.route({ method: "GET" }).handler(async ({ context }) => {
+	getAdmins: adminProcedure.route({ method: 'GET' }).handler(async ({ context }) => {
 		const admins = await context.db
 			.select()
 			.from(context.dbSchema.user)
@@ -67,7 +70,7 @@ const userRouter ={
 	}),
 	whitelistByIdMutation: adminProcedure
 		.input(z.object({ userId: z.string().nonempty() }))
-		.route({ method: "POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			const [user] = await context.db
 				.update(context.dbSchema.profile)
@@ -75,7 +78,7 @@ const userRouter ={
 				.where(eq(context.dbSchema.profile.linkedUserId, input.userId))
 				.returning();
 			if (!user) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'User not found' });
 			}
 			return { user };
 		})
@@ -122,7 +125,7 @@ const teamRouter = {
 					eq(context.dbSchema.team.selectedChallengeId, context.dbSchema.challenge.id)
 				);
 			if (!teamData) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'User not found' });
 			}
 			const members = await context.db
 				.select()
@@ -132,7 +135,7 @@ const teamRouter = {
 		}),
 	createOne: adminProcedure
 		.input(z.object({ name: z.string().nonempty() }))
-		.route({ method: "POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			const ghTeam = await context.githubApp.rest.teams.create({
 				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
@@ -154,14 +157,14 @@ const teamRouter = {
 				override: z.boolean().default(false)
 			})
 		)
-		.route({ method: "POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			const [user] = await context.db
 				.select()
 				.from(context.dbSchema.user)
 				.where(eq(context.dbSchema.user.id, input.userId));
 			if (!user) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'User not found' });
 			}
 
 			const [team] = await context.db
@@ -169,11 +172,11 @@ const teamRouter = {
 				.from(context.dbSchema.team)
 				.where(eq(context.dbSchema.team.id, input.teamId));
 			if (!team) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Team not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Team not found' });
 			}
 
 			if (user.teamId !== null && !input.override) {
-				throw new TRPCError({ code: 'BAD_REQUEST', message: 'User is already on a team' });
+				throw new ORPCError('BAD_REQUEST', { message: 'User is already on a team' });
 			}
 
 			// Make sure user does not already belong to a team
@@ -229,7 +232,10 @@ const ticketRouter = {
 			})
 			.from(context.dbSchema.ticket)
 			// .where(ne(context.dbSchema.ticket.resolutionStatus, 'closed'))
-			.leftJoin(context.dbSchema.user, eq(context.dbSchema.ticket.assignedMentor, context.dbSchema.user.id))
+			.leftJoin(
+				context.dbSchema.user,
+				eq(context.dbSchema.ticket.assignedMentor, context.dbSchema.user.id)
+			)
 			.leftJoin(
 				context.dbSchema.challenge,
 				eq(context.dbSchema.ticket.challengeId, context.dbSchema.challenge.id)
@@ -265,7 +271,10 @@ const ticketRouter = {
 			})
 			.from(context.dbSchema.ticket)
 			.where(eq(context.dbSchema.ticket.assignedMentor, context.user.id))
-			.leftJoin(context.dbSchema.user, eq(context.dbSchema.ticket.assignedMentor, context.dbSchema.user.id))
+			.leftJoin(
+				context.dbSchema.user,
+				eq(context.dbSchema.ticket.assignedMentor, context.dbSchema.user.id)
+			)
 			.leftJoin(
 				context.dbSchema.challenge,
 				eq(context.dbSchema.ticket.challengeId, context.dbSchema.challenge.id)
@@ -276,7 +285,7 @@ const ticketRouter = {
 	}),
 	selfAssignMutation: adminProcedure
 		.input(z.object({ ticketId: z.string() }))
-		.route({ method: "POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			// Check if the ticket exists
 			// and is not already assigned to someone else
@@ -285,10 +294,10 @@ const ticketRouter = {
 				.from(context.dbSchema.ticket)
 				.where(eq(context.dbSchema.ticket.id, input.ticketId));
 			if (!existingTicket) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Ticket not found' });
 			}
 			if (existingTicket.assignedMentor !== null) {
-				throw new TRPCError({ code: 'BAD_REQUEST', message: 'Ticket is already assigned' });
+				throw new ORPCError('BAD_REQUEST', { message: 'Ticket is already assigned' });
 			}
 
 			const [ticket] = await context.db
@@ -314,23 +323,28 @@ const ticketRouter = {
 		}),
 	assignToMutation: adminProcedure
 		.input(z.object({ ticketId: z.string(), userId: z.string() }))
-		.route({ method: "POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			const [existingTicket] = await context.db
 				.select()
 				.from(context.dbSchema.ticket)
 				.where(eq(context.dbSchema.ticket.id, input.ticketId));
 			if (!existingTicket) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Ticket not found' });
 			}
 
 			// Check if the user exists and is an admin (qualifier for being a mentor)
 			const [user] = await context.db
 				.select()
 				.from(context.dbSchema.user)
-				.where(and(eq(context.dbSchema.user.id, input.userId), eq(context.dbSchema.user.isOrgAdmin, true)));
+				.where(
+					and(
+						eq(context.dbSchema.user.id, input.userId),
+						eq(context.dbSchema.user.isOrgAdmin, true)
+					)
+				);
 			if (!user) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Admin not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Admin not found' });
 			}
 
 			// Check if the ticket is already assigned to someone else
@@ -358,14 +372,14 @@ const ticketRouter = {
 
 	unassignMutation: adminProcedure
 		.input(z.object({ ticketId: z.string() }))
-		.route({ method: "POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			const [existingTicket] = await context.db
 				.select()
 				.from(context.dbSchema.ticket)
 				.where(eq(context.dbSchema.ticket.id, input.ticketId));
 			if (!existingTicket) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Ticket not found' });
 			}
 
 			const [ticket] = await context.db
@@ -396,13 +410,16 @@ const ticketRouter = {
 				.select()
 				.from(context.dbSchema.ticket)
 				.where(eq(context.dbSchema.ticket.id, input.ticketId))
-				.leftJoin(context.dbSchema.user, eq(context.dbSchema.ticket.assignedMentor, context.dbSchema.user.id))
+				.leftJoin(
+					context.dbSchema.user,
+					eq(context.dbSchema.ticket.assignedMentor, context.dbSchema.user.id)
+				)
 				.leftJoin(
 					context.dbSchema.challenge,
 					eq(context.dbSchema.ticket.challengeId, context.dbSchema.challenge.id)
 				);
 			if (!ticket) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Ticket not found' });
 			}
 			const repoLanguages = await context.githubApp.rest.repos.listLanguages({
 				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
@@ -412,14 +429,14 @@ const ticketRouter = {
 		}),
 	deleteTicket: adminProcedure
 		.input(z.object({ ticketId: z.string() }))
-		.route({ method: "DELETE" })
+		.route({ method: 'DELETE' })
 		.handler(async ({ context, input }) => {
 			const [ticket] = await context.db
 				.delete(context.dbSchema.ticket)
 				.where(eq(context.dbSchema.ticket.id, input.ticketId))
 				.returning();
 			if (!ticket) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Ticket not found' });
 			}
 
 			await context.githubApp.rest.issues.createComment({
@@ -439,7 +456,7 @@ const ticketRouter = {
 				status: z.enum(TICKET_RESOLUTION_STATUS)
 			})
 		)
-		.route({ method: "POST" })
+		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			const [ticket] = await context.db
 				.update(context.dbSchema.ticket)
@@ -447,7 +464,7 @@ const ticketRouter = {
 				.where(eq(context.dbSchema.ticket.id, input.ticketId))
 				.returning();
 			if (!ticket) {
-				throw new TRPCError({ code: 'NOT_FOUND', message: 'Ticket not found' });
+				throw new ORPCError('NOT_FOUND', { message: 'Ticket not found' });
 			}
 
 			await context.githubApp.rest.issues.createComment({
