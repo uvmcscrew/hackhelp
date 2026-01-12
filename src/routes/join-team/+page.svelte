@@ -12,10 +12,12 @@
 	import mutations from '$lib/trpc/client/mutations.svelte';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import { goto } from '$app/navigation';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
-	let { data }: PageProps = $props();
+	let { data: initialData }: PageProps = $props();
 
-	let createTeamMutation = mutations.competitorCreateTeam();
+	let createTeamMutation = createMutation(orpc.competitor.team.create.mutationOptions);
 
 	const form = superForm(defaults(zod4(createTeamSchema)), {
 		SPA: true,
@@ -30,7 +32,7 @@
 	});
 	const { form: formData, enhance, submitting } = form;
 
-	let account = queries.queryWhoami(data);
+	let account = createQuery(() => orpc.account.whoami.queryOptions({ initialData }));
 
 	posthogHandler((posthog) =>
 		posthog.identify(account.data.user.username, {
