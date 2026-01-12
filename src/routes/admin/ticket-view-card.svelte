@@ -17,8 +17,8 @@
 		return page.url.searchParams.get('ticketId');
 	});
 
-	let ticketQuery = $derived(
-		createQuery(() => orpc.admin.tickets.getTicketById.queryOptions({ input: { ticketId } }))
+	let ticketQuery = createQuery(() =>
+		orpc.admin.tickets.getTicketById.queryOptions({ input: { ticketId } })
 	);
 
 	let queryClient = useQueryClient();
