@@ -53,7 +53,7 @@
 								href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${team.data?.challenge.linkedRepo}`}
 								variant="link"
 							>
-								<GithubIcon class="fill-primary !size-5" />
+								<GithubIcon class="fill-primary size-5!" />
 								{team.data?.challenge.linkedRepo}
 							</Button>
 						</Card.Footer>

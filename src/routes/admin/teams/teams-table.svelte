@@ -46,7 +46,7 @@
 										class="px-0"
 										target="_blank"
 									>
-										<GithubIcon class="fill-primary !size-5" />{team.challengeRepo}
+										<GithubIcon class="fill-primary size-5!" />{team.challengeRepo}
 									</Button>
 								{:else}
 									<XIcon class="stroke-destructive fill-destructive" />

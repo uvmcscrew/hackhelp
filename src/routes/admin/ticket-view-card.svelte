@@ -68,7 +68,7 @@
 							variant="link"
 							target="_blank"
 							class="px-0"
-							><GithubIcon class=" fill-primary !size-5" />{ticketQuery.data.ticket.ticket
+							><GithubIcon class=" fill-primary size-5!" />{ticketQuery.data.ticket.ticket
 								.repository}#{ticketQuery.data.ticket.ticket.issueNumber}</Button
 						></Card.Footer
 					>

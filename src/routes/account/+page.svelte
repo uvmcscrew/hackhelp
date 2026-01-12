@@ -148,7 +148,7 @@
 								size="sm"
 								href="https://github.com/orgs/{clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation"
 								target="_blank"
-								class=" w-[8.25rem] bg-blue-500 p-2 text-center text-white hover:cursor-pointer hover:bg-blue-500/80"
+								class=" w-33 bg-blue-500 p-2 text-center text-white hover:cursor-pointer hover:bg-blue-500/80"
 							>
 								<MoveUpRight class="mr-1 h-6 w-6 " /> View Invitation</Button
 							>
@@ -159,7 +159,7 @@
 									await sendInvite.mutateAsync({});
 								}}
 								disabled={sendInvite.isPending || inviteRefreshLoading}
-								class=" w-[8.25rem] bg-blue-500 p-2 text-center text-white hover:cursor-pointer  hover:bg-blue-500/80"
+								class=" w-33 bg-blue-500 p-2 text-center text-white hover:cursor-pointer  hover:bg-blue-500/80"
 							>
 								{#if sendInvite.isPending}
 									<LoaderCircle class="mr-1 h-6 w-6 animate-spin" /> Inviting...
@@ -169,7 +169,7 @@
 							</Button>
 						{/if}
 					{:else}
-						<Skeleton class="h-8 w-[8.25rem]" />
+						<Skeleton class="h-8 w-33" />
 					{/if}
 				{/if}
 			</div>

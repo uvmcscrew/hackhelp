@@ -28,7 +28,7 @@
 			<Table.Head class="w-min">Email</Table.Head>
 			<Table.Head class="w-32">Role</Table.Head>
 
-			<Table.Head class="w-[100px]">Whitelisted</Table.Head>
+			<Table.Head class="w-25">Whitelisted</Table.Head>
 			<Table.Head class=" w-36">Joined Team</Table.Head>
 			<Table.Head></Table.Head>
 		</Table.Row>

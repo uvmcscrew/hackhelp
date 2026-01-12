@@ -42,7 +42,7 @@
 										class: 'inline-flex items-center px-0'
 									})}
 								>
-									<GithubIcon class="fill-primary !size-5" />
+									<GithubIcon class="fill-primary size-5!" />
 									{`${ticket.repository}#${ticket.issueNumber}`}
 								</a>
 							</Table.Cell>
