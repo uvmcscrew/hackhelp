@@ -7,5 +7,5 @@ export const load = async (event: ServerLoadEvent) => {
 		return redirect(302, '/auth/login');
 	}
 
-	return appRouter.admin.users.all.callable({ context: createOrpcContext(event) });
+	return appRouter.admin.users.all.callable({ context: createOrpcContext(event) })();
 };

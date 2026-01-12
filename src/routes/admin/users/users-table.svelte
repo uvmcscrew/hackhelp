@@ -1,26 +1,23 @@
 <script lang="ts">
 	import * as Table from '$lib/components/ui/table';
-	import queries from '$lib/trpc/client/queries.svelte';
-	import type { RouterOutputs } from '$lib/trpc/server';
-	import type { PageProps } from './$types';
+	import type { RouterOutputs } from '$lib/orpc/server';
 	import CheckIcon from 'lucide-svelte/icons/check';
 	import XIcon from 'lucide-svelte/icons/x';
 	import UserRoundCheckIcon from 'lucide-svelte/icons/user-round-check';
-	import mutations from '$lib/trpc/client/mutations.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 
-	type UserData = RouterOutputs['admin']['users']['all'];
-
 	type Props = {
-		users: UserData;
+		users: RouterOutputs['admin']['users']['all'];
 	};
 
-	let props: Props = $props();
+	let { users: initialData }: Props = $props();
 
-	let users = createQuery(() => orpc.admin.users.all.queryOptions({ initialData: props }));
-	let whitelistUserMutation = mutations.adminWhitelistUser();
+	let users = createQuery(() => orpc.admin.users.all.queryOptions({ initialData }));
+	let whitelistUserMutation = createMutation(
+		orpc.admin.users.whitelistByIdMutation.mutationOptions
+	);
 </script>
 
 <Table.Root>
