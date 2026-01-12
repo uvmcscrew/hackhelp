@@ -6,31 +6,35 @@
 	import XIcon from 'lucide-svelte/icons/x';
 	import CheckIcon from 'lucide-svelte/icons/check';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { Debounced } from 'runed';
-	import mutations from '$lib/trpc/client/mutations.svelte';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let sheetOpen = $state(false);
 
 	let inputSlug = $state('');
 	let inputSlugDebounced = new Debounced(() => inputSlug, 500);
 
-	let repoSlugValidQuery = $derived(
-		queries.competitorCheckRepoSlug(inputSlugDebounced.current, sheetOpen)
+	let repoSlugValidQuery = createQuery(() =>
+		orpc.competitor.repositories.repoSlugIsTaken.queryOptions({
+			// @ts-expect-error unique symbol on orpc input
+			input: { repoName: inputSlugDebounced },
+			enabled: sheetOpen
+		})
 	);
 
-	let reposQuery = queries.competitorGetTeamRepos();
+	let reposQuery = createQuery(orpc.competitor.repositories.getAll.queryOptions);
 
-	let createRepoMutation = mutations.createTeamRepo();
+	let createRepoMutation = createMutation(orpc.competitor.repositories.create.mutationOptions);
 
 	let isValid = $derived(
-		$repoSlugValidQuery.data?.repoExists === false && inputSlugDebounced.current.length > 1
+		repoSlugValidQuery.data?.repoExists === false && inputSlugDebounced.current.length > 1
 	);
 </script>
 
 <Sheet.Root bind:open={sheetOpen}>
 	<Sheet.Trigger
-		disabled={$reposQuery.data ? $reposQuery.data.repos.length >= 3 : true}
+		disabled={reposQuery.data ? reposQuery.data.repos.length >= 3 : true}
 		class={buttonVariants({ variant: 'default', size: 'sm' })}
 	>
 		Create Repository
@@ -44,17 +48,17 @@
 			<div class="grid grid-cols-4 grid-rows-2 items-center gap-4">
 				<Label for="name" class="row-start-1 text-right">Repo Slug</Label>
 				<Input
-					disabled={$createRepoMutation.isPending}
+					disabled={createRepoMutation.isPending}
 					autocomplete="off"
 					id="name"
 					bind:value={inputSlug}
 					class="col-span-3 row-start-2"
 				/>
 				<span class="col-start-4 row-start-2">
-					{#if $repoSlugValidQuery.isFetching}
+					{#if repoSlugValidQuery.isFetching}
 						<LoaderCircle class="h-6 w-6 animate-spin" />
-					{:else if $repoSlugValidQuery.data}
-						{#if $repoSlugValidQuery.data.repoExists}
+					{:else if repoSlugValidQuery.data}
+						{#if repoSlugValidQuery.data.repoExists}
 							<XIcon class="h-6 w-6 stroke-red-500" />
 						{:else}
 							<CheckIcon class="h-6 w-6 stroke-green-500" />
@@ -67,13 +71,13 @@
 		</div>
 		<Sheet.Footer class="sm:justify-start">
 			<Button
-				disabled={!isValid || $createRepoMutation.isPending}
+				disabled={!isValid || createRepoMutation.isPending}
 				onclick={async () => {
-					await $createRepoMutation.mutateAsync({ repoName: inputSlugDebounced.current });
+					await createRepoMutation.mutateAsync({ repoName: inputSlugDebounced.current });
 					sheetOpen = false;
 				}}
 			>
-				{#if $createRepoMutation.isPending}
+				{#if createRepoMutation.isPending}
 					Creating <LoaderCircle class="ml-2 h-6 w-6 animate-spin" />
 				{:else}
 					Create Repository

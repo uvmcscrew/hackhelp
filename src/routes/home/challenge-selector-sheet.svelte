@@ -2,16 +2,20 @@
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import queries from '$lib/trpc/client/queries.svelte';
-	import mutations from '$lib/trpc/client/mutations.svelte';
 	import { delay, MAX_TEAMS_PER_CHALLENGE } from '$lib/utils';
 	import * as Card from '$lib/components/ui/card';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let sheetOpen = $state(false);
 	let submitting = $state(false);
 
-	let challenges = $derived(queries.competitorGetChallenges(sheetOpen && !submitting));
-	let challengeSelectMutation = mutations.teamSelectChallenge();
+	let challenges = createQuery(() =>
+		orpc.competitor.team.getChallenges.queryOptions({ enabled: sheetOpen && !submitting })
+	);
+	let challengeSelectMutation = createMutation(
+		orpc.competitor.team.selectChallenge.mutationOptions
+	);
 
 	let selectedChallengeId = $state('');
 </script>
@@ -28,9 +32,9 @@
 			</Sheet.Description>
 		</Sheet.Header>
 		<div class="flex flex-col gap-y-2">
-			{#if $challenges.data}
-				{#if $challenges.data.challenges.length > 0}
-					{#each $challenges.data?.challenges as challenge}
+			{#if challenges.data}
+				{#if challenges.data.challenges.length > 0}
+					{#each challenges.data.challenges as challenge (challenge.id)}
 						<Card.Root>
 							<Card.Header>
 								<Card.Title>{challenge.title}</Card.Title>
@@ -40,7 +44,7 @@
 							</Card.Content>
 							<Card.Footer>
 								<Button
-									disabled={$challengeSelectMutation.isPending ||
+									disabled={challengeSelectMutation.isPending ||
 										submitting ||
 										selectedChallengeId === challenge.id}
 									onclick={() => {
@@ -65,16 +69,16 @@
 
 		<Sheet.Footer class="mt-4 flex w-full justify-start gap-x-2">
 			<Button
-				disabled={$challengeSelectMutation.isPending || submitting}
+				disabled={challengeSelectMutation.isPending || submitting}
 				onclick={async () => {
 					submitting = true;
-					await $challengeSelectMutation.mutateAsync({ challengeId: selectedChallengeId });
+					await challengeSelectMutation.mutateAsync({ challengeId: selectedChallengeId });
 					await delay(1000);
 					submitting = false;
 					sheetOpen = false;
 				}}
 			>
-				{#if $challengeSelectMutation.isPending || submitting}
+				{#if challengeSelectMutation.isPending || submitting}
 					Submitting <LoaderCircle class="mr-2 size-4 animate-spin" />
 				{:else}
 					Submit

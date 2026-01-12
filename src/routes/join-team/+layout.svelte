@@ -3,19 +3,11 @@
 <script lang="ts">
 	import * as Tabs from '$lib/components/ui/tabs';
 	import JoinExistingForm from './join-existing-team.svelte';
-	import Menu from 'lucide-svelte/icons/menu';
-	import FireExtinguisher from 'lucide-svelte/icons/fire-extinguisher';
-
-	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import type { LayoutProps } from './$types';
 	import UserDropdown from '$lib/components/UserDropdown.svelte';
-	import { page } from '$app/state';
 	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
 	import MadeWith from '$lib/components/MadeWith.svelte';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import Logo from '$lib/components/Logo.svelte';
-	import mutations from '$lib/trpc/client/mutations.svelte';
 
 	let { children, data }: LayoutProps = $props();
 </script>

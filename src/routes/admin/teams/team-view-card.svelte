@@ -4,17 +4,18 @@
 	import { page } from '$app/state';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
-	import { clientEnv } from '$lib/env/client';
-	import queries from '$lib/trpc/client/queries.svelte';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
 
 	let teamId = $derived.by(() => {
 		return page.url.searchParams.get('teamId');
 	});
 
-	let teamQuery = $derived(queries.adminGetTeamById(teamId));
+	// @ts-expect-error unique symbol on orpc input
+	let teamQuery = createQuery(() => orpc.admin.teams.getById.queryOptions({ input: { teamId } }));
 </script>
 
-{#if teamId && $teamQuery.data}
+{#if teamId && teamQuery.data}
 	<div class="col-span-1 col-start-4 row-span-3 row-start-1">
 		<Card.Card class="h-full w-full">
 			<Card.Header class="flex flex-row items-center justify-between">
@@ -24,12 +25,12 @@
 				<!-- Team information card -->
 				<Card.Card class="border-primary h-full w-full">
 					<Card.Header class="flex flex-row items-center justify-between">
-						<Card.Title class="h-full">{$teamQuery.data.team.team.name}</Card.Title>
+						<Card.Title class="h-full">{teamQuery.data.team.team.name}</Card.Title>
 					</Card.Header>
 					<Card.Content class="flex flex-col justify-start gap-y-4">
 						<h2 class="text-lg">Members</h2>
 						<ul class="text-sm">
-							{#each $teamQuery.data.members as member}
+							{#each teamQuery.data.members as member (member.id)}
 								<li class="">
 									{member.fullName}
 									<span class="text-muted-foreground ml-1 italic">@{member.username}</span>
@@ -39,12 +40,12 @@
 					</Card.Content>
 					<Card.Footer>
 						<!-- <Button
-							href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${$ticketQuery.data.ticket.ticket.repository}/issues/${$ticketQuery.data.ticket.ticket.issueNumber}`}
+							href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticketQuery.data.ticket.ticket.repository}/issues/${ticketQuery.data.ticket.ticket.issueNumber}`}
 							variant="link"
 							target="_blank"
 							class="px-0"
-							><GithubIcon class=" fill-primary !size-5" />{$ticketQuery.data.ticket.ticket
-								.repository}#{$ticketQuery.data.ticket.ticket.issueNumber}
+							><GithubIcon class=" fill-primary !size-5" />{ticketQuery.data.ticket.ticket
+								.repository}#{ticketQuery.data.ticket.ticket.issueNumber}
 						</Button> -->
 					</Card.Footer>
 				</Card.Card>

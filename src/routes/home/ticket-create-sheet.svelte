@@ -1,12 +1,15 @@
 <script lang="ts">
 	import * as Sheet from '$lib/components/ui/sheet';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { buttonVariants } from '$lib/components/ui/button';
 	import TicketCreateCombobox from './ticket-create-combobox.svelte';
-	import { ticketCreateSheetOpen } from './ticket-create.svelte';
 	import TicketCreateForm from './ticket-create-form.svelte';
+
+	let issueId = $state<string | null>(null);
+
+	let ticketCreateSheetOpen = $state(false);
 </script>
 
-<Sheet.Root bind:open={$ticketCreateSheetOpen}>
+<Sheet.Root bind:open={ticketCreateSheetOpen}>
 	<Sheet.Trigger class={buttonVariants({ variant: 'default' })}>Create Ticket</Sheet.Trigger>
 	<Sheet.Content side="right" class="font-mono">
 		<Sheet.Header>
@@ -14,8 +17,8 @@
 			<Sheet.Description>Create a ticket from a GitHub Issue</Sheet.Description>
 		</Sheet.Header>
 
-		<TicketCreateCombobox />
+		<TicketCreateCombobox bind:issueId bind:ticketCreateSheetOpen />
 
-		<TicketCreateForm />
+		<TicketCreateForm bind:issueId bind:ticketCreateSheetOpen />
 	</Sheet.Content>
 </Sheet.Root>

@@ -4,22 +4,20 @@
 	import * as Card from '$lib/components/ui/card';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 
-	import queries from '$lib/trpc/client/queries.svelte';
-	import type { RouterOutputs } from '$lib/trpc/server';
-	import ArrowRight from 'lucide-svelte/icons/arrow-right';
+	import type { RouterOutputs } from '$lib/orpc/server';
 	import XIcon from 'lucide-svelte/icons/x';
 	import { clientEnv } from '$lib/env/client';
 	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
-
-	type TeamsData = RouterOutputs['admin']['teams']['all'];
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
 
 	type Props = {
-		teams: TeamsData;
+		teams: RouterOutputs['admin']['teams']['getAll'];
 	};
 
-	let props: Props = $props();
+	let { teams: initialData }: Props = $props();
 
-	let teams = queries.adminGetAllTeams(props.teams);
+	let teams = createQuery(() => orpc.admin.teams.getAll.queryOptions({ initialData }));
 </script>
 
 <Card.Root class="col-span-3 col-start-1 row-span-3 row-start-1">
@@ -35,8 +33,8 @@
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#if $teams.data}
-					{#each $teams.data.teams as team}
+				{#if teams.data}
+					{#each teams.data.teams as team (team.id)}
 						<Table.Row>
 							<Table.Cell class="font-medium">{team.name}</Table.Cell>
 							<Table.Cell>{team.memberCount}</Table.Cell>
@@ -48,7 +46,7 @@
 										class="px-0"
 										target="_blank"
 									>
-										<GithubIcon class="fill-primary !size-5" />{team.challengeRepo}
+										<GithubIcon class="fill-primary size-5!" />{team.challengeRepo}
 									</Button>
 								{:else}
 									<XIcon class="stroke-destructive fill-destructive" />

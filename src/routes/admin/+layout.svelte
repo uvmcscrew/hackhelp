@@ -3,7 +3,6 @@
 	import UserDropdown from '$lib/components/UserDropdown.svelte';
 	import { page } from '$app/state';
 	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
-	import MadeWith from '$lib/components/MadeWith.svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import WidthWarning from '$lib/components/WidthWarning.svelte';
 	import { browser } from '$app/environment';
@@ -38,7 +37,7 @@
 	<nav
 		class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6"
 	>
-		{#each links as link}
+		{#each links as link (link.href)}
 			<a
 				href={link.href}
 				class={page.url.pathname === link.href

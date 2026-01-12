@@ -4,20 +4,18 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import { clientEnv } from '$lib/env/client';
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
-	import { formatRelative, formatDistance } from 'date-fns';
+	import { formatDistance } from 'date-fns';
 	import UserPen from 'lucide-svelte/icons/user-pen';
 	import SquareChevronRight from 'lucide-svelte/icons/square-chevron-right';
-	import mutations from '$lib/trpc/client/mutations.svelte';
-	import { page } from '$app/state';
-	import { goto, pushState } from '$app/navigation';
-	import { useQueryClient } from '@tanstack/svelte-query';
+	import { goto } from '$app/navigation';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
-	let tixQuery = queries.adminGetAllOpenTickets();
-	let accountQuery = queries.queryWhoamiNoInitial();
+	let tixQuery = createQuery(orpc.admin.tickets.getOpenTickets.queryOptions);
+	let accountQuery = createQuery(orpc.account.whoami.queryOptions);
 
-	let selfAssignMutation = mutations.adminSelfAssignTicket();
+	let selfAssignMutation = createMutation(orpc.admin.tickets.selfAssignMutation.mutationOptions);
 
 	let queryClient = useQueryClient();
 </script>
@@ -48,8 +46,8 @@
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#if $tixQuery.data}
-					{#each $tixQuery.data.tickets as ticket}
+				{#if tixQuery.data}
+					{#each tixQuery.data.tickets as ticket (ticket.id)}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
 							<Table.Cell class="max-w-48 overflow-x-scroll"
@@ -60,7 +58,7 @@
 									target="_blank"
 								>
 									<GithubIcon
-										class=" fill-primary !size-5"
+										class=" fill-primary size-5!"
 									/>{ticket.repository}#{ticket.issueNumber}
 								</Button></Table.Cell
 							>
@@ -72,7 +70,7 @@
 										class="px-0"
 										target="_blank"
 									>
-										<GithubIcon class="fill-primary !size-5" />{ticket.challengeRepo}
+										<GithubIcon class="fill-primary size-5!" />{ticket.challengeRepo}
 									</Button>
 								{:else}
 									No challenge
@@ -86,9 +84,9 @@
 							<Table.Cell>
 								<Button
 									title="Assign issue to self"
-									disabled={$accountQuery.data?.user?.id === ticket.assignedMentorId}
+									disabled={accountQuery.data?.user.id === ticket.assignedMentorId}
 									onclick={async () => {
-										await $selfAssignMutation.mutateAsync({ ticketId: ticket.id });
+										await selfAssignMutation.mutateAsync({ ticketId: ticket.id });
 									}}
 									variant="outline"
 									size="icon"><UserPen class="size-4" /></Button
@@ -97,13 +95,14 @@
 									variant="outline"
 									size="icon"
 									onclick={async () => {
+										// eslint-disable-next-line svelte/no-navigation-without-resolve
 										await goto(`/admin?ticketId=${ticket.id}`);
 									}}><SquareChevronRight class="size-4" /></Button
 								>
 							</Table.Cell>
 						</Table.Row>
 					{/each}
-					{#if $tixQuery.data.tickets.length === 0}
+					{#if tixQuery.data.tickets.length === 0}
 						<Table.Row>
 							<Table.Cell colspan={6} class="text-muted-foreground text-center italic">
 								No tickets found.

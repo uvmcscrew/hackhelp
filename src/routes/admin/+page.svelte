@@ -1,24 +1,24 @@
 <script lang="ts">
-	import queries from '$lib/trpc/client/queries.svelte';
 	import { posthogHandler } from '$lib/utils';
 	import type { PageProps } from './$types';
 	import MyTicketTableCard from './my-ticket-table-card.svelte';
-	import WhitelistCard from './ticket-view-card.svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import AllTicketsTableCard from './all-tickets-table-card.svelte';
 	import TicketViewCard from './ticket-view-card.svelte';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
 
-	let { data }: PageProps = $props();
+	let { data: initialData }: PageProps = $props();
 
-	let account = queries.queryWhoami(data);
+	let account = createQuery(() => orpc.account.whoami.queryOptions({ initialData }));
 
 	posthogHandler((posthog) =>
-		posthog.identify($account.data.user.username, {
-			id: $account.data.user.id,
-			username: $account.data.user.username,
-			isOrgAdmin: $account.data.user.isOrgAdmin,
-			isOrgMember: $account.data.user.isOrgMember,
-			teamId: $account.data.user.teamId
+		posthog.identify(account.data.user.username, {
+			id: account.data.user.id,
+			username: account.data.user.username,
+			isOrgAdmin: account.data.user.isOrgAdmin,
+			isOrgMember: account.data.user.isOrgMember,
+			teamId: account.data.user.teamId
 		})
 	);
 </script>

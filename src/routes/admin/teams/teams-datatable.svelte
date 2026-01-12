@@ -1,4 +1,5 @@
 <script lang="ts" generics="TData, TValue">
+	/* eslint-disable @typescript-eslint/no-unused-vars */
 	import type { Team, User } from '$lib/server/db/schema';
 	import * as DataTable from '$lib/components/ui/data-table';
 	import { getCoreRowModel, type ColumnDef } from '@tanstack/table-core';

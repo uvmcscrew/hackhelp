@@ -1,11 +1,11 @@
 import type { RequestEvent } from './$types';
-import { createCallerContext } from '$lib/trpc/server/context';
-import { trpcCreateCaller } from '$lib/trpc/server';
+import { appRouter } from '$lib/orpc/server/router';
+import { createOrpcContext } from '$lib/orpc/server/context';
 
 export async function GET(event: RequestEvent) {
-	const trpc = trpcCreateCaller(createCallerContext(event));
-
-	const { url } = await trpc.auth.getOAuthUrl();
+	const { url } = await appRouter.auth.getOAuthUrlMutation.callable({
+		context: createOrpcContext(event)
+	})();
 
 	return new Response(null, {
 		status: 302,

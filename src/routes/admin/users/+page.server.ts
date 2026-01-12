@@ -1,5 +1,5 @@
-import { trpcCreateCaller } from '$lib/trpc/server';
-import { createCallerContext } from '$lib/trpc/server/context';
+import { createOrpcContext } from '$lib/orpc/server/context';
+import { appRouter } from '$lib/orpc/server/router';
 import { redirect, type ServerLoadEvent } from '@sveltejs/kit';
 
 export const load = async (event: ServerLoadEvent) => {
@@ -7,5 +7,5 @@ export const load = async (event: ServerLoadEvent) => {
 		return redirect(302, '/auth/login');
 	}
 
-	return trpcCreateCaller(createCallerContext(event)).admin.users.all();
+	return appRouter.admin.users.all.callable({ context: createOrpcContext(event) })();
 };

@@ -7,24 +7,28 @@
 	import { Button } from '$lib/components/ui/button';
 	import { cn } from '$lib/utils.js';
 	import { Label } from '$lib/components/ui/label';
-	import queries from '$lib/trpc/client/queries.svelte';
-	import { issueId, ticketCreateSheetOpen } from './ticket-create.svelte';
 	import { watch } from 'runed';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let open = $state(false);
+	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion, svelte/no-top-level-browser-globals
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
-	let issuesQuery = queries.competitorGetAllTeamIssues();
+	let { ticketCreateSheetOpen = $bindable(false), issueId = $bindable<string | null>(null) } =
+		$props();
+
+	let issuesQuery = createQuery(orpc.competitor.tickets.getAllTeamIssues.queryOptions);
 
 	const selectedIssue = $derived(
-		$issuesQuery.data?.issues.find((iss) => iss.id.toString() === $issueId)
+		issuesQuery.data?.issues.find((iss) => iss.id.toString() === issueId)
 	);
 
 	watch(
-		() => $ticketCreateSheetOpen,
+		() => ticketCreateSheetOpen,
 		(curr, prev) => {
 			if (curr === false && prev === true) {
-				issueId.set(null);
+				issueId = null;
 				console.log('Resetting issueId');
 			}
 		}
@@ -35,7 +39,7 @@
 	// rest of the form with the keyboard.
 	function closeAndFocusTrigger() {
 		open = false;
-		tick().then(() => {
+		void tick().then(() => {
 			triggerRef.focus();
 		});
 	}
@@ -65,19 +69,19 @@
 				<Command.List>
 					<Command.Empty>No matching issue</Command.Empty>
 					<Command.Group>
-						{#if $issuesQuery.data}
-							{#each $issuesQuery.data?.issues as issueData}
+						{#if issuesQuery.data}
+							{#each issuesQuery.data.issues as issueData (issueData.id)}
 								<Command.Item
 									value={issueData.id.toString()}
 									onSelect={() => {
-										issueId.set(issueData.id.toString());
+										issueId = issueData.id.toString();
 										closeAndFocusTrigger();
 									}}
 								>
 									<Check
 										class={cn(
 											'mr-2 size-4',
-											$issueId !== issueData.id.toString() && 'text-transparent'
+											issueId !== issueData.id.toString() && 'text-transparent'
 										)}
 									/>
 									{issueData.title}

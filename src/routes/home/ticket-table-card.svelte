@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
-	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
+	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import { clientEnv } from '$lib/env/client';
-	import queries from '$lib/trpc/client/queries.svelte';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
 	import TicketCreateSheet from './ticket-create-sheet.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 
-	let ticketsQuery = queries.competitorGetOpenTickets();
+	let ticketsQuery = createQuery(orpc.competitor.tickets.getTickets.queryOptions);
 </script>
 
 <Card.Card class="col-span-2 col-start-2 row-span-2 row-start-1">
@@ -29,8 +29,8 @@
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#if $ticketsQuery.data}
-					{#each $ticketsQuery.data.tickets as ticket}
+				{#if ticketsQuery.data}
+					{#each ticketsQuery.data.tickets as ticket (ticket.id)}
 						<Table.Row>
 							<Table.Cell>{ticket.title}</Table.Cell>
 							<Table.Cell class="">
@@ -42,7 +42,7 @@
 										class: 'inline-flex items-center px-0'
 									})}
 								>
-									<GithubIcon class="fill-primary !size-5" />
+									<GithubIcon class="fill-primary size-5!" />
 									{`${ticket.repository}#${ticket.issueNumber}`}
 								</a>
 							</Table.Cell>
@@ -55,14 +55,14 @@
 						</Table.Row>
 					{/each}
 
-					{#if $ticketsQuery.data.tickets.length === 0}
+					{#if ticketsQuery.data.tickets.length === 0}
 						<Table.Row>
 							<Table.Cell colspan={4} class="text-muted-foreground text-center italic">
 								No tickets found.
 							</Table.Cell>
 						</Table.Row>
 					{/if}
-				{:else if $ticketsQuery.isLoading}
+				{:else if ticketsQuery.isLoading}
 					<Table.Row>
 						<Table.Cell colspan={4} class="text-muted-foreground text-center italic">
 							Loading Tickets

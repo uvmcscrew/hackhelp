@@ -1,25 +1,26 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { Label } from '$lib/components/ui/label';
 	import { Switch } from '$lib/components/ui/switch';
-	import queries from '$lib/trpc/client/queries.svelte';
-	import type { RouterOutputs } from '$lib/trpc/server';
+	import type { RouterOutputs } from '$lib/orpc/server';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import mutations from '$lib/trpc/client/mutations.svelte';
 	import TeamModifySheet from './team-modify-sheet.svelte';
+	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	type Props = {
-		teamData: RouterOutputs['competitor']['team']['get'];
+		teamData: RouterOutputs['competitor']['team']['getTeam'];
 	};
 
 	let { teamData }: Props = $props();
 
-	const team = queries.competitorGetMyTeam(teamData);
+	let team = createQuery(() =>
+		orpc.competitor.team.getTeam.queryOptions({ initialData: teamData })
+	);
 
-	let teamJoinStateMutation = mutations.competitorUpdateTeamJoinable();
+	let teamJoinStateMutation = createMutation(orpc.competitor.team.updateJoinable.mutationOptions);
 
-	let canJoinState = $state($team.data?.team.canJoin ?? false);
+	let canJoinState = $state(team.data.team.canJoin);
 	let canJoinEnabled = $state(true);
 </script>
 
@@ -28,7 +29,7 @@
 		<Card.Title>My Team</Card.Title>
 	</Card.Header>
 	<Card.Content class="h-max grow">
-		<h2 class="text-2xl font-semibold">{$team.data?.team.name}</h2>
+		<h2 class="text-2xl font-semibold">{team.data.team.name}</h2>
 	</Card.Content>
 	<Card.Footer class=" grid grid-cols-2 grid-rows-4 gap-y-2 lg:grid-cols-4 lg:grid-rows-3">
 		<span class="text-muted-foreground col-span-2 row-start-1 text-base">Join Details</span>
@@ -49,7 +50,7 @@
 				onCheckedChange={async (checked) => {
 					canJoinState = false;
 					canJoinEnabled = false;
-					const { teamIsJoinable } = await $teamJoinStateMutation.mutateAsync({
+					const { teamIsJoinable } = await teamJoinStateMutation.mutateAsync({
 						canJoin: checked
 					});
 					canJoinState = teamIsJoinable;
@@ -58,7 +59,7 @@
 					}, 1000);
 				}}
 			/>
-			{#if $teamJoinStateMutation.isPending}
+			{#if teamJoinStateMutation.isPending}
 				<LoaderCircle class="h-6 w-6 animate-spin" />
 			{/if}
 		</div>
@@ -70,7 +71,7 @@
 		<div class="col-start-2 row-start-3 inline-flex h-8 items-center">
 			{#if canJoinState}
 				<span class="bg-accent text-accent-foreground rounded-sm p-1 font-mono"
-					>{$team.data?.team.joinCode}</span
+					>{team.data.team.joinCode}</span
 				>
 			{/if}
 		</div>
