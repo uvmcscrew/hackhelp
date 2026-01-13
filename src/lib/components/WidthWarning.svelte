@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import Badge from './ui/badge/badge.svelte';
 	import TriangleAlert from 'lucide-svelte/icons/triangle-alert';
 </script>
