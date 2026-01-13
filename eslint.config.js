@@ -39,6 +39,7 @@ export default defineConfig(
 					ignoreRestSiblings: true
 				}
 			],
+			'@typescript-eslint/no-unnecessary-condition': ['warn', {}],
 			'@typescript-eslint/no-confusing-void-expression': [
 				'error',
 				{
@@ -88,7 +89,7 @@ export default defineConfig(
 			'svelte/block-lang': [
 				'error',
 				{
-					enforceScriptPresent: true,
+					enforceScriptPresent: false,
 					script: ['ts'] // a list of languages or null to signify no language specified
 				}
 			],
