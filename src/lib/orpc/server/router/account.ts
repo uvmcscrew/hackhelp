@@ -197,7 +197,7 @@ export async function authenticatedUserOrgStatus(username: string, accessToken: 
 }
 
 export const authRouter = {
-	getOAuthUrlMutation: o.route({ method: 'POST' }).handler(async ({ context }) => {
+	getOAuthUrlMutation: o.route({ method: 'POST' }).handler(({ context }) => {
 		const state = generateState();
 		const url = githubOAuth.createAuthorizationURL(state, ['read:user', 'user:email']);
 

@@ -14,7 +14,7 @@ export async function delay(ms: number) {
 export async function promiseHandler<T>(promise: Promise<T>) {
 	return promise
 		.then((data) => ({ data, error: null }))
-		.catch((err) => ({ data: null, error: err }));
+		.catch((err: unknown) => ({ data: null, error: err }));
 }
 
 /**
