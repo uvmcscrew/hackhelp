@@ -7,7 +7,7 @@
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client';
-	import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+	import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 	import { toast } from 'svelte-sonner';
 
 	import '@fontsource-variable/lora';
@@ -53,7 +53,7 @@
 		}
 	});
 
-	const persister = createSyncStoragePersister({
+	const persister = createAsyncStoragePersister({
 		storage: browser ? window.localStorage : null
 	});
 </script>
