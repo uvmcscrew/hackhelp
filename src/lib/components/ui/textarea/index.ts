@@ -6,7 +6,7 @@ type FormTextareaEvent<T extends Event = Event> = T & {
 
 type TextareaEvents = {
 	blur: FormTextareaEvent<FocusEvent>;
-	change: FormTextareaEvent<Event>;
+	change: FormTextareaEvent;
 	click: FormTextareaEvent<MouseEvent>;
 	focus: FormTextareaEvent<FocusEvent>;
 	keydown: FormTextareaEvent<KeyboardEvent>;

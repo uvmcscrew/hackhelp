@@ -86,6 +86,7 @@ export async function POST(event: RequestEvent) {
 			id: reqId,
 			// @ts-expect-error ghEvent is naturally untyped
 			name: ghEvent,
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			payload: await event.request.json()
 		});
 	} catch (e) {

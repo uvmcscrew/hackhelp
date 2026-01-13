@@ -46,7 +46,7 @@
 		variant = 'default',
 		size = 'default',
 		ref = $bindable(null),
-		href = undefined,
+		href,
 		type = 'button',
 		children,
 		...restProps

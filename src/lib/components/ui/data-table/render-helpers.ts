@@ -77,8 +77,7 @@ export class RenderSnippetConfig<TProps> {
 export function renderComponent<
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	T extends Component<any>,
-	Props extends ComponentProps<T>,
->(component: T, props: Props) {
+>(component: T, props: ComponentProps<T>) {
 	return new RenderComponentConfig(component, props);
 }
 

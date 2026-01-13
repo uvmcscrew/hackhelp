@@ -9,6 +9,7 @@
 	import { posthogHandler } from '$lib/utils';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { resolve } from '$app/paths';
 
 	type Props = {
 		user: User;
@@ -16,7 +17,7 @@
 	const { user }: Props = $props();
 
 	let accountData = createQuery(() => orpc.account.whoami.queryOptions({ initialData: { user } }));
-	const image = `https://avatars.githubusercontent.com/u/${accountData.data?.user.githubId}`;
+	const image = `https://avatars.githubusercontent.com/u/${accountData.data.user.githubId}`;
 </script>
 
 <DropdownMenu.Root>
@@ -56,10 +57,10 @@
 			>{#snippet child({ props })}
 				<button
 					{...props}
-					onclick={async (e) => {
+					onclick={async (_e) => {
 						await fetch('/auth/logout', { method: 'POST' });
 						posthogHandler((posthog) => posthog.reset());
-						await goto('/auth/login');
+						await goto(resolve('/auth/login'));
 					}}>Logout</button
 				>
 			{/snippet}</DropdownMenu.Item

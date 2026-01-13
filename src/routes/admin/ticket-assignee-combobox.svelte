@@ -19,8 +19,10 @@
 	let props: Props = $props();
 
 	let open = $state(false);
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let hasChanged = $state(false);
 	let value = $state(props.initialMentorId || '');
+	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
 	let adminsQuery = createQuery(orpc.admin.users.getAdmins.queryOptions);
@@ -46,7 +48,7 @@
 	// rest of the form with the keyboard.
 	function closeAndFocusTrigger() {
 		open = false;
-		tick().then(() => {
+		void tick().then(() => {
 			triggerRef.focus();
 		});
 	}
@@ -84,7 +86,7 @@
 						<Command.Empty>No matching user</Command.Empty>
 						<Command.Group>
 							{#if adminsQuery.data}
-								{#each adminsQuery.data.admins as adminData}
+								{#each adminsQuery.data.admins as adminData (adminData.id)}
 									<Command.Item
 										value={adminData.id}
 										onSelect={() => {
