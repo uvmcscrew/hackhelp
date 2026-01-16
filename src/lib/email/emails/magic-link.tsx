@@ -1,7 +1,6 @@
 import {
 	Body,
 	Button,
-	Column,
 	Container,
 	Head,
 	Heading,
@@ -10,16 +9,15 @@ import {
 	Img,
 	Link,
 	Preview,
-	Row,
 	Section,
 	Tailwind,
 	Text
 } from '@react-email/components';
 
 export type MagicLinkEmailProps = {
-	username: string;
+	username?: string;
 	magicLink: string;
-	fromIp: string;
+	fromIp?: string;
 };
 
 export const MagicLinkEmail = ({ username, magicLink, fromIp }: MagicLinkEmailProps) => {
@@ -44,7 +42,8 @@ export const MagicLinkEmail = ({ username, magicLink, fromIp }: MagicLinkEmailPr
 						<Heading className="mx-0 my-7.5 p-0 text-center text-[24px] font-normal text-black">
 							HackHelp Login Link
 						</Heading>
-						<Text className="text-[14px] leading-6 text-black">Hello {username},</Text>
+						{/* <Text className="text-[14px] leading-6 text-black">Hello {username},</Text> */}
+						<Text className="text-[14px] leading-6 text-black">Hello!</Text>
 						<Text>
 							You have requested a login link for HackHelp. Here it is, fresh off the presses!
 						</Text>
@@ -64,10 +63,10 @@ export const MagicLinkEmail = ({ username, magicLink, fromIp }: MagicLinkEmailPr
 						</Text>
 						<Hr className="mx-0 my-6.5 w-full border border-solid border-[#eaeaea]" />
 						<Text className="text-[12px] leading-6 text-[#666666]">
-							This invitation was intended for <span className="text-black">{username}</span>. This
-							invite was sent from <span className="text-black">{fromIp}</span>. If you were not
-							expecting this login request, you can ignore this email. If you are concerned about
-							your account's safety, please contact the hackathon organizers.
+							{/* This invitation was intended for <span className="text-black">{username}</span>. This
+							invite was sent from <span className="text-black">{fromIp}</span>.  */}
+							If you were not expecting this login request, you can ignore this email. If you are
+							concerned about your account's safety, please contact the hackathon organizers.
 						</Text>
 					</Container>
 				</Body>
