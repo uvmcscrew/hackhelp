@@ -2,6 +2,9 @@ import { serverEnv } from '$lib/env/server';
 import { db } from '$lib/server/db';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { passkey } from '@better-auth/passkey';
+import { emailOTP, magicLink } from 'better-auth/plugins';
+import { sendEmailOtp, sendMagicLinkEmail } from '$lib/email';
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -15,6 +18,25 @@ export const auth = betterAuth({
 			disableSignUp: true
 		}
 	},
+	plugins: [
+		passkey(),
+		emailOTP({
+			async sendVerificationOTP({ email, otp, type }) {
+				if (type === 'forget-password') {
+					throw new Error('Passwords not enabled');
+				} else {
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+					await sendEmailOtp(email, { type, otp });
+				}
+			}
+		}),
+		magicLink({
+			sendMagicLink: async ({ email, url }) => {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+				await sendMagicLinkEmail(email, { magicLink: url });
+			}
+		})
+	],
 	experimental: { joins: true }
 });
 
