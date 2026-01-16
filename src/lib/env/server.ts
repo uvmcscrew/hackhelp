@@ -1,6 +1,6 @@
-import { building } from '$app/environment';
-import { env as privateEnv } from '$env/dynamic/private';
-import { env as publicEnv } from '$env/dynamic/public';
+// import { building } from '$app/environment';
+// import { env as privateEnv } from '$env/dynamic/private';
+// import { env as publicEnv } from '$env/dynamic/public';
 
 import { createEnv } from '@t3-oss/env-core';
 import { z } from 'zod';
@@ -22,7 +22,8 @@ export const serverEnv = createEnv({
 		PUBLIC_SHOW_CHALLENGES: z.coerce.boolean().default(true)
 	},
 	clientPrefix: 'PUBLIC_',
-	runtimeEnv: { ...privateEnv, ...publicEnv },
-	emptyStringAsUndefined: true,
-	skipValidation: building
+	// runtimeEnv: { ...privateEnv, ...publicEnv },
+	runtimeEnv: import.meta.env,
+	emptyStringAsUndefined: true
+	// skipValidation: building
 });
