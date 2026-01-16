@@ -13,7 +13,9 @@ export const serverEnv = createEnv({
 		GITHUB_APP_CLIENT_ID: z.string().nonempty(),
 		GITHUB_APP_CLIENT_SECRET: z.string().nonempty(),
 		GITHUB_WEBHOOK_SECRET: z.base64().nonempty(),
-		WHITELIST_ENDPOINT_TOKEN: z.base64().nonempty()
+		WHITELIST_ENDPOINT_TOKEN: z.base64().nonempty(),
+		SMTP_URL: z.string(),
+		SMTP_FROM: z.email()
 	},
 	client: {
 		PUBLIC_GITHUB_ORGNAME: z.string().nonempty(),
