@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { capitalize, words } from 'es-toolkit/string';
+
 	type Props = {
 		error: {
 			message?: string;
@@ -8,6 +10,12 @@
 	};
 
 	let { error }: Props = $props();
+
+	let statusText = $derived(
+		words(error.statusText.toLowerCase())
+			.map((s) => capitalize(s))
+			.join(' ')
+	);
 </script>
 
 <div class="mt-4 rounded-md bg-red-500/15 p-4 outline outline-red-500/25">
@@ -28,10 +36,13 @@
 			</svg>
 		</div>
 		<div class="ml-3">
-			<h3 class="text-sm font-medium text-red-200">{error.status} {error.statusText}</h3>
+			<h3 class="text-sm font-medium text-red-200">
+				{error.status}
+				{statusText}
+			</h3>
 			{#if error.message}
 				<p class="mt-2 text-sm text-red-200/80">
-					{error.message}
+					{capitalize(error.message)}
 				</p>
 			{/if}
 		</div>
