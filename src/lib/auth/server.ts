@@ -3,7 +3,7 @@ import { db } from '$lib/server/db';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { passkey } from '@better-auth/passkey';
-import { emailOTP, magicLink, admin } from 'better-auth/plugins';
+import { emailOTP, magicLink, admin, genericOAuth, lastLoginMethod } from 'better-auth/plugins';
 import { sendEmailOtp, sendMagicLinkEmail } from '$lib/email';
 import { ac, roles } from './permissions';
 
@@ -38,7 +38,18 @@ export const auth = betterAuth({
 		admin({
 			ac,
 			roles
-		})
+		}),
+		genericOAuth({
+			config: [
+				{
+					providerId: 'uvm-netid',
+					clientId: serverEnv.UVM_NETID_OIDC_CLIENT_ID,
+					clientSecret: serverEnv.UVM_NETID_OIDC_CLIENT_SECRET,
+					discoveryUrl: serverEnv.UVM_NETID_OIDC_DISCOVERY_URL
+				}
+			]
+		}),
+		lastLoginMethod()
 	],
 	experimental: { joins: true }
 });
