@@ -4,11 +4,8 @@
 	import { signIn } from '$lib/auth/client';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { CardDescription } from '$lib/components/ui/card';
+	import { CardDescription, CardFooter } from '$lib/components/ui/card';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
-	import CardFooter from '$lib/components/ui/card/card-footer.svelte';
-	import CardHeader from '$lib/components/ui/card/card-header.svelte';
-	import CardTitle from '$lib/components/ui/card/card-title.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { posthogHandler } from '$lib/utils';
@@ -70,6 +67,7 @@
 			newUserCallbackURL: '/welcome'
 		});
 		if (error) signInError = error;
+		await goto(resolve('/(auth)/login/email-sent'));
 		loading = false;
 	}
 </script>
@@ -78,10 +76,6 @@
 	<title>Login | HackHelp</title>
 </svelte:head>
 
-<CardHeader
-	><CardTitle>HackHelp Sign In</CardTitle>
-	<CardDescription>If you're a UVM student or faculty member, use NetID sign in.</CardDescription>
-</CardHeader>
 <CardContent>
 	<div class="relative flex flex-col gap-y-4">
 		<Button disabled={loading} aria-disabled={loading} onclick={passkeySignIn}

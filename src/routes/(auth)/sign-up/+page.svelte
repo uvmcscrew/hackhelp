@@ -4,8 +4,6 @@
 	import { CardDescription } from '$lib/components/ui/card';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import CardFooter from '$lib/components/ui/card/card-footer.svelte';
-	import CardHeader from '$lib/components/ui/card/card-header.svelte';
-	import CardTitle from '$lib/components/ui/card/card-title.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import { posthogHandler } from '$lib/utils';
@@ -54,13 +52,6 @@
 	<title>Signup | HackHelp</title>
 </svelte:head>
 
-<CardHeader
-	><CardTitle>HackHelp Sign Up</CardTitle>
-	<CardDescription>
-		If you're a UVM student or faculty member, use NetID sign up to automatically verify your
-		account.
-	</CardDescription>
-</CardHeader>
 <CardContent>
 	<div class="flex flex-col">
 		<Button disabled={loading} aria-disabled={loading} onclick={uvmNetIdSignUp}
@@ -89,7 +80,7 @@
 			aria-disabled={loading}
 		/>
 		<Button type="submit" variant="secondary" disabled={loading} aria-disabled={loading}
-			>Email me a login link</Button
+			>Email me a sign up link</Button
 		>
 	</form>
 
