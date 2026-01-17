@@ -12,7 +12,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 
-	import type { PageProps } from './$types';
+	import type { PageProps } from '../../account/$types';
 
 	import { goto } from '$app/navigation';
 	import { clientEnv } from '$lib/env/client';
