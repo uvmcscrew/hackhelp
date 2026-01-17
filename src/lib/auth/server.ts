@@ -35,10 +35,6 @@ export const auth = betterAuth({
 				await sendMagicLinkEmail(email, { magicLink: url });
 			}
 		}),
-		admin({
-			ac,
-			roles
-		}),
 		genericOAuth({
 			config: [
 				{
@@ -48,6 +44,10 @@ export const auth = betterAuth({
 					discoveryUrl: serverEnv.UVM_NETID_OIDC_DISCOVERY_URL
 				}
 			]
+		}),
+		admin({
+			ac,
+			roles
 		}),
 		lastLoginMethod()
 	],
