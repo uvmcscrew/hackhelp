@@ -5,8 +5,8 @@
 	let { children } = $props();
 </script>
 
-<div class="flex h-screen w-screen flex-col place-content-center items-center bg-inherit">
-	<Card class="">{@render children()}</Card>
+<div class="flex h-screen w-screen flex-col place-content-center items-center bg-inherit px-2">
+	<Card class="w-full sm:w-1/2 lg:w-1/3">{@render children()}</Card>
 
 	<span class="absolute bottom-0 mb-2 inline-flex w-screen justify-center">
 		<MadeWith />
