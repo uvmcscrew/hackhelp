@@ -1,8 +1,12 @@
 <script lang="ts">
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import { Card } from '$lib/components/ui/card';
+	import { posthogHandler } from '$lib/utils';
 
 	let { children } = $props();
+
+	// Always reset on the sign in page to ensure we don't track the wrong user
+	posthogHandler((posthog) => posthog.reset());
 </script>
 
 <div class="flex h-screen w-screen flex-col place-content-center items-center bg-inherit px-2">

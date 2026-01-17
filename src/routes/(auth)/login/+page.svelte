@@ -8,12 +8,8 @@
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { posthogHandler } from '$lib/utils';
 	import ArrowRight from 'lucide-svelte/icons/arrow-right';
 	import ErrorBox from '../error-box.svelte';
-
-	// Always reset on the sign in page to ensure we don't track the wrong user
-	posthogHandler((posthog) => posthog.reset());
 
 	let emailText = $state('');
 	let loading = $state(false);

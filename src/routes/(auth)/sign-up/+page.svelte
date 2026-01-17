@@ -6,12 +6,10 @@
 	import CardFooter from '$lib/components/ui/card/card-footer.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-	import { posthogHandler } from '$lib/utils';
 	import ArrowRight from 'lucide-svelte/icons/arrow-right';
 	import ErrorBox from '../error-box.svelte';
-
-	// Always reset on the sign in page to ensure we don't track the wrong user
-	posthogHandler((posthog) => posthog.reset());
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let emailText = $state('');
 	let loading = $state(false);
@@ -44,6 +42,7 @@
 			newUserCallbackURL: '/welcome'
 		});
 		if (error) signUpError = error;
+		await goto(resolve('/(auth)/sign-up/email-sent'));
 		loading = false;
 	}
 </script>
