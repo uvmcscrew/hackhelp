@@ -24,7 +24,7 @@ export const serverEnv = createEnv({
 	},
 	clientPrefix: 'PUBLIC_',
 	runtimeEnv: { ...privateEnv, ...publicEnv },
-	// runtimeEnv: import.meta.env,
 	skipValidation: building,
+	// runtimeEnv: import.meta.env,
 	emptyStringAsUndefined: true
 });
