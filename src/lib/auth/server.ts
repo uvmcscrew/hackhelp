@@ -14,6 +14,13 @@ import {
 import { sendEmailOtp, sendMagicLinkEmail } from '$lib/email';
 import { ac, roles } from './permissions';
 
+type UVMEntraProfile = {
+	id: string;
+	email: string;
+	name: string;
+	preferred_username: string;
+};
+
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: 'pg'
@@ -49,7 +56,16 @@ export const auth = betterAuth({
 					providerId: 'uvm-netid',
 					clientId: serverEnv.UVM_NETID_OIDC_CLIENT_ID,
 					clientSecret: serverEnv.UVM_NETID_OIDC_CLIENT_SECRET,
-					discoveryUrl: serverEnv.UVM_NETID_OIDC_DISCOVERY_URL
+					discoveryUrl: serverEnv.UVM_NETID_OIDC_DISCOVERY_URL,
+					overrideUserInfo: true,
+					mapProfileToUser: (profile) => {
+						const uvmProfile = profile as UVMEntraProfile;
+						return {
+							name: uvmProfile.name,
+							username: uvmProfile.preferred_username.split('@')[0],
+							email: uvmProfile.email
+						};
+					}
 				}
 			]
 		}),
