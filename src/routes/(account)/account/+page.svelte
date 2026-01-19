@@ -8,31 +8,23 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import CardContent from '$lib/components/ui/card/card-content.svelte';
 
 	import { goto } from '$app/navigation';
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import { posthogHandler } from '$lib/utils';
-	// import { createQuery } from '@tanstack/svelte-query';
-	// import { orpc } from '$lib/orpc/client/index.svelte';
 	import { resolve } from '$app/paths';
-	import { signOut, useSession } from '$lib/auth/client.svelte';
+	import { authClient, useSession } from '$lib/auth/client.svelte';
 	import type { PageProps } from './$types';
-	import Security from './security.svelte';
+	import * as Tabs from '$lib/components/ui/tabs';
+	import PasskeysCard from './_cards/passkeys-card.svelte';
 
 	let { data }: PageProps = $props();
-
-	// let hasInvite = createQuery(orpc.account.hasPendingInvite.queryOptions);
 
 	const { data: session } = useSession(data.userInitialData);
 
 	let isAdmin = $derived(
 		session?.user.role ? session.user.role.split(',').includes('admin') : false
 	);
-
-	// let refreshInvite = createMutation(orpc.account.refreshInviteMutation.mutationOptions);
-
-	// let leaveTeam = createMutation(orpc.competitor.team.leaveTeam.mutationOptions);
 </script>
 
 <svelte:head>
@@ -60,7 +52,7 @@
 			</Avatar.Root>
 			<div class="flex flex-col pl-4">
 				<span class="inline-flex gap-x-2">
-					<h2 class="text-2xl font-medium">{session?.user.name}</h2>
+					<h2 class="text-2xl font-medium">{session?.user.name || 'Undefined'}</h2>
 					{#if isAdmin}
 						<Badge class="ml-2 rounded-full bg-purple-400 px-2 py-1" hoverEffects={false}
 							>Administrator</Badge
@@ -77,7 +69,7 @@
 					title="Sign Out"
 					class="hover:cursor-pointer"
 					onclick={async () => {
-						await signOut();
+						await authClient.signOut();
 						posthogHandler((posthog) => posthog.reset());
 						await goto(resolve('/(auth)/login'));
 					}}><DoorOpen class="h-8 w-8" />Sign Out</Button
@@ -86,94 +78,29 @@
 		</Card.CardContent>
 	</Card.Root>
 
-	<Security />
-	<Card.Root>
-		<Card.Header><Card.Title>Participant Status</Card.Title></Card.Header>
-		<CardContent class="flex flex-col gap-y-2">
-			<!-- <div class="flex flex-row items-center justify-between">
-				<span class="text-secondary-foreground font-semibold">Organization Membership: </span>
-				{#if accountWithStatus.data.user.isOrgMember}
-					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined</Badge>
-				{:else if accountWithStatus.data.userStatus.isWhitelisted}
-					<Badge class="rounded-full bg-amber-400 px-2" hoverEffects={false}>Pending Invite</Badge>
-				{:else}
-					<Badge class="rounded-full bg-red-400 px-2" hoverEffects={false}
-						>Contact Event Organizer</Badge
-					>
-				{/if}
-			</div> -->
-			<!-- <div class="flex flex-row items-center justify-end gap-x-3">
-				{#if !accountWithStatus.data.user.isOrgMember && accountWithStatus.data.userStatus.isWhitelisted}
-					{#if hasInvite.data}
-						{#if hasInvite.data.hasPendingInvite}
-							<Button
-								size="sm"
-								variant="outline"
-								class="p-2 text-center  hover:cursor-pointer "
-								onclick={async () => {
-									inviteRefreshLoading = true;
-									await refreshInvite.mutateAsync({});
-									await delay(3500);
-									inviteRefreshLoading = false;
-								}}
-								disabled={refreshInvite.isPending || inviteRefreshLoading}
-							>
-								{#if inviteRefreshLoading}
-									<RefreshCW class="mr-1 h-6 w-6 animate-spin" /> Refreshing...
-								{:else}
-									<RefreshCW class="mr-1 h-6 w-6" /> Refresh Status
-								{/if}
-							</Button>
-							<Button
-								size="sm"
-								href="https://github.com/orgs/{clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation"
-								target="_blank"
-								class=" w-33 bg-blue-500 p-2 text-center text-white hover:cursor-pointer hover:bg-blue-500/80"
-							>
-								<MoveUpRight class="mr-1 h-6 w-6 " /> View Invitation</Button
-							>
-						{:else}
-							<Button
-								size="sm"
-								onclick={async () => {
-									await sendInvite.mutateAsync({});
-								}}
-								disabled={sendInvite.isPending || inviteRefreshLoading}
-								class=" w-33 bg-blue-500 p-2 text-center text-white hover:cursor-pointer  hover:bg-blue-500/80"
-							>
-								{#if sendInvite.isPending}
-									<LoaderCircle class="mr-1 h-6 w-6 animate-spin" /> Inviting...
-								{:else}
-									Request Invitation
-								{/if}
-							</Button>
-						{/if}
-					{:else}
-						<Skeleton class="h-8 w-33" />
-					{/if}
-				{/if}
-			</div>
-			<div class="flex flex-row items-center justify-between">
-				<span class="text-secondary-foreground font-semibold">Team Membership: </span>
-				{#if accountWithStatus.data.user.teamId !== null}
-					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined Team</Badge>
-				{:else}
-					<Badge class="rounded-full bg-red-400 px-2" hoverEffects={false}>Not in Team</Badge>
-				{/if}
-			</div> -->
+	<Tabs.Root value="passkeys">
+		<Tabs.List>
+			<Tabs.Trigger value="account">Account</Tabs.Trigger>
+			<Tabs.Trigger value="passkeys">Passkeys</Tabs.Trigger>
+		</Tabs.List>
+		<Tabs.Content value="account">
+			<Card.Root>
+				<Card.Header>
+					<Card.Title>Account</Card.Title>
+					<Card.Description>
+						Make changes to your account here. Click save when you&apos;re done.
+					</Card.Description>
+				</Card.Header>
+				<Card.Content class="grid gap-6"></Card.Content>
+				<Card.Footer>
+					<Button>Save changes</Button>
+				</Card.Footer>
+			</Card.Root>
+		</Tabs.Content>
+		<Tabs.Content value="passkeys">
+			<PasskeysCard />
+		</Tabs.Content>
+	</Tabs.Root>
 
-			<!-- <div class="flex flex-row items-center justify-end">
-				{#if accountWithStatus.data.user.teamId !== null}
-					<Button variant="destructive" onclick={async () => await leaveTeam.mutateAsync({})}>
-						{#if leaveTeam.isPending}
-							<LoaderCircle class="mr-1 h-6 w-6 animate-spin" /> Leaving...
-						{:else}
-							Leave Team
-						{/if}
-					</Button>
-				{/if}
-			</div> -->
-		</CardContent>
-	</Card.Root>
 	<div class="mt-auto mb-2 inline-flex justify-center"><MadeWith /></div>
 </div>
