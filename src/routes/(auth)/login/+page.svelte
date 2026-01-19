@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { signIn } from '$lib/auth/client.svelte';
+	import { authClient } from '$lib/auth/client.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { CardDescription, CardFooter } from '$lib/components/ui/card';
@@ -24,7 +24,7 @@
 	async function passkeySignIn() {
 		loading = true;
 		console.log('Passkey signin');
-		const { error } = await signIn.passkey({
+		const { error } = await authClient.signIn.passkey({
 			autoFill: false,
 			fetchOptions: {
 				async onSuccess(_context) {
@@ -42,7 +42,7 @@
 
 	async function uvmNetIdSignIn() {
 		loading = true;
-		const { data: _data, error } = await signIn.oauth2({
+		const { data: _data, error } = await authClient.signIn.oauth2({
 			providerId: 'uvm-netid', // required
 			callbackURL: '/account',
 			errorCallbackURL: '/auth/error',
@@ -56,7 +56,7 @@
 
 	async function emailSignIn() {
 		loading = true;
-		const { error } = await signIn.magicLink({
+		const { error } = await authClient.signIn.magicLink({
 			email: emailText,
 			callbackURL: '/account',
 			errorCallbackURL: '/auth/error',

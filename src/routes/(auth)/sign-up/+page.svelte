@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { signIn } from '$lib/auth/client.svelte';
+	import { authClient } from '$lib/auth/client.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { CardDescription } from '$lib/components/ui/card';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
@@ -21,7 +21,7 @@
 
 	async function uvmNetIdSignUp() {
 		loading = true;
-		const { data: _data, error } = await signIn.oauth2({
+		const { data: _data, error } = await authClient.signIn.oauth2({
 			providerId: 'uvm-netid',
 			callbackURL: '/account',
 			errorCallbackURL: '/auth/error',
@@ -35,7 +35,7 @@
 
 	async function emailSignUp() {
 		loading = true;
-		const { error } = await signIn.magicLink({
+		const { error } = await authClient.signIn.magicLink({
 			email: emailText,
 			callbackURL: '/account',
 			errorCallbackURL: '/auth/error',
