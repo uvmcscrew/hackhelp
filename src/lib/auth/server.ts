@@ -3,7 +3,14 @@ import { db } from '$lib/server/db';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { passkey } from '@better-auth/passkey';
-import { emailOTP, magicLink, admin, genericOAuth, lastLoginMethod } from 'better-auth/plugins';
+import {
+	emailOTP,
+	magicLink,
+	admin,
+	genericOAuth,
+	lastLoginMethod,
+	username
+} from 'better-auth/plugins';
 import { sendEmailOtp, sendMagicLinkEmail } from '$lib/email';
 import { ac, roles } from './permissions';
 
@@ -20,6 +27,7 @@ export const auth = betterAuth({
 		}
 	},
 	plugins: [
+		username(),
 		passkey(),
 		emailOTP({
 			async sendVerificationOTP({ email, otp, type }) {
