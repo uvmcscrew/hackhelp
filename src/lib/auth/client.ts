@@ -1,6 +1,6 @@
 import { createAuthClient } from 'better-auth/svelte';
 import { inferAdditionalFields } from 'better-auth/client/plugins';
-import type { auth } from './server';
+import type { auth, AuthData } from './server';
 import {
 	adminClient,
 	emailOTPClient,
@@ -10,6 +10,7 @@ import {
 } from 'better-auth/client/plugins';
 import { passkeyClient } from '@better-auth/passkey/client';
 import { ac, roles } from './permissions';
+import { createQuery } from '@tanstack/svelte-query';
 
 const __authClient = createAuthClient({
 	plugins: [
@@ -26,4 +27,12 @@ const __authClient = createAuthClient({
 	]
 });
 
-export const { signIn, signUp, signOut, useSession, ...authClient } = __authClient;
+export const { signIn, signUp, signOut, ...authClient } = __authClient;
+
+export function useSession(initialData?: AuthData) {
+	return createQuery(() => ({
+		queryKey: ['user'],
+		queryFn: () => authClient.getSession().then((s) => s.data),
+		initialData
+	}));
+}
