@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { signIn } from '$lib/auth/client';
+	import { signIn } from '$lib/auth/client.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { CardDescription } from '$lib/components/ui/card';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { signIn } from '$lib/auth/client';
+	import { signIn } from '$lib/auth/client.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { CardDescription, CardFooter } from '$lib/components/ui/card';
