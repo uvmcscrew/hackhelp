@@ -3,10 +3,19 @@
 declare global {
 	namespace App {
 		interface Locals {
-			user: import('$lib/auth/server').User | null;
-			session: import('$lib/auth/server').Session | null;
+			auth: AuthLocals;
 		}
 	}
 }
+
+type AuthLocals =
+	| {
+			user: import('$lib/auth/server').User;
+			session: import('$lib/auth/server').Session;
+	  }
+	| {
+			user: null;
+			session: null;
+	  };
 
 export {};
