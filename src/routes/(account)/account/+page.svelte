@@ -1,73 +1,47 @@
+<svelte:options runes={true} />
+
 <script lang="ts">
 	import * as Avatar from '$lib/components/ui/avatar';
 	import * as Card from '$lib/components/ui/card';
 	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import DoorOpen from 'lucide-svelte/icons/door-open';
-	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import MoveUpRight from 'lucide-svelte/icons/move-up-right';
-	import RefreshCW from 'lucide-svelte/icons/refresh-cw';
 
-	import ArrowLeft from 'lucide-svelte/icons/arrow-left';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import CardContent from '$lib/components/ui/card/card-content.svelte';
 
-	import type { PageProps } from '../../account/$types';
-
 	import { goto } from '$app/navigation';
-	import { clientEnv } from '$lib/env/client';
-	import Skeleton from '$lib/components/ui/skeleton/skeleton.svelte';
-	import { toast } from 'svelte-sonner';
 	import MadeWith from '$lib/components/MadeWith.svelte';
-	import { delay, posthogHandler } from '$lib/utils';
-	import { createMutation, createQuery } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { posthogHandler } from '$lib/utils';
+	// import { createQuery } from '@tanstack/svelte-query';
+	// import { orpc } from '$lib/orpc/client/index.svelte';
 	import { resolve } from '$app/paths';
+	import { signOut, useSession } from '$lib/auth/client.svelte';
+	import type { PageProps } from './$types';
+	import Security from './security.svelte';
 
-	let { data: initialData }: PageProps = $props();
+	let { data }: PageProps = $props();
 
-	let accountWithStatus = createQuery(() =>
-		orpc.account.whoamiWithProfile.queryOptions({ initialData })
-	);
-	let hasInvite = createQuery(orpc.account.hasPendingInvite.queryOptions);
+	// let hasInvite = createQuery(orpc.account.hasPendingInvite.queryOptions);
 
-	let inviteRefreshLoading = $state(false);
+	const { data: session } = useSession(data.userInitialData);
 
-	const image = `https://avatars.githubusercontent.com/u/${accountWithStatus.data.user.githubId}`;
-
-	let sendInvite = createMutation(() =>
-		orpc.account.sendInviteMutation.mutationOptions({
-			onSuccess: () =>
-				toast.success('Invitation created', {
-					action: {
-						label: 'View',
-						onClick: () => {
-							window.location.assign(
-								`https://github.com/orgs/${clientEnv.PUBLIC_GITHUB_ORGNAME}/invitation`
-							);
-						}
-					}
-				})
-		})
+	let isAdmin = $derived(
+		session?.user.role ? session.user.role.split(',').includes('admin') : false
 	);
 
-	let refreshInvite = createMutation(orpc.account.refreshInviteMutation.mutationOptions);
+	// let refreshInvite = createMutation(orpc.account.refreshInviteMutation.mutationOptions);
 
-	let leaveTeam = createMutation(orpc.competitor.team.leaveTeam.mutationOptions);
-
-	posthogHandler((posthog) =>
-		posthog.identify(accountWithStatus.data.user.username, {
-			id: accountWithStatus.data.user.id,
-			username: accountWithStatus.data.user.username,
-			isOrgAdmin: accountWithStatus.data.user.isOrgAdmin,
-			isOrgMember: accountWithStatus.data.user.isOrgMember
-		})
-	);
+	// let leaveTeam = createMutation(orpc.competitor.team.leaveTeam.mutationOptions);
 </script>
+
+<svelte:head>
+	<title>Account Home | HackHelp</title>
+</svelte:head>
 
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
 	<h1 class="w-full text-center text-2xl font-semibold">Account</h1>
-	<div class="text-foreground flex w-full justify-center">
+	<!-- <div class="text-foreground flex w-full justify-center">
 		{#if accountWithStatus.data.user.isOrgMember}
 			<Button
 				variant="link"
@@ -76,26 +50,26 @@
 				><ArrowLeft class="h-8 w-8 " />Back</Button
 			>
 		{/if}
-	</div>
+	</div> -->
 	<Card.Root
 		><Card.CardHeader><Card.CardTitle>Profile</Card.CardTitle></Card.CardHeader><Card.CardContent
 			class="flex flex-row"
 			><Avatar.Root class="h-16 w-16">
-				<Avatar.Image src={image} alt="User avatar" />
+				<Avatar.Image src={session?.user.image} alt="User avatar" />
 				<Avatar.Fallback><CircleUser class="h-16 w-16" /></Avatar.Fallback>
 			</Avatar.Root>
 			<div class="flex flex-col pl-4">
 				<span class="inline-flex gap-x-2">
-					<h2 class="text-2xl font-medium">{accountWithStatus.data.user.fullName}</h2>
-					{#if accountWithStatus.data.user.isOrgAdmin}
+					<h2 class="text-2xl font-medium">{session?.user.name}</h2>
+					{#if isAdmin}
 						<Badge class="ml-2 rounded-full bg-purple-400 px-2 py-1" hoverEffects={false}
 							>Administrator</Badge
 						>
 					{/if}
 				</span>
-				<span class="text-secondary-foreground font-mono"
+				<!-- <span class="text-secondary-foreground font-mono"
 					>{accountWithStatus.data.user.username}</span
-				>
+				> -->
 			</div>
 			<div class="ml-auto grid place-content-start">
 				<Button
@@ -103,18 +77,20 @@
 					title="Sign Out"
 					class="hover:cursor-pointer"
 					onclick={async () => {
-						await fetch('/auth/logout', { method: 'POST' });
+						await signOut();
 						posthogHandler((posthog) => posthog.reset());
-						await goto(resolve('/auth/login'));
+						await goto(resolve('/(auth)/login'));
 					}}><DoorOpen class="h-8 w-8" />Sign Out</Button
 				>
 			</div>
 		</Card.CardContent>
 	</Card.Root>
+
+	<Security />
 	<Card.Root>
 		<Card.Header><Card.Title>Participant Status</Card.Title></Card.Header>
 		<CardContent class="flex flex-col gap-y-2">
-			<div class="flex flex-row items-center justify-between">
+			<!-- <div class="flex flex-row items-center justify-between">
 				<span class="text-secondary-foreground font-semibold">Organization Membership: </span>
 				{#if accountWithStatus.data.user.isOrgMember}
 					<Badge class="rounded-full bg-green-400 px-2" hoverEffects={false}>Joined</Badge>
@@ -125,8 +101,8 @@
 						>Contact Event Organizer</Badge
 					>
 				{/if}
-			</div>
-			<div class="flex flex-row items-center justify-end gap-x-3">
+			</div> -->
+			<!-- <div class="flex flex-row items-center justify-end gap-x-3">
 				{#if !accountWithStatus.data.user.isOrgMember && accountWithStatus.data.userStatus.isWhitelisted}
 					{#if hasInvite.data}
 						{#if hasInvite.data.hasPendingInvite}
@@ -184,9 +160,9 @@
 				{:else}
 					<Badge class="rounded-full bg-red-400 px-2" hoverEffects={false}>Not in Team</Badge>
 				{/if}
-			</div>
+			</div> -->
 
-			<div class="flex flex-row items-center justify-end">
+			<!-- <div class="flex flex-row items-center justify-end">
 				{#if accountWithStatus.data.user.teamId !== null}
 					<Button variant="destructive" onclick={async () => await leaveTeam.mutateAsync({})}>
 						{#if leaveTeam.isPending}
@@ -196,7 +172,7 @@
 						{/if}
 					</Button>
 				{/if}
-			</div>
+			</div> -->
 		</CardContent>
 	</Card.Root>
 	<div class="mt-auto mb-2 inline-flex justify-center"><MadeWith /></div>

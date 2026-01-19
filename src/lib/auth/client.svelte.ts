@@ -10,7 +10,7 @@ import {
 } from 'better-auth/client/plugins';
 import { passkeyClient } from '@better-auth/passkey/client';
 import { ac, roles } from './permissions';
-import { createMutation, createQuery } from '@tanstack/svelte-query';
+import { createQuery } from '@tanstack/svelte-query';
 
 const __authClient = createAuthClient({
 	plugins: [
@@ -36,4 +36,3 @@ export function useSession(initialData?: AuthData) {
 		initialData: initialData
 	}));
 }
-

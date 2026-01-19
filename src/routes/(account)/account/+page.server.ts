@@ -1,11 +1,11 @@
-import { createOrpcContext } from '$lib/orpc/server/context';
-import { appRouter } from '$lib/orpc/server/router';
 import { redirect, type ServerLoadEvent } from '@sveltejs/kit';
 
-export const load = async (event: ServerLoadEvent) => {
-	if (!event.locals.user) {
-		return redirect(302, '/auth/login');
+export const load = (event: ServerLoadEvent) => {
+	if (!event.locals.auth.user) {
+		return redirect(302, '/login');
 	}
 
-	return appRouter.account.whoamiWithProfile.callable({ context: createOrpcContext(event) })();
+	return {
+		userInitialData: event.locals.auth
+	};
 };
