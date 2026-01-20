@@ -1,4 +1,4 @@
-import { createAccessControl } from 'better-auth/plugins/access';
+import { createAccessControl, type AuthorizeResponse } from 'better-auth/plugins/access';
 import { defaultStatements, adminAc } from 'better-auth/plugins/admin/access';
 
 const statements = {
@@ -40,7 +40,7 @@ const admin = ac.newRole({
 });
 
 const verifiedUser = ac.newRole({
-	profile: ['create']
+	profile: ['create', 'update']
 });
 
 const mentor = ac.newRole({
@@ -61,3 +61,30 @@ export const roles = {
 	mentor,
 	judge
 } as const;
+
+type PermissionsCheckInput = {
+	// permissions: { [key in keyof TStatements]: SubArray<TStatements[key]> };
+	permissions: Parameters<ReturnType<(typeof ac)['newRole']>['authorize']>[0];
+} & ({ role: keyof typeof roles; roles?: never } | { roles: string; role?: never });
+
+export function checkRolePermission(options: PermissionsCheckInput) {
+	const _roles = (
+		options.roles ? options.roles.split(',') : [options.role]
+	) as (keyof typeof roles)[];
+
+	if (_roles.length === 0) return false;
+
+	if (_roles.includes('admin')) return true;
+
+	for (const role of _roles) {
+		const _role = roles[role];
+		// @ts-expect-error It's weird
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+		const result = _role?.authorize(options.permissions) as AuthorizeResponse;
+		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+		if (result?.success) {
+			return true;
+		}
+	}
+	return false;
+}
