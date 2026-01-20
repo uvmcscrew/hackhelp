@@ -88,3 +88,18 @@ export function checkRolePermission(options: PermissionsCheckInput) {
 	}
 	return false;
 }
+
+export function addRole(existingRole: string, roleToAdd: keyof typeof roles) {
+	const _roles = existingRole.length === 0 ? [] : existingRole.split(',');
+	if (_roles.includes(roleToAdd)) return existingRole;
+	_roles.push(roleToAdd);
+	return _roles.join(',');
+}
+
+export function removeRole(existingRole: string, roleToRemove: keyof typeof roles) {
+	let _roles = existingRole.length === 0 ? [] : existingRole.split(',');
+	if (_roles.includes(roleToRemove)) {
+		_roles = _roles.filter((r) => r !== roleToRemove);
+	}
+	return _roles.join(',');
+}

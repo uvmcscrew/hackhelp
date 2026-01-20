@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { ac, checkRolePermission } from './permissions';
+import { ac, addRole, checkRolePermission, removeRole } from './permissions';
 
 test('admin permissions', () => {
 	expect(
@@ -38,4 +38,26 @@ test('verifiedUser permissions', () => {
 			}
 		})
 	).toBe(true);
+});
+
+const addRoleCases = [
+	['judge,verifiedUser', 'admin', 'judge,verifiedUser,admin'],
+	['mentor,judge', 'judge', 'mentor,judge'],
+	['', 'admin', 'admin']
+];
+
+const removeRoleCases = [
+	['admin,judge,verifiedUser', 'admin', 'judge,verifiedUser'],
+	['mentor,judge', 'admin', 'mentor,judge'],
+	['', 'admin', '']
+];
+
+test.each(addRoleCases)('Add role %p + %p == %p', (oldRoles, toAdd, newRoles) => {
+	// @ts-expect-error Cannot narrow properly
+	expect(addRole(oldRoles, toAdd)).toBe(newRoles);
+});
+
+test.each(removeRoleCases)('Add role %p + %p == %p', (oldRoles, toRm, newRoles) => {
+	// @ts-expect-error Cannot narrow properly
+	expect(removeRole(oldRoles, toRm)).toBe(newRoles);
 });
