@@ -13,12 +13,15 @@
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import { posthogHandler } from '$lib/utils';
 	import { resolve } from '$app/paths';
-	import { authClient, useSession } from '$lib/auth/client.svelte';
+	import { signOutAndClearCache, useSession } from '$lib/auth/client.svelte';
 	import type { PageProps } from './$types';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import PasskeysCard from './_cards/passkeys-card.svelte';
+	import Profile from '../_cards/profile.svelte';
+	import { useQueryClient } from '@tanstack/svelte-query';
 
 	let { data }: PageProps = $props();
+	const queryClient = useQueryClient();
 
 	const { data: session } = useSession(data.userInitialData);
 
@@ -52,16 +55,18 @@
 			</Avatar.Root>
 			<div class="flex flex-col pl-4">
 				<span class="inline-flex gap-x-2">
-					<h2 class="text-2xl font-medium">{session?.user.name || 'Undefined'}</h2>
+					<h2 class="text-xl font-medium">{session?.user.name}</h2>
 					{#if isAdmin}
 						<Badge class="ml-2 rounded-full bg-purple-400 px-2 py-1" hoverEffects={false}
 							>Administrator</Badge
 						>
 					{/if}
+					{#if session?.user.username}
+						<span class="text-secondary-foreground font-mono">{session.user.username}</span>
+					{:else}
+						<span class="text-muted-foreground pt-4 text-sm">{session?.user.email}</span>
+					{/if}
 				</span>
-				<!-- <span class="text-secondary-foreground font-mono"
-					>{accountWithStatus.data.user.username}</span
-				> -->
 			</div>
 			<div class="ml-auto grid place-content-start">
 				<Button
@@ -69,7 +74,7 @@
 					title="Sign Out"
 					class="hover:cursor-pointer"
 					onclick={async () => {
-						await authClient.signOut();
+						await signOutAndClearCache(queryClient);
 						posthogHandler((posthog) => posthog.reset());
 						await goto(resolve('/(auth)/login'));
 					}}><DoorOpen class="h-8 w-8" />Sign Out</Button
@@ -80,22 +85,11 @@
 
 	<Tabs.Root value="passkeys">
 		<Tabs.List>
-			<Tabs.Trigger value="account">Account</Tabs.Trigger>
+			<Tabs.Trigger value="profile">Profile</Tabs.Trigger>
 			<Tabs.Trigger value="passkeys">Passkeys</Tabs.Trigger>
 		</Tabs.List>
-		<Tabs.Content value="account">
-			<Card.Root>
-				<Card.Header>
-					<Card.Title>Account</Card.Title>
-					<Card.Description>
-						Make changes to your account here. Click save when you&apos;re done.
-					</Card.Description>
-				</Card.Header>
-				<Card.Content class="grid gap-6"></Card.Content>
-				<Card.Footer>
-					<Button>Save changes</Button>
-				</Card.Footer>
-			</Card.Root>
+		<Tabs.Content value="profile">
+			<Profile />
 		</Tabs.Content>
 		<Tabs.Content value="passkeys">
 			<PasskeysCard />

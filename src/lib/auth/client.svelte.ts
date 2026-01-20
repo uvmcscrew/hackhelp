@@ -11,7 +11,7 @@ import {
 } from 'better-auth/client/plugins';
 import { passkeyClient } from '@better-auth/passkey/client';
 import { ac, roles } from './permissions';
-import { createQuery } from '@tanstack/svelte-query';
+import { createQuery, type QueryClient } from '@tanstack/svelte-query';
 
 export const authClient = createAuthClient({
 	plugins: [
@@ -29,7 +29,10 @@ export const authClient = createAuthClient({
 	]
 });
 
-// export const { signIn, signUp, signOut, ...authClient } = __authClient;
+export async function signOutAndClearCache(qc: QueryClient) {
+	await authClient.signOut();
+	qc.clear();
+}
 
 export function useSession(initialData?: AuthData) {
 	return createQuery(() => ({
