@@ -1,5 +1,27 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1768612097561,
+      "tag": "0000_silky_the_hood",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1768618886883,
+      "tag": "0001_elite_omega_red",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768852803939,
+      "tag": "0002_violet_norman_osborn",
+      "breakpoints": true
+    }
+  ]
 }

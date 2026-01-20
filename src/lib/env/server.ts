@@ -13,14 +13,18 @@ export const serverEnv = createEnv({
 		GITHUB_APP_CLIENT_ID: z.string().nonempty(),
 		GITHUB_APP_CLIENT_SECRET: z.string().nonempty(),
 		GITHUB_WEBHOOK_SECRET: z.base64().nonempty(),
-		WHITELIST_ENDPOINT_TOKEN: z.base64().nonempty()
+		SMTP_URL: z.string(),
+		UVM_NETID_OIDC_CLIENT_ID: z.string(),
+		UVM_NETID_OIDC_CLIENT_SECRET: z.string(),
+		UVM_NETID_OIDC_DISCOVERY_URL: z.string()
 	},
 	client: {
 		PUBLIC_GITHUB_ORGNAME: z.string().nonempty(),
-		PUBLIC_SHOW_CHALLENGES: z.coerce.boolean().default(true)
+		PUBLIC_SMTP_FROM: z.email()
 	},
 	clientPrefix: 'PUBLIC_',
 	runtimeEnv: { ...privateEnv, ...publicEnv },
-	emptyStringAsUndefined: true,
-	skipValidation: building
+	skipValidation: building,
+	// runtimeEnv: import.meta.env,
+	emptyStringAsUndefined: true
 });

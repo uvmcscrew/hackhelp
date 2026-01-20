@@ -1,0 +1,16 @@
+<script lang="ts">
+	import { CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import type { LayoutProps } from './$types';
+
+	let { children }: LayoutProps = $props();
+</script>
+
+<CardHeader
+	><CardTitle>HackHelp Sign Up</CardTitle>
+	<CardDescription
+		>If you're a UVM student or faculty member, use NetID sign up to automatically verify your
+		account.</CardDescription
+	>
+</CardHeader>
+
+{@render children()}
