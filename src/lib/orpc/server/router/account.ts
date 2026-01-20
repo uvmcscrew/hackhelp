@@ -2,14 +2,16 @@ import { o, protectedProcedure } from '../shared';
 import { eq } from 'drizzle-orm';
 import { serverEnv } from '$lib/env/server';
 import type { Context } from '../context';
-import type { db as dbClient, schema as dbSchema } from '$lib/server/db';
+import type DB from '$lib/server/db';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RequestError } from 'octokit';
 import { githubApp, octokit } from '$lib/github';
 import { generateState } from 'arctic';
-import { githubOAuth } from '$lib/server/auth';
+// import { githubOAuth } from '$lib/server/auth';
 import type { User } from '$lib/server/db/schema';
 import { ORPCError } from '@orpc/server';
+import { auth } from '$lib/auth/server';
+import { addRole, checkRolePermission } from '$lib/auth/permissions';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -32,7 +34,7 @@ async function hasPendingInvite(ctx: Context & { user: { username: string } }) {
  */
 export async function updateInvitedUser(
 	username: string,
-	db: { client: typeof dbClient; schema: typeof dbSchema },
+	db: typeof DB,
 	githubApp: typeof import('$lib/github').githubApp
 ) {
 	let result: User;
@@ -70,16 +72,71 @@ export const accountRouter = {
 		return { user: context.user };
 	}),
 	whoamiWithProfile: protectedProcedure.handler(async ({ context }) => {
-		await updateInvitedUser(
-			context.user.username,
-			{ client: context.db, schema: context.dbSchema },
-			context.githubApp
-		);
-		const [userStatus] = await context.db
-			.select()
-			.from(context.dbSchema.profile)
-			.where(eq(context.dbSchema.profile.linkedUserId, context.user.id));
+		// await updateInvitedUser(
+		// 	context.user.username,
+		// 	{ client: context.db.client, schema: context.db.schema },
+		// 	context.githubApp
+		// );
+		// const [userStatus] = await context.db.client
+		// 	.select()
+		// 	.from(context.db.schema.profile)
+		// 	.where(eq(context.db.schema.profile.linkedUserId, context.user.id));
 		return { user: context.user, session: context.session, userStatus };
+	}),
+
+	canCreateProfile: protectedProcedure.route({ method: 'GET' }).handler(({ context }) => {
+		return checkRolePermission({
+			roles: context.user.role || '',
+			permissions: { profile: ['create', 'update'] }
+		});
+	}),
+
+	canRequestVerification: protectedProcedure
+		.route({ method: 'GET' })
+		.handler(async ({ context }) => {
+			// For now, only people with a linked UVM NetID can request verification
+			const accounts = await context.db.client
+				.select()
+				.from(context.db.schema.account)
+				.where(eq(context.db.schema.account.userId, context.user.id));
+
+			for (const acc of accounts) {
+				if (acc.providerId === 'uvm-netid') return true;
+			}
+
+			return false;
+		}),
+
+	requestVerification: protectedProcedure.handler(async ({ context }) => {
+		const accounts = await context.db.client
+			.select()
+			.from(context.db.schema.account)
+			.where(eq(context.db.schema.account.userId, context.user.id));
+
+		for (const acc of accounts) {
+			if (acc.providerId === 'uvm-netid') {
+				await context.db.client
+					.update(context.db.schema.user)
+					.set({ role: addRole(context.user.role || '', 'verifiedUser').join(',') })
+					.where(eq(context.db.schema.user.id, context.user.id));
+
+				return true;
+			}
+		}
+		return false;
+	}),
+
+	hasUvmProfile: protectedProcedure.handler(async ({ context }) => {
+		const accounts = await context.db.client
+			.select()
+			.from(context.db.schema.account)
+			.where(eq(context.db.schema.account.userId, context.user.id));
+
+		for (const acc of accounts) {
+			if (acc.providerId === 'uvm-netid') return true;
+		}
+
+		return false;
 	}),
 	hasPendingInvite: protectedProcedure.handler(async ({ context }) => {
 		const pendingInvite = await hasPendingInvite(context);
@@ -88,29 +145,29 @@ export const accountRouter = {
 	sendInviteMutation: protectedProcedure.route({ method: 'POST' }).handler(async ({ context }) => {
 		const rpclogger = context.logger.child({ procedure: 'account.sendInvite' });
 		// Make sure DB state is accurate
-		const userstatus = await updateInvitedUser(
-			context.user.username,
-			{ client: context.db, schema: context.dbSchema },
-			context.githubApp
-		);
-		if (userstatus.isOrgMember) {
-			rpclogger.info('User is already a member of the organization');
-			throw new ORPCError('UNAUTHORIZED', {
-				message: 'You are already a member of the organization'
-			});
-		}
+		// const userstatus = await updateInvitedUser(
+		// 	context.user.username,
+		// 	{ client: context.db.client, schema: context.db.schema },
+		// 	context.githubApp
+		// );
+		// if (userstatus.isOrgMember) {
+		// 	rpclogger.info('User is already a member of the organization');
+		// 	throw new ORPCError('UNAUTHORIZED', {
+		// 		message: 'You are already a member of the organization'
+		// 	});
+		// }
 
-		const pendingInvite = await hasPendingInvite(context);
-		if (pendingInvite) {
-			rpclogger.warn('User already has a pending invite');
-			throw new ORPCError('UNAUTHORIZED', { message: 'You already have a pending invite' });
-		}
+		// const pendingInvite = await hasPendingInvite(context);
+		// if (pendingInvite) {
+		// 	rpclogger.warn('User already has a pending invite');
+		// 	throw new ORPCError('UNAUTHORIZED', { message: 'You already have a pending invite' });
+		// }
 
-		await context.githubApp.rest.orgs.createInvitation({
-			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
-			invitee_id: context.user.githubId,
-			role: 'direct_member'
-		});
+		// await context.githubApp.rest.orgs.createInvitation({
+		// 	org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+		// 	invitee_id: context.user.githubId,
+		// 	role: 'direct_member'
+		// });
 
 		return { invited: true };
 	}),
@@ -120,15 +177,15 @@ export const accountRouter = {
 			const rpclogger = context.logger.child({ procedure: 'account.refreshInvite' });
 
 			// Make sure DB state is accurate
-			const userstatus = await updateInvitedUser(
-				context.user.username,
-				{ client: context.db, schema: context.dbSchema },
-				context.githubApp
-			);
-			if (userstatus.isOrgMember) {
-				rpclogger.info('User is already a member of the organization');
-				return { refreshed: true, isMember: true };
-			}
+			// const userstatus = await updateInvitedUser(
+			// 	context.user.username,
+			// 	{ client: context.db.client, schema: context.db.schema },
+			// 	context.githubApp
+			// );
+			// if (userstatus.isOrgMember) {
+			// 	rpclogger.info('User is already a member of the organization');
+			// 	return { refreshed: true, isMember: true };
+			// }
 
 			const pendingInvite = await hasPendingInvite(context);
 			if (!pendingInvite) {
@@ -144,18 +201,18 @@ export const accountRouter = {
 
 			rpclogger.info('User org membership status', { isMember });
 
-			if (isMember) {
-				rpclogger.info('User is a member of the organization, updating user status');
-				const result = await updateInvitedUser(
-					context.user.username,
-					{ client: context.db, schema: context.dbSchema },
-					context.githubApp
-				);
-				rpclogger.info('User status updated', {
-					isOrgMember: result.isOrgMember,
-					isOrgAdmin: result.isOrgAdmin
-				});
-			}
+			// if (isMember) {
+			// 	rpclogger.info('User is a member of the organization, updating user status');
+			// 	const result = await updateInvitedUser(
+			// 		context.user.username,
+			// 		{ client: context.db.client, schema: context.db.schema },
+			// 		context.githubApp
+			// 	);
+			// 	rpclogger.info('User status updated', {
+			// 		isOrgMember: result.isOrgMember,
+			// 		isOrgAdmin: result.isOrgAdmin
+			// 	});
+			// }
 
 			return { refreshed: true, isMember };
 		})
@@ -197,19 +254,7 @@ export async function authenticatedUserOrgStatus(username: string, accessToken: 
 }
 
 export const authRouter = {
-	getOAuthUrlMutation: o.route({ method: 'POST' }).handler(({ context }) => {
-		const state = generateState();
-		const url = githubOAuth.createAuthorizationURL(state, ['read:user', 'user:email']);
-
-		context.cookies.set('github_oauth_state', state, {
-			path: '/',
-			httpOnly: true,
-			maxAge: 60 * 10,
-			sameSite: 'lax'
-		});
-
-		return {
-			url: url.toString()
-		};
+	getOAuthUrlMutation: o.route({ method: 'POST' }).handler(({ context: _ }) => {
+		return false;
 	})
 };

@@ -17,7 +17,7 @@
 	import type { PageProps } from './$types';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import PasskeysCard from './_cards/passkeys-card.svelte';
-	import Profile from '../_cards/profile.svelte';
+	import Profile from './_cards/profile.svelte';
 	import { useQueryClient } from '@tanstack/svelte-query';
 
 	let { data }: PageProps = $props();
