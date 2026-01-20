@@ -57,19 +57,19 @@
 					<Table.Head class="sr-only">Actions</Table.Head>
 				</Table.Row>
 			</Table.Header>
-			{#if !passkeyQuery.data && passkeyQuery.status !== 'success'}
-				{#if passkeyQuery.status === 'pending'}
-					<Table.Row class="text-muted-foreground italic"
-						><Table.Cell>Loading passkeys...</Table.Cell> <Table.Cell />
-					</Table.Row>
-				{:else if passkeyQuery.status === 'error'}
-					<Table.Row class="text-muted-foreground italic"
-						><Table.Cell>Cannot load passkeys</Table.Cell>
-						<Table.Cell /></Table.Row
-					>
-				{/if}
-			{:else}
-				<Table.Body>
+			<Table.Body>
+				{#if !passkeyQuery.data && passkeyQuery.status !== 'success'}
+					{#if passkeyQuery.status === 'pending'}
+						<Table.Row class="text-muted-foreground italic"
+							><Table.Cell>Loading passkeys...</Table.Cell> <Table.Cell />
+						</Table.Row>
+					{:else if passkeyQuery.status === 'error'}
+						<Table.Row class="text-muted-foreground italic"
+							><Table.Cell>Cannot load passkeys</Table.Cell>
+							<Table.Cell /></Table.Row
+						>
+					{/if}
+				{:else}
 					{#each passkeyQuery.data as passkey (passkey.id)}
 						<Table.Row>
 							<Table.Cell>{passkey.name}</Table.Cell>
@@ -90,8 +90,8 @@
 							><Table.Cell>No passkeys registered</Table.Cell><Table.Cell /></Table.Row
 						>
 					{/if}
-				</Table.Body>
-			{/if}
+				{/if}
+			</Table.Body>
 		</Table.Root>
 	</Card.Content>
 	<Card.Footer class="gap-x-2">
