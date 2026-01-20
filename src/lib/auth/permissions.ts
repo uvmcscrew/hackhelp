@@ -62,6 +62,8 @@ export const roles = {
 	judge
 } as const;
 
+type Role = keyof typeof roles;
+
 type PermissionsCheckInput = {
 	// permissions: { [key in keyof TStatements]: SubArray<TStatements[key]> };
 	permissions: Parameters<ReturnType<(typeof ac)['newRole']>['authorize']>[0];
@@ -90,16 +92,16 @@ export function checkRolePermission(options: PermissionsCheckInput) {
 }
 
 export function addRole(existingRole: string, roleToAdd: keyof typeof roles) {
-	const _roles = existingRole.length === 0 ? [] : existingRole.split(',');
-	if (_roles.includes(roleToAdd)) return existingRole;
+	const _roles = (existingRole.length === 0 ? [] : existingRole.split(',')) as Role[];
+	if (_roles.includes(roleToAdd)) return _roles;
 	_roles.push(roleToAdd);
-	return _roles.join(',');
+	return _roles;
 }
 
 export function removeRole(existingRole: string, roleToRemove: keyof typeof roles) {
-	let _roles = existingRole.length === 0 ? [] : existingRole.split(',');
+	let _roles = (existingRole.length === 0 ? [] : existingRole.split(',')) as Role[];
 	if (_roles.includes(roleToRemove)) {
 		_roles = _roles.filter((r) => r !== roleToRemove);
 	}
-	return _roles.join(',');
+	return _roles;
 }

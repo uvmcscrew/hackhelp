@@ -54,10 +54,14 @@ const removeRoleCases = [
 
 test.each(addRoleCases)('Add role %p + %p == %p', (oldRoles, toAdd, newRoles) => {
 	// @ts-expect-error Cannot narrow properly
-	expect(addRole(oldRoles, toAdd)).toBe(newRoles);
+	const r = addRole(oldRoles, toAdd).join(',');
+	expect(r).toBe(newRoles);
+	expect(r).toContain(toAdd);
 });
 
 test.each(removeRoleCases)('Add role %p + %p == %p', (oldRoles, toRm, newRoles) => {
 	// @ts-expect-error Cannot narrow properly
-	expect(removeRole(oldRoles, toRm)).toBe(newRoles);
+	const r = removeRole(oldRoles, toRm).join(',');
+	expect(r).toBe(newRoles);
+	expect(r).not.toContain(toRm);
 });
