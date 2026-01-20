@@ -8,7 +8,7 @@ declare global {
 	}
 }
 
-type AuthLocals =
+export type AuthLocals =
 	| {
 			user: import('$lib/auth/server').User;
 			session: import('$lib/auth/server').Session;
@@ -17,5 +17,3 @@ type AuthLocals =
 			user: null;
 			session: null;
 	  };
-
-export {};
