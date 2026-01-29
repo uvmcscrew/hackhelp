@@ -81,6 +81,15 @@
 									to have their account manually approved.
 								</p>
 							</div>
+
+							<div class="mt-2 text-sm text-yellow-100/80">
+								<strong class="text-semibold">Getting your profile verified will:</strong>
+								<ul class="list-disc">
+									<li>Make you eligible to participate in the hackathon</li>
+									<li>Enable access to resources on GitHub</li>
+									<li>Allow you to join or create teams</li>
+								</ul>
+							</div>
 						</div>
 					</div>
 				</div>

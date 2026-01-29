@@ -18,14 +18,17 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import PasskeysCard from './_cards/passkeys-card.svelte';
 	import Profile from './_cards/profile.svelte';
-	import { useQueryClient } from '@tanstack/svelte-query';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import UVMNetIDAccount from './_cards/uvmnetid-account.svelte';
 	import GithubAccount from './_cards/github-account.svelte';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let { data }: PageProps = $props();
 	const queryClient = useQueryClient();
 
 	const { data: session } = useSession(data.userInitialData);
+
+	let profilePermissionQuery = createQuery(orpc.account.canCreateProfile.queryOptions);
 
 	let isAdmin = $derived(
 		session?.user.role ? session.user.role.split(',').includes('admin') : false
@@ -90,7 +93,9 @@
 			<Tabs.Trigger value="profile">Profile</Tabs.Trigger>
 			<Tabs.Trigger value="passkeys">Passkeys</Tabs.Trigger>
 			<Tabs.Trigger value="netid">UVM NetID</Tabs.Trigger>
-			<Tabs.Trigger value="github">GitHub</Tabs.Trigger>
+			{#if profilePermissionQuery.data === true}
+				<Tabs.Trigger value="github">GitHub</Tabs.Trigger>
+			{/if}
 		</Tabs.List>
 		<Tabs.Content value="profile">
 			<Profile />
@@ -101,9 +106,11 @@
 		<Tabs.Content value="netid">
 			<UVMNetIDAccount />
 		</Tabs.Content>
-		<Tabs.Content value="github">
-			<GithubAccount />
-		</Tabs.Content>
+		{#if profilePermissionQuery.data === true}
+			<Tabs.Content value="github">
+				<GithubAccount />
+			</Tabs.Content>
+		{/if}
 	</Tabs.Root>
 
 	<div class="mt-auto mb-2 inline-flex justify-center"><MadeWith /></div>
