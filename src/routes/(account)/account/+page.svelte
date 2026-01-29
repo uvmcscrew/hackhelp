@@ -19,6 +19,8 @@
 	import PasskeysCard from './_cards/passkeys-card.svelte';
 	import Profile from './_cards/profile.svelte';
 	import { useQueryClient } from '@tanstack/svelte-query';
+	import UVMNetIDAccount from './_cards/uvmnetid-account.svelte';
+	import GithubAccount from './_cards/github-account.svelte';
 
 	let { data }: PageProps = $props();
 	const queryClient = useQueryClient();
@@ -87,12 +89,20 @@
 		<Tabs.List>
 			<Tabs.Trigger value="profile">Profile</Tabs.Trigger>
 			<Tabs.Trigger value="passkeys">Passkeys</Tabs.Trigger>
+			<Tabs.Trigger value="netid">UVM NetID</Tabs.Trigger>
+			<Tabs.Trigger value="github">GitHub</Tabs.Trigger>
 		</Tabs.List>
 		<Tabs.Content value="profile">
 			<Profile />
 		</Tabs.Content>
 		<Tabs.Content value="passkeys">
 			<PasskeysCard />
+		</Tabs.Content>
+		<Tabs.Content value="netid">
+			<UVMNetIDAccount />
+		</Tabs.Content>
+		<Tabs.Content value="github">
+			<GithubAccount />
 		</Tabs.Content>
 	</Tabs.Root>
 
