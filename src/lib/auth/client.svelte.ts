@@ -1,6 +1,6 @@
 import { createAuthClient } from 'better-auth/svelte';
 import { inferAdditionalFields } from 'better-auth/client/plugins';
-import type { auth, AuthData } from './server.server';
+import type { auth } from './server.server';
 import {
 	adminClient,
 	emailOTPClient,
@@ -11,7 +11,7 @@ import {
 } from 'better-auth/client/plugins';
 import { passkeyClient } from '@better-auth/passkey/client';
 import { ac, roles } from './permissions';
-import { createQuery, type QueryClient } from '@tanstack/svelte-query';
+import { queryOptions, type QueryClient } from '@tanstack/svelte-query';
 
 export const authClient = createAuthClient({
 	plugins: [
@@ -34,10 +34,7 @@ export async function signOutAndClearCache(qc: QueryClient) {
 	qc.clear();
 }
 
-export function useSession(initialData?: AuthData) {
-	return createQuery(() => ({
-		queryKey: ['auth', 'user'],
-		queryFn: () => authClient.getSession().then((r) => r.data),
-		initialData: initialData
-	}));
-}
+export const sessionQueryOptions = queryOptions({
+	queryKey: ['auth', 'user'],
+	queryFn: () => authClient.getSession().then((r) => r.data)
+});

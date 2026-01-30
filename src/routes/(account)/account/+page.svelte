@@ -13,7 +13,7 @@
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import { posthogHandler } from '$lib/utils';
 	import { resolve } from '$app/paths';
-	import { signOutAndClearCache, useSession } from '$lib/auth/client.svelte';
+	import { sessionQueryOptions, signOutAndClearCache } from '$lib/auth/client.svelte';
 	import type { PageProps } from './$types';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import PasskeysCard from './_cards/passkeys-card.svelte';
@@ -26,7 +26,10 @@
 	let { data }: PageProps = $props();
 	const queryClient = useQueryClient();
 
-	const { data: session } = useSession(data.userInitialData);
+	const session = createQuery(() => ({
+		...sessionQueryOptions,
+		initialData: data.userInitialData
+	}));
 
 	let profilePermissionQuery = createQuery(orpc.account.canCreateProfile.queryOptions);
 
@@ -55,12 +58,12 @@
 		><Card.CardHeader><Card.CardTitle>Profile</Card.CardTitle></Card.CardHeader><Card.CardContent
 			class="flex flex-row"
 			><Avatar.Root class="h-16 w-16">
-				<Avatar.Image src={session?.user.image} alt="User avatar" />
+				<Avatar.Image src={session.data?.user.image} alt="User avatar" />
 				<Avatar.Fallback><CircleUser class="h-16 w-16" /></Avatar.Fallback>
 			</Avatar.Root>
 			<div class="flex flex-col pl-4">
 				<span class="inline-flex gap-x-2">
-					<h2 class="text-xl font-medium">{session?.user.name}</h2>
+					<h2 class="min-h-4 text-lg font-medium">{session.data?.user.name}</h2>
 					{#if isAdmin}
 						<Badge class="ml-2 rounded-full bg-purple-400 px-2 py-1" hoverEffects={false}
 							>Administrator</Badge

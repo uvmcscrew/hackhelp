@@ -8,8 +8,8 @@
 	import { posthogHandler } from '$lib/utils';
 	import { resolve } from '$app/paths';
 	import type { AuthData } from '$lib/auth/server.server';
-	import { signOutAndClearCache, useSession } from '$lib/auth/client.svelte';
-	import { useQueryClient } from '@tanstack/svelte-query';
+	import { sessionQueryOptions, signOutAndClearCache } from '$lib/auth/client.svelte';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	type Props = {
 		authData: AuthData;
@@ -18,7 +18,10 @@
 
 	const qc = useQueryClient();
 
-	const userInfo = useSession(authData);
+	const userInfo = createQuery(() => ({
+		...sessionQueryOptions,
+		initialData: authData
+	}));
 
 	const roles = $derived((userInfo.data?.user.role || '').split(','));
 	const isAdmin = $derived(roles.includes('admin'));
