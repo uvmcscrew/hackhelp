@@ -17,7 +17,13 @@
 
 	let linkMutation = createMutation(() => ({
 		mutationKey: ['auth', 'accounts', 'uvm-netid'],
-		mutationFn: () => authClient.oauth2.link({ providerId: 'uvm-netid', callbackURL: '/account' }),
+		mutationFn: () =>
+			authClient.oauth2.link({
+				providerId: 'uvm-netid',
+				callbackURL: '/account',
+				errorCallbackURL: '/auth/error',
+				scopes: ['openid', 'email', 'profile']
+			}),
 		onSettled: (_d, _e, _v, _r, ctx) =>
 			ctx.client.invalidateQueries({ queryKey: accountsQueryOptions.queryKey })
 	}));
@@ -27,7 +33,8 @@
 	<Card.Header>
 		<Card.Title>UVM NetID</Card.Title>
 		<Card.Description
-			>Link your UVM NetID to make your account eligible for automatic verification.</Card.Description
+			>Link your UVM NetID to make your account eligible for automatic verification. If your current
+			account email is not set to your netid@uvm.edu email, linking will fail for security reasons.</Card.Description
 		>
 	</Card.Header>
 	{#if accountQuery.status === 'success'}
