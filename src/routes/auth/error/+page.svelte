@@ -2,25 +2,36 @@
 	import { CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import MadeWith from '$lib/components/MadeWith.svelte';
 	import { Card } from '$lib/components/ui/card';
-	// import { authClient } from '$lib/auth/client';
+	import { authClient, useSession } from '$lib/auth/client.svelte';
 	import { page } from '$app/state';
-	import { capitalize, words } from 'es-toolkit/string';
+	import { capitalize } from 'es-toolkit/string';
+	import { words } from 'es-toolkit/compat';
 	import { Button } from '$lib/components/ui/button';
+	import { errorExplanations } from './errors';
 
 	let errorParam = $derived(page.url.searchParams.get('error') ?? '');
-	// as
-	// 	| keyof typeof authClient.$ERROR_CODES
-	// 	| '';
 
-	let errorMessage = $derived.by(() => {
+	let errorTitle = $derived.by(() => {
 		if (errorParam !== '') {
-			// if (Object.keys(authClient.$ERROR_CODES).includes(errorParam.toUpperCase())) {
-			// 	return authClient.$ERROR_CODES[errorParam as keyof typeof authClient.$ERROR_CODES];
-			// }
+			if (Object.keys(authClient.$ERROR_CODES).includes(errorParam.toUpperCase())) {
+				return authClient.$ERROR_CODES[errorParam as keyof typeof authClient.$ERROR_CODES];
+			}
 			return capitalize(words(errorParam).join(' '));
 		}
 		return 'An Unknown Error Ocurred';
 	});
+
+	let errorDescription = $derived.by(() => {
+		if (errorParam !== '') {
+			if (Object.keys(errorExplanations).includes(errorParam)) {
+				return errorExplanations[errorParam as keyof typeof errorExplanations];
+			}
+			return null;
+		}
+		return null;
+	});
+
+	let session = useSession();
 </script>
 
 <div class="flex h-screen w-screen flex-col place-content-center items-center bg-inherit px-2">
@@ -48,17 +59,34 @@
 						</svg>
 					</div>
 					<div class="ml-3">
-						<h3 class="text-sm font-medium text-red-200">{errorMessage}</h3>
-						<p class="mt-2 text-sm text-red-200/80">
-							Please try again, and if this error continues, contact the hackathon organizers.
-						</p>
+						<h3 class="text-sm font-medium text-red-200">{errorTitle}</h3>
+						{#if errorDescription}
+							<p class="mt-2 text-sm text-red-200/80">
+								{errorDescription}
+							</p>
+							<p class="mt-2 text-sm text-red-200/80">
+								If this error persists, contact the hackathon organizers.
+							</p>
+						{:else}
+							<p class="mt-2 text-sm text-red-200/80">
+								Please try again, and if this error persists, contact the hackathon organizers.
+							</p>
+						{/if}
 					</div>
 				</div>
 			</div>
 		</CardContent>
 
 		<CardFooter>
-			<Button variant="secondary" href="/login">Return to sign in</Button>
+			{#if session.status === 'success'}
+				{#if session.data === null}
+					<Button variant="secondary" href="/login">Return to sign in</Button>
+				{:else}
+					<Button variant="secondary" href="/account">Return to account</Button>
+				{/if}
+			{:else if session.status === 'error'}
+				<Button variant="secondary" href="/login">Return to sign in</Button>
+			{/if}
 		</CardFooter>
 	</Card>
 
