@@ -5,28 +5,28 @@
 	import Logo from '$lib/components/Logo.svelte';
 	import WidthWarning from '$lib/components/WidthWarning.svelte';
 	import { browser } from '$app/environment';
+	import type { AuthData } from '$lib/auth/server.server';
 
 	type Props = {
 		authData: AuthData;
 	};
 	const { authData }: Props = $props();
 
-	const links = [
-		{
-			href: '/admin',
-			text: 'Dashboard'
-		},
-		{
-			href: '/admin/teams',
-			text: 'Teams'
-		},
-		{
-			href: '/admin/users',
-			text: 'Users'
+	import { headerNavLinks } from './header';
+
+	let links = $derived.by(() => {
+		for (const k of Object.keys(headerNavLinks)) {
+			if (page.url.pathname.startsWith(k)) {
+				return headerNavLinks[k];
+			}
 		}
-	];
+		return [];
+	});
+
+	console.log({ links });
 </script>
 
+<!-- {@debug links} -->
 <header
 	class="bg-background sticky top-0 z-50 flex h-16 w-screen items-center justify-between gap-4 border-b px-4 md:px-6"
 >
