@@ -8,7 +8,7 @@ import { browser, dev } from '$app/environment';
 const ORPC_PATH = '/api/rpc' as const;
 
 const ORPC_URL = browser
-	? ORPC_PATH
+	? `${window.location.origin}${ORPC_PATH}`
 	: dev
 		? `http://localhost:5173${ORPC_PATH}`
 		: `https://hackhelp.unicycl.ing${ORPC_PATH}`;

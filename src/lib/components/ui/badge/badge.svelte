@@ -7,7 +7,12 @@
 				default: 'bg-primary text-primary-foreground  border-transparent shadow',
 				secondary: 'bg-secondary text-secondary-foreground  border-transparent',
 				destructive: 'bg-destructive text-destructive-foreground  border-transparent shadow',
-				outline: 'text-foreground'
+				outline: 'text-foreground',
+				blue: "bg-blue-50 text-blue-700 inset-ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:inset-ring-blue-400/30",
+				green: "bg-green-50 text-green-700 inset-ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:inset-ring-green-400/30",
+				yellow: "bg-yellow-50 text-yellow-700 inset-ring-yellow-700/10 dark:bg-yellow-400/10 dark:text-yellow-400 dark:inset-ring-yellow-400/30"
+
+
 			},
 			hoverEffects: {
 				true: 'hover:cursor-pointer',

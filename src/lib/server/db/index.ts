@@ -4,7 +4,8 @@ import postgres from 'postgres';
 
 import * as schema from '$lib/server/db/schema';
 
-const queryClient = postgres(serverEnv.DATABASE_URL);
+// postgres.js has built in connection pooling
+const queryClient = postgres(serverEnv.DATABASE_URL, { max: 20 });
 export const db = drizzle({ client: queryClient, schema });
 
-export { schema };
+export default { client: db, schema };

@@ -4,8 +4,8 @@ import type { Context } from './context';
 export const o = os.$context<Context>();
 
 const enforceUserIsAuthed = o.middleware(({ context, next }) => {
-	if (!context.user || !context.session) {
-		throw new ORPCError('UNAUTHORIZED');
+	if (!context.user) {
+		throw new ORPCError('UNAUTHORIZED', { cause: 'You are not logged in' });
 	}
 	return next({
 		context: {
@@ -19,12 +19,12 @@ const enforceUserIsAuthed = o.middleware(({ context, next }) => {
 export const protectedProcedure = o.use(enforceUserIsAuthed);
 
 const enforceUserIsAdmin = o.middleware(({ context, next }) => {
-	if (!context.user || !context.session) {
-		throw new ORPCError('UNAUTHORIZED');
+	if (!context.user) {
+		throw new ORPCError('UNAUTHORIZED', { cause: 'You are not logged in' });
 	}
 
-	if (!context.user.isOrgAdmin) {
-		throw new ORPCError('FORBIDDEN');
+	if (!context.user.role?.split(',').includes('admin')) {
+		throw new ORPCError('FORBIDDEN', { cause: 'You are not an administrator' });
 	}
 
 	return next({
