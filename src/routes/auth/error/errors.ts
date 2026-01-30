@@ -1,4 +1,10 @@
 export const errorExplanations = {
-	"email_doesn't_match":
-		'Linking failed because your account email does not match the provider email. If you are trying to link your UVM NetID, please update your account email to match the format netid@uvm.edu'
+	"email_doesn't_match": {
+		default:
+			'Linking failed because your HackHelp profile email does not match what the provider sent us.',
+		'uvm-netid':
+			'Linking failed because your HackHelp profile email does not match your netid@uvm.edu email',
+		github:
+			'Linking failed because your HackHelp profile email could not be found in the emails associated with your GitHub account.'
+	}
 };

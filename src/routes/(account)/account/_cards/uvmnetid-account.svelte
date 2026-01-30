@@ -21,7 +21,7 @@
 			authClient.oauth2.link({
 				providerId: 'uvm-netid',
 				callbackURL: '/account',
-				errorCallbackURL: '/auth/error',
+				errorCallbackURL: '/auth/error?provider=uvm-netid',
 				scopes: ['openid', 'email', 'profile']
 			}),
 		onSettled: (_d, _e, _v, _r, ctx) =>

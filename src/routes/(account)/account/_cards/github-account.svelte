@@ -18,7 +18,12 @@
 	let linkMutation = createMutation(() => ({
 		mutationKey: ['auth', 'accounts', 'github'],
 		// TODO Figure out which GitHub OAuth scopes are required to auto-accept org invites on behalf of the user
-		mutationFn: () => authClient.linkSocial({ provider: 'github' }),
+		mutationFn: () =>
+			authClient.linkSocial({
+				provider: 'github',
+				errorCallbackURL: '/auth/error?provider=github',
+				callbackURL: '/account'
+			}),
 		onSettled: (_d, _e, _v, _r, ctx) =>
 			ctx.client.invalidateQueries({ queryKey: accountsQueryOptions.queryKey })
 	}));

@@ -10,6 +10,7 @@
 	import { errorExplanations } from './errors';
 
 	let errorParam = $derived(page.url.searchParams.get('error') ?? '');
+	let providerParam = $derived(page.url.searchParams.get('provider') ?? '');
 
 	let errorTitle = $derived.by(() => {
 		if (errorParam !== '') {
@@ -24,7 +25,11 @@
 	let errorDescription = $derived.by(() => {
 		if (errorParam !== '') {
 			if (Object.keys(errorExplanations).includes(errorParam)) {
-				return errorExplanations[errorParam as keyof typeof errorExplanations];
+				return errorExplanations[errorParam as keyof typeof errorExplanations][
+					providerParam === ''
+						? 'default'
+						: (providerParam as keyof (typeof errorExplanations)["email_doesn't_match"])
+				];
 			}
 			return null;
 		}
