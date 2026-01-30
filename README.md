@@ -37,6 +37,10 @@ See `.env.example` for all required environment variables
 - Administration: Read & Write
 - Members: Read & Write
 
+**Account permissions**
+
+- Email addresses: Read
+
 ### Get Started
 
 #### Install Dependencies

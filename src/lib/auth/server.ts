@@ -27,6 +27,12 @@ export const auth = betterAuth({
 	}),
 	secret: serverEnv.AUTH_SECRET,
 	baseURL: serverEnv.BASE_URL,
+	account: {
+		accountLinking: {
+			enabled: true,
+			trustedProviders: ['github', 'uvm-netid']
+		}
+	},
 	socialProviders: {
 		github: {
 			clientId: serverEnv.GITHUB_APP_CLIENT_ID,
