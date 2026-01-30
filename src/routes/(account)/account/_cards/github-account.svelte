@@ -4,11 +4,9 @@
 	import * as Card from '$lib/components/ui/card';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
+	import { accountsQueryOptions } from './accounts';
 
-	let accountQuery = createQuery(() => ({
-		queryKey: ['auth', 'accounts'],
-		queryFn: () => authClient.listAccounts().then((d) => d.data)
-	}));
+	let accountQuery = createQuery(() => accountsQueryOptions);
 
 	let githubAccount = $derived.by(() => {
 		let providerAccounts = accountQuery.data
@@ -22,7 +20,7 @@
 		// TODO Figure out which GitHub OAuth scopes are required to auto-accept org invites on behalf of the user
 		mutationFn: () => authClient.linkSocial({ provider: 'github' }),
 		onSettled: (_d, _e, _v, _r, ctx) =>
-			ctx.client.invalidateQueries({ queryKey: ['auth', 'accounts'] })
+			ctx.client.invalidateQueries({ queryKey: accountsQueryOptions.queryKey })
 	}));
 </script>
 

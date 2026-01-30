@@ -4,11 +4,9 @@
 	import * as Card from '$lib/components/ui/card';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
+	import { accountsQueryOptions } from './accounts';
 
-	let accountQuery = createQuery(() => ({
-		queryKey: ['auth', 'accounts'],
-		queryFn: () => authClient.listAccounts().then((d) => d.data)
-	}));
+	let accountQuery = createQuery(() => accountsQueryOptions);
 
 	let uvmNetIdAccount = $derived.by(() => {
 		let providerAccounts = accountQuery.data
@@ -21,7 +19,7 @@
 		mutationKey: ['auth', 'accounts', 'uvm-netid'],
 		mutationFn: () => authClient.oauth2.link({ providerId: 'uvm-netid', callbackURL: '/account' }),
 		onSettled: (_d, _e, _v, _r, ctx) =>
-			ctx.client.invalidateQueries({ queryKey: ['auth', 'accounts'] })
+			ctx.client.invalidateQueries({ queryKey: accountsQueryOptions.queryKey })
 	}));
 </script>
 
@@ -34,7 +32,9 @@
 	</Card.Header>
 	{#if accountQuery.status === 'success'}
 		{#if uvmNetIdAccount}
-			<Card.Content>Yippee!</Card.Content>
+			<Card.Content>
+				Account ID: {uvmNetIdAccount.accountId}
+			</Card.Content>
 		{:else}
 			<Card.Content>
 				<Button disabled={linkMutation.isPending}>
