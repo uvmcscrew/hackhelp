@@ -33,9 +33,8 @@
 
 	let profilePermissionQuery = createQuery(orpc.account.canCreateProfile.queryOptions);
 
-	let isAdmin = $derived(
-		session?.user.role ? session.user.role.split(',').includes('admin') : false
-	);
+	const roles = $derived((session.data?.user.role || '').split(','));
+	const isAdmin = $derived(roles.includes('admin'));
 </script>
 
 <svelte:head>
@@ -44,19 +43,36 @@
 
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
 	<h1 class="w-full text-center text-2xl font-semibold">Account</h1>
-	<!-- <div class="text-foreground flex w-full justify-center">
-		{#if accountWithStatus.data.user.isOrgMember}
-			<Button
-				variant="link"
-				class="hover:cursor-pointer"
-				href={accountWithStatus.data.user.isOrgAdmin ? '/admin' : '/home'}
-				><ArrowLeft class="h-8 w-8 " />Back</Button
+	<div class="text-foreground flex w-full justify-center gap-x-2">
+		{#if isAdmin}
+			<Button variant="outline" class="hover:cursor-pointer" href="/admin">Admin Dashboard</Button>
+		{/if}
+		{#if roles.includes('mentor') || isAdmin}
+			<Button variant="outline" class="hover:cursor-pointer" href="/mentor">Mentor Dashboard</Button
 			>
 		{/if}
-	</div> -->
+		{#if roles.includes('judge') || isAdmin}
+			<Button variant="outline" class="hover:cursor-pointer" href="/judging">Judge Dashboard</Button
+			>
+		{/if}
+		{#if roles.includes('verifiedUser') && !roles.includes('judge') && !roles.includes('mentor') && !isAdmin}
+			<Button variant="outline" class="hover:cursor-pointer" href="/home">Dashboard</Button>
+		{/if}
+	</div>
 	<Card.Root
-		><Card.CardHeader><Card.CardTitle>Profile</Card.CardTitle></Card.CardHeader><Card.CardContent
-			class="flex flex-row"
+		><Card.CardHeader class="flex flex-row items-center justify-between"
+			><Card.CardTitle>Profile</Card.CardTitle>
+			<Button
+				variant="destructive"
+				title="Sign Out"
+				class="hover:cursor-pointer"
+				onclick={async () => {
+					await signOutAndClearCache(queryClient);
+					posthogHandler((posthog) => posthog.reset());
+					await goto(resolve('/(auth)/login'));
+				}}><DoorOpen class="h-8 w-8" />Sign Out</Button
+			></Card.CardHeader
+		><Card.CardContent class="flex flex-row"
 			><Avatar.Root class="h-16 w-16">
 				<Avatar.Image src={session.data?.user.image} alt="User avatar" />
 				<Avatar.Fallback><CircleUser class="h-16 w-16" /></Avatar.Fallback>
@@ -69,24 +85,10 @@
 							>Administrator</Badge
 						>
 					{/if}
-					{#if session?.user.username}
-						<span class="text-secondary-foreground font-mono">{session.user.username}</span>
-					{:else}
-						<span class="text-muted-foreground pt-4 text-sm">{session?.user.email}</span>
-					{/if}
 				</span>
-			</div>
-			<div class="ml-auto grid place-content-start">
-				<Button
-					variant="destructive"
-					title="Sign Out"
-					class="hover:cursor-pointer"
-					onclick={async () => {
-						await signOutAndClearCache(queryClient);
-						posthogHandler((posthog) => posthog.reset());
-						await goto(resolve('/(auth)/login'));
-					}}><DoorOpen class="h-8 w-8" />Sign Out</Button
-				>
+				<div>
+					<span class="text-muted-foreground pt-4 text-sm">{session.data?.user.email}</span>
+				</div>
 			</div>
 		</Card.CardContent>
 	</Card.Root>
