@@ -37,7 +37,10 @@
 			</Card.Content>
 		{:else}
 			<Card.Content>
-				<Button disabled={linkMutation.isPending}>
+				<Button
+					onclick={async () => await linkMutation.mutateAsync()}
+					disabled={linkMutation.isPending}
+				>
 					{#if linkMutation.isPending}
 						<LoaderCircle class="h-6 w-auto animate-spin" />
 					{/if}
