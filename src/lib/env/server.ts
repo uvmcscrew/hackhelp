@@ -7,6 +7,8 @@ import { z } from 'zod';
 
 export const serverEnv = createEnv({
 	server: {
+		AUTH_SECRET: z.string().nonempty().min(32),
+		BASE_URL: z.url().nonempty(),
 		DATABASE_URL: z.string().nonempty(),
 		GITHUB_APP_ID: z.coerce.number().int().positive(),
 		GITHUB_APP_PRIVATE_KEY: z.string().nonempty(),
