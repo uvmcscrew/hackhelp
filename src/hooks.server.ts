@@ -9,9 +9,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 		headers: event.request.headers
 	});
 
-	if (new URL(event.request.url).pathname.startsWith('/api/auth')) {
-		console.log({ request: event.request });
-	}
+	// if (new URL(event.request.url).pathname.startsWith('/api/auth')) {
+	// 	console.log({ request: event.request });
+	// }
 
 	// Make session and user available on server
 	if (session) {
