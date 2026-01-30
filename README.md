@@ -20,14 +20,22 @@ The connection string with the credentials as set in the repo is `postgres://csc
 
 #### Set up environment variables
 
-| Env Var                    | Description                                             |
-| -------------------------- | ------------------------------------------------------- |
-| `DATABASE_URL`             | The url of your PostgreSQL database                     |
-| `GITHUB_APP_ID`            |                                                         |
-| `GITHUB_APP_PRIVATE_KEY`   |                                                         |
-| `GITHUB_APP_CLIENT_ID`     | OAuth Client ID of the Github App                       |
-| `GITHUB_APP_CLIENT_SECRET` | OAuth Client Secret of the Github App                   |
-| `PUBLIC_GITHUB_ORGNAME`    | The slug of the GitHub Org that HackHelp should control |
+See `.env.example` for all required environment variables
+
+#### GitHub App Credentials
+
+##### Permissions
+
+**Repository permissions**
+
+- Administration: Read & Write
+- Contents: Read
+- Issues: Read & Write
+
+**Organization permissions**
+
+- Administration: Read & Write
+- Members: Read & Write
 
 ### Get Started
 
