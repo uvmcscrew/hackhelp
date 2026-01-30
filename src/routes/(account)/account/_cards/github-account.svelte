@@ -9,6 +9,8 @@
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Badge } from '$lib/components/ui/badge';
 	import Confetti from 'svelte-confetti';
+	import { tick } from 'svelte';
+	import { delay } from '$lib/utils';
 
 	let accountQuery = createQuery(() => accountsQueryOptions);
 
@@ -24,6 +26,8 @@
 			enabled: !(githubAccount == null)
 		})
 	);
+
+	let runConfetti = $state(false);
 
 	let linkMutation = createMutation(() => ({
 		mutationKey: ['auth', 'accounts', 'github', 'link'],
@@ -43,10 +47,12 @@
 
 	let addSelfToOrgMutation = createMutation(() =>
 		orpc.account.addGitHubUserToOrg.mutationOptions({
-			onSettled: async (_d, _e, _v, _r, ctx) =>
+			onSettled: async (_d, _e, _v, _r, ctx) => {
 				await Promise.allSettled([
 					ctx.client.invalidateQueries({ queryKey: orpc.account.getGitHubProfile.queryKey() })
-				])
+				]);
+				runConfetti = true;
+			}
 		})
 	);
 
@@ -62,9 +68,22 @@
 
 	let setGithubPfpMutation = createMutation(() =>
 		orpc.account.setProfilePhotoToGithub.mutationOptions({
-			onSettled: async (_d, _e, _v, _r, ctx) =>
-				await Promise.allSettled([ctx.client.invalidateQueries({ queryKey: ['auth', 'user'] })])
+			onSettled: async (_d, _e, _v, _r, ctx) => {
+				await Promise.allSettled([ctx.client.invalidateQueries({ queryKey: ['auth', 'user'] })]);
+				runConfetti = true;
+			}
 		})
+	);
+
+	$effect(
+		() =>
+			void (async () => {
+				if (runConfetti) {
+					await tick();
+					await delay(5000);
+					setGithubPfpMutation.reset();
+				}
+			})()
 	);
 </script>
 
@@ -118,6 +137,14 @@
 					>
 				{/if}
 
+				{#if addSelfToOrgMutation.isSuccess}
+					<div
+						style="position: fixed; top: -50px; left: 0; height: 100vh; width: 100vw; display: flex; justify-content: center; overflow: hidden; pointer-events: none;"
+					>
+						<Confetti delay={[0, 500]} />
+					</div>
+				{/if}
+
 				<Button
 					variant="outline"
 					class="mt-2 w-min"
@@ -127,8 +154,18 @@
 						<LoaderCircle class="h-6 w-auto animate-spin" />
 					{/if} Match profile photo to github</Button
 				>
-				{#if setGithubPfpMutation.isSuccess}
-					<Confetti delay={[0, 500]} />
+				{#if setGithubPfpMutation.isSuccess || addSelfToOrgMutation.isSuccess}
+					<div
+						style="position: fixed; top: -50px; left: 0; height: 100vh; width: 100vw; display: flex; justify-content: center; overflow: hidden; pointer-events: none;"
+					>
+						<Confetti
+							x={[-5, 5]}
+							y={[0, 0.1]}
+							delay={[100, 2000]}
+							amount={200}
+							fallDistance="100vh"
+						/>
+					</div>
 				{/if}
 			</Card.Content>
 		{:else}
