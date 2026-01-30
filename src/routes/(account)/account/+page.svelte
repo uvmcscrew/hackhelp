@@ -88,7 +88,7 @@
 		</Card.CardContent>
 	</Card.Root>
 
-	<Tabs.Root value="passkeys">
+	<Tabs.Root value="profile">
 		<Tabs.List>
 			<Tabs.Trigger value="profile">Profile</Tabs.Trigger>
 			<Tabs.Trigger value="passkeys">Passkeys</Tabs.Trigger>
