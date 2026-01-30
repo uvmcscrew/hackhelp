@@ -58,6 +58,13 @@
 				])
 		})
 	);
+
+	let setGithubPfpMutation = createMutation(() =>
+		orpc.account.setProfilePhotoToGithub.mutationOptions({
+			onSettled: async (_d, _e, _v, _r, ctx) =>
+				await Promise.allSettled([ctx.client.invalidateQueries({ queryKey: ['auth', 'user'] })])
+		})
+	);
 </script>
 
 <Card.Root>
@@ -106,6 +113,16 @@
 						{/if} Join Org</Button
 					>
 				{/if}
+
+				<Button
+					variant="outline"
+					class="mt-2 w-min"
+					onclick={async () => await setGithubPfpMutation.mutateAsync({})}
+					disabled={setGithubPfpMutation.isPending}
+					>{#if setGithubPfpMutation.isPending}
+						<LoaderCircle class="h-6 w-auto animate-spin" />
+					{/if} Match profile photo to github</Button
+				>
 			</Card.Content>
 		{:else}
 			<Card.Content>

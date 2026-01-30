@@ -224,6 +224,19 @@ export const accountRouter = {
 		await context.db.client
 			.delete(context.db.schema.account)
 			.where(eq(context.db.schema.account.id, providerAccount.id));
+	}),
+
+	setProfilePhotoToGithub: protectedProcedure.handler(async ({ context }) => {
+		const { user } = await getGithubUserInformation(context);
+
+		await context.db.client
+			.update(context.db.schema.user)
+			.set({ image: user.avatar_url })
+			.where(eq(context.db.schema.user.id, context.user.id));
+
+		return {
+			avatarUrl: user.avatar_url
+		};
 	})
 };
 
