@@ -12,6 +12,11 @@ export type ContextGeneratorParams = {
 
 export type Context = Awaited<ReturnType<typeof createOrpcContext>>;
 
+export type AuthedContext = Context & {
+	user: NonNullable<AuthLocals['user']>;
+	session: NonNullable<AuthLocals['session']>;
+};
+
 export function createOrpcContext(opts: ContextGeneratorParams) {
 	return {
 		req: opts.request,
