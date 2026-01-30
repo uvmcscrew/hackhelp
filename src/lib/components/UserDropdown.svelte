@@ -36,7 +36,11 @@
 		<span class="sr-only">Toggle user menu</span>
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
-		<DropdownMenu.Label>{userInfo.data?.user.name}</DropdownMenu.Label>
+		<DropdownMenu.Label
+			>{userInfo.data?.user.name ||
+				userInfo.data?.user.username ||
+				userInfo.data?.user.email}</DropdownMenu.Label
+		>
 		<DropdownMenu.Separator />
 		{#if isAdmin}
 			<DropdownMenu.Item class="w-full hover:cursor-pointer"
@@ -72,7 +76,7 @@
 					onclick={async (_e) => {
 						await signOutAndClearCache(qc);
 						posthogHandler((posthog) => posthog.reset());
-						await goto(resolve('/(auth)/login'));
+						await goto(resolve('/(auth)/login'), { replaceState: true, invalidateAll: true });
 					}}>Logout</button
 				>
 			{/snippet}</DropdownMenu.Item
