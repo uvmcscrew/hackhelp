@@ -5,6 +5,7 @@
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import { accountsQueryOptions } from './accounts';
+	import { Confetti } from 'svelte-confetti';
 
 	let accountQuery = createQuery(() => accountsQueryOptions);
 
@@ -29,7 +30,10 @@
 	}));
 </script>
 
-<Card.Root>
+<Card.Root class="relative">
+	{#if linkMutation.isSuccess}
+		<Confetti delay={[0, 500]} />
+	{/if}
 	<Card.Header>
 		<Card.Title>UVM NetID</Card.Title>
 		<Card.Description

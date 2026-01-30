@@ -8,6 +8,7 @@
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Badge } from '$lib/components/ui/badge';
+	import Confetti from 'svelte-confetti';
 
 	let accountQuery = createQuery(() => accountsQueryOptions);
 
@@ -76,6 +77,9 @@
 	</Card.Header>
 	{#if accountQuery.status === 'success'}
 		{#if githubAccount}
+			{#if linkMutation.isSuccess}
+				<Confetti delay={[0, 500]} />
+			{/if}
 			<Card.Content class="flex flex-col">
 				<div class="flex gap-x-2">
 					<Avatar.Root class="h-16 w-16">
@@ -123,6 +127,9 @@
 						<LoaderCircle class="h-6 w-auto animate-spin" />
 					{/if} Match profile photo to github</Button
 				>
+				{#if setGithubPfpMutation.isSuccess}
+					<Confetti delay={[0, 500]} />
+				{/if}
 			</Card.Content>
 		{:else}
 			<Card.Content>

@@ -8,6 +8,7 @@
 	import * as Table from '$lib/components/ui/table';
 	import Trash from 'lucide-svelte/icons/trash';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import Confetti from 'svelte-confetti';
 
 	let passkeyQuery = createQuery(() => ({
 		queryKey: ['auth', 'passkeys'],
@@ -106,5 +107,9 @@
 			disabled={addPasskeyButtonDisabled}
 			aria-disabled={addPasskeyButtonDisabled}>Register Passkey</Button
 		>
+
+		{#if addPasskeyMutation.isSuccess}
+			<Confetti delay={[1500, 2000]} />
+		{/if}
 	</Card.Footer>
 </Card.Root>
