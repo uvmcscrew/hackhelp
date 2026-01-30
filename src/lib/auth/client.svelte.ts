@@ -1,6 +1,6 @@
 import { createAuthClient } from 'better-auth/svelte';
 import { inferAdditionalFields } from 'better-auth/client/plugins';
-import type { auth, AuthData } from './server';
+import type { auth, AuthData } from './server.server';
 import {
 	adminClient,
 	emailOTPClient,

@@ -10,8 +10,8 @@ declare global {
 
 export type AuthLocals =
 	| {
-			user: import('$lib/auth/server').User;
-			session: import('$lib/auth/server').Session;
+			user: import('$lib/auth/server.server').User;
+			session: import('$lib/auth/server.server').Session;
 	  }
 	| {
 			user: null;

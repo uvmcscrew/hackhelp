@@ -1,4 +1,4 @@
-import { auth } from '$lib/auth/server'; // path to your auth file
+import { auth } from '$lib/auth/server.server'; // path to your auth file
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { building } from '$app/environment';
 import type { Handle } from '@sveltejs/kit';
