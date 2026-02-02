@@ -3,6 +3,7 @@ import { and, eq } from 'drizzle-orm';
 import { serverEnv } from '$lib/env/server';
 import type { AuthedContext } from '../context';
 import { octokit } from '$lib/github';
+import { RequestError as OctokitRequestError } from 'octokit';
 import { ORPCError, type } from '@orpc/server';
 import { addRole, checkRolePermission } from '$lib/auth/permissions';
 
@@ -62,8 +63,11 @@ async function getGithubUserInformation(context: AuthedContext) {
 			providerAccount: typeof githubAccount;
 		};
 	} catch (err) {
-		console.error(err);
-		throw new ORPCError('BAD_REQUEST', { message: 'Cannot authenticate to GitHub' });
+		if (err instanceof OctokitRequestError) {
+			throw new ORPCError('BAD_REQUEST', { message: 'Cannot authenticate to GitHub', cause: err });
+		} else {
+			throw new ORPCError('SERVER_ERROR', { message: 'Failed while fetching data from GitHub' });
+		}
 	}
 }
 
