@@ -67,7 +67,8 @@ class Configuration {
 	}
 
 	private async setKeyValue<T>(key: string, value: T): Promise<void> {
-		const { json: serializedValue } = superjson.serialize(value);
+		// This contains both the `json` and `meta` fields required by superjson for later deserialization
+		const serializedValue = superjson.serialize(value);
 
 		const existing = await this.getKeyValue<T>(key);
 		if (existing === null) {
