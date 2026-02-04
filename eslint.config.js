@@ -85,6 +85,7 @@ export default defineConfig(
 			'@typescript-eslint/no-unsafe-assignment': 'off',
 			'@typescript-eslint/no-unsafe-return': 'off',
 			'@typescript-eslint/no-unsafe-member-access': 'off',
+			'@typescript-eslint/no-confusing-void-expression': 'off',
 			'svelte/no-unused-class-name': 'off',
 			'svelte/block-lang': [
 				'error',
