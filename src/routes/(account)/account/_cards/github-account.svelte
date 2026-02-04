@@ -82,7 +82,7 @@
 				if (runConfetti) {
 					await tick();
 					await delay(5000);
-					setGithubPfpMutation.reset();
+					runConfetti = false;
 				}
 			})()
 	);
@@ -105,9 +105,6 @@
 		>
 	</Card.Header>
 	{#if accountQuery.status === 'success'}
-			{#if linkMutation.isSuccess}
-				<Confetti delay={[0, 500]} />
-			{/if}
 		{#if githubAccount && githubProfile.status === 'success'}
 			<Card.Content class="flex flex-col">
 				<div class="flex gap-x-2">
