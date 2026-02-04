@@ -101,7 +101,11 @@ class Configuration {
 		return data;
 	}
 
-	async getEventStartTime(): Promise<Date | null> {
+	async setEventTiming(config: EventTimingConfig): Promise<void> {
+		await this.setKeyValue<EventTimingConfig>(this.EVENT_TIMING_KEY, config);
+	}
+
+	async getEventStartTime(): Promise<Date> {
 		const result = await this.getEventTiming();
 		return result.eventStart;
 	}
