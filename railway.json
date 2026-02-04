@@ -5,7 +5,7 @@
 		"buildCommand": "bun svelte-kit sync && bun --bun run build"
 	},
 	"deploy": {
-		"startCommand": "bun --bun ./build/index.js",
+		"startCommand": "realpath $(which bun) && echo $PORT && echo \"Starting\" && bun ./build/index.js echo \"Stopping\"",
 		"preDeployCommand": "bun run db:migrate"
 	}
 }
