@@ -11,6 +11,7 @@
 	import Confetti from 'svelte-confetti';
 	import { tick } from 'svelte';
 	import { delay } from '$lib/utils';
+	import CircleUser from 'lucide-svelte/icons/circle-user';
 
 	let accountQuery = createQuery(() => accountsQueryOptions);
 
@@ -102,8 +103,8 @@
 			<Card.Content class="flex flex-col">
 				<div class="flex gap-x-2">
 					<Avatar.Root class="h-16 w-16">
-						<Avatar.Image src={githubProfile.data?.profile?.avatar} alt="User avatar" />
-						<!-- <Avatar.Fallback><CircleUser class="h-16 w-16" /></Avatar.Fallback> -->
+						<Avatar.Image src={githubProfile.data.profile?.avatar} alt="User avatar" />
+						<Avatar.Fallback><CircleUser class="h-16 w-16" /></Avatar.Fallback>
 					</Avatar.Root>
 					<div class="basis-full">
 						<h2 class="font-semibold">{githubProfile.data?.profile?.fullName}</h2>
