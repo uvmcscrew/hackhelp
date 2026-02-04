@@ -49,6 +49,12 @@ type GithubUserInformation = (
 	providerAccount: Awaited<ReturnType<typeof getProviderAccounts>>[0];
 };
 
+type GitHubAccessTokenRefreshResponse = {
+	access_token: string;
+	expires_in: number;
+	// Remaining parameters omitted bc they don't matter for us
+};
+
 async function getGithubUserInformation(context: AuthedContext): Promise<GithubUserInformation> {
 	const accounts = await getProviderAccounts(context, 'github');
 
@@ -58,6 +64,47 @@ async function getGithubUserInformation(context: AuthedContext): Promise<GithubU
 		});
 
 	const githubAccount = accounts[0];
+
+	// Check access token expiry, and refresh if necessary
+	if (
+		githubAccount.accessTokenExpiresAt &&
+		new Date(githubAccount.accessTokenExpiresAt) < new Date()
+	) {
+		const refreshURL = new URL('https://github.com/login/oauth/access_token');
+		refreshURL.searchParams.set('client_id', serverEnv.GITHUB_APP_CLIENT_ID);
+		refreshURL.searchParams.set('client_secret', serverEnv.GITHUB_APP_CLIENT_SECRET);
+		refreshURL.searchParams.set('grant_type', 'refresh_token');
+		refreshURL.searchParams.set('refresh_token', githubAccount.refreshToken || '');
+
+		const refreshResponse = await fetch(refreshURL, {
+			method: 'POST'
+		});
+
+		if (!refreshResponse.ok) {
+			return {
+				err: new ORPCError('INTERNAL_SERVER_ERROR', {
+					message: 'Failed to refresh GitHub access token'
+				}),
+				errType: refreshResponse.statusText,
+				providerAccount: githubAccount
+			};
+		}
+
+		const refreshData = (await refreshResponse.json()) as GitHubAccessTokenRefreshResponse;
+		// Update the account in the database
+		const newExpiry = new Date();
+		newExpiry.setSeconds(newExpiry.getSeconds() + refreshData.expires_in);
+		await context.db.client
+			.update(context.db.schema.account)
+			.set({
+				accessToken: refreshData.access_token,
+				accessTokenExpiresAt: newExpiry
+			})
+			.where(eq(context.db.schema.account.id, githubAccount.id));
+
+		// Update the local variable to use the new access token
+		githubAccount.accessToken = refreshData.access_token;
+	}
 
 	try {
 		const [user, orgs] = (
@@ -88,6 +135,7 @@ async function getGithubUserInformation(context: AuthedContext): Promise<GithubU
 				// @ts-expect-error ik its bad
 				message: `Cannot authenticate to GitHub: ${err.response?.data.message}`
 			});
+
 			return { err: oErr, errType: githubErrMessage, providerAccount: githubAccount };
 		} else {
 			throw new ORPCError('INTERNAL_SERVER_ERROR', {
