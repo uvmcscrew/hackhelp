@@ -9,6 +9,7 @@ import {
 	type ParticipantConfig,
 	type ChallengeConfig
 } from './schemas';
+import { building } from '$app/environment';
 
 class Configuration {
 	private db: typeof db;
@@ -57,15 +58,16 @@ class Configuration {
 			return null;
 		}
 
-		const value = result[0].value as string;
+		const value = result[0].value;
 		return {
-			data: superjson.parse<T>(value),
+			// @ts-expect-error Value is unknown just bc
+			data: superjson.deserialize<T>(value),
 			lastUpdated: result[0].lastUpdated
 		};
 	}
 
 	private async setKeyValue<T>(key: string, value: T): Promise<void> {
-		const serializedValue = superjson.stringify(value);
+		const { json: serializedValue } = superjson.serialize(value);
 
 		const existing = await this.getKeyValue<T>(key);
 		if (existing === null) {
@@ -112,4 +114,4 @@ class Configuration {
 }
 
 export const configurationService = new Configuration(db);
-await configurationService.ensureConfigs();
+if (!building) await configurationService.ensureConfigs();
