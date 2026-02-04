@@ -3,6 +3,7 @@ import { githubApp } from '$lib/github';
 import type { Cookies } from '@sveltejs/kit';
 import { logger } from '$lib/logger';
 import type { AuthLocals } from '../../../app';
+import { configurationService } from '$lib/server/config';
 
 export type ContextGeneratorParams = {
 	request: Request;
@@ -19,6 +20,7 @@ export type AuthedContext = Context & {
 
 export function createOrpcContext(opts: ContextGeneratorParams) {
 	return {
+		config: configurationService,
 		req: opts.request,
 		...opts.locals.auth,
 		db,

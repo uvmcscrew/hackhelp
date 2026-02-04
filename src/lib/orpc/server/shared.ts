@@ -3,6 +3,8 @@ import type { Context } from './context';
 
 export const o = os.$context<Context>();
 
+export const publicProcedure = o;
+
 const enforceUserIsAuthed = o.middleware(({ context, next }) => {
 	if (!context.user) {
 		throw new ORPCError('UNAUTHORIZED', { cause: 'You are not logged in' });
