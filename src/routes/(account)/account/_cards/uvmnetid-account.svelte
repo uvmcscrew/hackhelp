@@ -21,7 +21,7 @@
 		mutationFn: () =>
 			authClient.oauth2.link({
 				providerId: 'uvm-netid',
-				callbackURL: '/account',
+				callbackURL: '/account?tab=netid',
 				errorCallbackURL: '/auth/error?provider=uvm-netid',
 				scopes: ['openid', 'email', 'profile']
 			}),

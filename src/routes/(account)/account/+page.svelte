@@ -22,9 +22,11 @@
 	import UVMNetIDAccount from './_cards/uvmnetid-account.svelte';
 	import GithubAccount from './_cards/github-account.svelte';
 	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { page } from '$app/state';
 
 	let { data }: PageProps = $props();
 	const queryClient = useQueryClient();
+	let tab = $state(page.url.searchParams.get('tab') ?? 'profile');
 
 	const session = createQuery(() => ({
 		...sessionQueryOptions,
@@ -93,7 +95,7 @@
 		</Card.CardContent>
 	</Card.Root>
 
-	<Tabs.Root value="profile">
+	<Tabs.Root value={tab}>
 		<Tabs.List>
 			<Tabs.Trigger value="profile">Profile</Tabs.Trigger>
 			<Tabs.Trigger value="passkeys">Passkeys</Tabs.Trigger>

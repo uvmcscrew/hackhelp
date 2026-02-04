@@ -37,7 +37,7 @@
 			authClient.linkSocial({
 				provider: 'github',
 				errorCallbackURL: '/auth/error?provider=github',
-				callbackURL: '/account?provider=github'
+				callbackURL: '/account?tab=github'
 			}),
 		onSettled: async (_d, _e, _v, _r, ctx) =>
 			await Promise.allSettled([
