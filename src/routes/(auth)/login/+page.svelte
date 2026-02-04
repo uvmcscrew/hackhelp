@@ -46,7 +46,7 @@
 			providerId: 'uvm-netid', // required
 			callbackURL: '/account',
 			errorCallbackURL: '/auth/error',
-			newUserCallbackURL: '/welcome',
+			newUserCallbackURL: '/account',
 			scopes: ['openid', 'email', 'profile'],
 			requestSignUp: false
 		});
@@ -60,7 +60,7 @@
 			email: emailText,
 			callbackURL: '/account',
 			errorCallbackURL: '/auth/error',
-			newUserCallbackURL: '/welcome'
+			newUserCallbackURL: '/account'
 		});
 		if (error) signInError = error;
 		await goto(resolve('/(auth)/login/email-sent'));

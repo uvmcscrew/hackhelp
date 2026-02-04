@@ -25,7 +25,7 @@
 			providerId: 'uvm-netid',
 			callbackURL: '/account',
 			errorCallbackURL: '/auth/error',
-			newUserCallbackURL: '/welcome',
+			newUserCallbackURL: '/account',
 			scopes: ['openid', 'email', 'profile'],
 			disableRedirect: false,
 			requestSignUp: true
@@ -39,7 +39,7 @@
 			email: emailText,
 			callbackURL: '/account',
 			errorCallbackURL: '/auth/error',
-			newUserCallbackURL: '/welcome'
+			newUserCallbackURL: '/account'
 		});
 		if (error) signUpError = error;
 		await goto(resolve('/(auth)/sign-up/email-sent'));
