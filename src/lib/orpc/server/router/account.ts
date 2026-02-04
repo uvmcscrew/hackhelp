@@ -32,7 +32,24 @@ async function getProviderAccounts(context: AuthedContext, providerId: string) {
 		);
 }
 
-async function getGithubUserInformation(context: AuthedContext) {
+type GithubUserInformation = (
+	| {
+			user: Awaited<ReturnType<typeof octokit.rest.users.getAuthenticated>>['data'];
+			orgs: Awaited<ReturnType<typeof octokit.rest.orgs.listForAuthenticatedUser>>['data'];
+			err?: never;
+			errType?: never;
+	  }
+	| {
+			user?: never;
+			orgs?: never;
+			err: ORPCError<'INTERNAL_SERVER_ERROR' | 'BAD_REQUEST', unknown>;
+			errType: string;
+	  }
+) & {
+	providerAccount: Awaited<ReturnType<typeof getProviderAccounts>>[0];
+};
+
+async function getGithubUserInformation(context: AuthedContext): Promise<GithubUserInformation> {
 	const accounts = await getProviderAccounts(context, 'github');
 
 	if (accounts.length === 0)
@@ -64,9 +81,18 @@ async function getGithubUserInformation(context: AuthedContext) {
 		};
 	} catch (err) {
 		if (err instanceof OctokitRequestError) {
-			throw new ORPCError('BAD_REQUEST', { message: 'Cannot authenticate to GitHub', cause: err });
+			// @ts-expect-error I'm not writing a type for this
+			const githubErrMessage = err.response?.data.message as string;
+			console.error('GitHub Request Error', err);
+			const oErr = new ORPCError('BAD_REQUEST', {
+				// @ts-expect-error ik its bad
+				message: `Cannot authenticate to GitHub: ${err.response?.data.message}`
+			});
+			return { err: oErr, errType: githubErrMessage, providerAccount: githubAccount };
 		} else {
-			throw new ORPCError('SERVER_ERROR', { message: 'Failed while fetching data from GitHub' });
+			throw new ORPCError('INTERNAL_SERVER_ERROR', {
+				message: 'Failed while fetching data from GitHub'
+			});
 		}
 	}
 }
@@ -134,7 +160,11 @@ export const accountRouter = {
 	getGitHubProfile: protectedProcedure
 		.output(type<GetGithubProfile>((value) => value))
 		.handler(async ({ context }) => {
-			const { user, orgs } = await getGithubUserInformation(context);
+			const { user, orgs, err } = await getGithubUserInformation(context);
+
+			if (err) {
+				throw err;
+			}
 
 			const orgStatus = orgs.some((org) => org.login === serverEnv.PUBLIC_GITHUB_ORGNAME)
 				? 'joined'
@@ -150,7 +180,16 @@ export const accountRouter = {
 		}),
 
 	addGitHubUserToOrg: protectedProcedure.handler(async ({ context }) => {
-		const { user, orgs, providerAccount: githubAccount } = await getGithubUserInformation(context);
+		const {
+			user,
+			orgs,
+			providerAccount: githubAccount,
+			err
+		} = await getGithubUserInformation(context);
+
+		if (err) {
+			throw err;
+		}
 
 		if (orgs.some((org) => org.login === serverEnv.PUBLIC_GITHUB_ORGNAME))
 			throw new ORPCError('UNAUTHORIZED', {
@@ -181,47 +220,53 @@ export const accountRouter = {
 			return inviteResult.state === 'active';
 		} catch (err) {
 			console.error(err);
-			throw new ORPCError('SERVER_ERROR', { message: 'Could not accept invite' });
+			throw new ORPCError('INTERNAL_SERVER_ERROR', { message: 'Could not accept invite' });
 		}
 	}),
 
 	unlinkGitHubAccount: protectedProcedure.handler(async ({ context }) => {
-		const { user, orgs, providerAccount } = await getGithubUserInformation(context);
+		const { user, orgs, providerAccount, err, errType } = await getGithubUserInformation(context);
 
-		const orgStatus = orgs.some((org) => org.login === serverEnv.PUBLIC_GITHUB_ORGNAME)
-			? 'joined'
-			: (await hasPendingInvite(context, user.login))
-				? 'invited'
-				: 'unknown';
+		if (err && errType !== 'Bad Credentials') {
+			throw err;
+		}
 
-		if (orgStatus === 'joined') {
-			// If the user is in the organization, remove them if they're not an owner
-			const userIsAdmin =
-				(
-					await context.githubApp.rest.orgs.getMembershipForUser({
+		if (!err) {
+			const orgStatus = orgs.some((org) => org.login === serverEnv.PUBLIC_GITHUB_ORGNAME)
+				? 'joined'
+				: (await hasPendingInvite(context, user.login))
+					? 'invited'
+					: 'unknown';
+
+			if (orgStatus === 'joined') {
+				// If the user is in the organization, remove them if they're not an owner
+				const userIsAdmin =
+					(
+						await context.githubApp.rest.orgs.getMembershipForUser({
+							org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+							username: user.login
+						})
+					).data.role === 'admin';
+
+				if (!userIsAdmin) {
+					await context.githubApp.rest.orgs.removeMember({
 						org: serverEnv.PUBLIC_GITHUB_ORGNAME,
 						username: user.login
+					});
+				}
+			} else if (orgStatus === 'invited') {
+				// Cancel pending invitations
+				const invite = (
+					await context.githubApp.rest.orgs.listPendingInvitations({
+						org: serverEnv.PUBLIC_GITHUB_ORGNAME
 					})
-				).data.role === 'admin';
+				).data.filter((i) => i.login === user.login)[0];
 
-			if (!userIsAdmin) {
-				await context.githubApp.rest.orgs.removeMember({
+				await context.githubApp.rest.orgs.cancelInvitation({
 					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
-					username: user.login
+					invitation_id: invite.id
 				});
 			}
-		} else if (orgStatus === 'invited') {
-			// Cancel pending invitations
-			const invite = (
-				await context.githubApp.rest.orgs.listPendingInvitations({
-					org: serverEnv.PUBLIC_GITHUB_ORGNAME
-				})
-			).data.filter((i) => i.login === user.login)[0];
-
-			await context.githubApp.rest.orgs.cancelInvitation({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
-				invitation_id: invite.id
-			});
 		}
 
 		// Delete the provider account in the database
@@ -231,7 +276,11 @@ export const accountRouter = {
 	}),
 
 	setProfilePhotoToGithub: protectedProcedure.handler(async ({ context }) => {
-		const { user } = await getGithubUserInformation(context);
+		const { user, err } = await getGithubUserInformation(context);
+
+		if (err) {
+			throw err;
+		}
 
 		await context.db.client
 			.update(context.db.schema.user)
