@@ -53,7 +53,8 @@ export default defineConfig(
 					allowBoolean: true,
 					allowAny: true
 				}
-			]
+			],
+			'@typescript-eslint/no-unnecessary-type-parameters': 'warn'
 		}
 	},
 	{
