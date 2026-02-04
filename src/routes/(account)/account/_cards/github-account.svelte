@@ -12,6 +12,7 @@
 	import { tick } from 'svelte';
 	import { delay } from '$lib/utils';
 	import CircleUser from 'lucide-svelte/icons/circle-user';
+	import WarningAlert from '$lib/components/warning-alert.svelte';
 
 	let accountQuery = createQuery(() => accountsQueryOptions);
 
@@ -32,7 +33,6 @@
 
 	let linkMutation = createMutation(() => ({
 		mutationKey: ['auth', 'accounts', 'github', 'link'],
-		// TODO Figure out which GitHub OAuth scopes are required to auto-accept org invites on behalf of the user
 		mutationFn: () =>
 			authClient.linkSocial({
 				provider: 'github',
@@ -88,6 +88,15 @@
 	);
 </script>
 
+{#snippet linkGithubButton()}
+	<Button onclick={async () => await linkMutation.mutateAsync()} disabled={linkMutation.isPending}>
+		{#if linkMutation.isPending}
+			<LoaderCircle class="h-6 w-auto animate-spin" />
+		{/if}
+		Link Account</Button
+	>
+{/snippet}
+
 <Card.Root>
 	<Card.Header>
 		<Card.Title>GitHub</Card.Title>
@@ -96,10 +105,10 @@
 		>
 	</Card.Header>
 	{#if accountQuery.status === 'success'}
-		{#if githubAccount}
 			{#if linkMutation.isSuccess}
 				<Confetti delay={[0, 500]} />
 			{/if}
+		{#if githubAccount && githubProfile.status === 'success'}
 			<Card.Content class="flex flex-col">
 				<div class="flex gap-x-2">
 					<Avatar.Root class="h-16 w-16">
@@ -107,9 +116,9 @@
 						<Avatar.Fallback><CircleUser class="h-16 w-16" /></Avatar.Fallback>
 					</Avatar.Root>
 					<div class="basis-full">
-						<h2 class="font-semibold">{githubProfile.data?.profile?.fullName}</h2>
+						<h2 class="font-semibold">{githubProfile.data.profile?.fullName}</h2>
 						<Button variant="link" class="text-muted-foreground m-0 p-0 font-mono"
-							>{githubProfile.data?.profile?.username}</Button
+							>{githubProfile.data.profile?.username}</Button
 						>
 					</div>
 					<div class="flex items-center justify-center">
@@ -125,9 +134,9 @@
 				</div>
 				<div class="">
 					<span class=" font-semibold">Organization Status: </span>
-					<Badge>{githubProfile.data?.orgStatus}</Badge>
+					<Badge>{githubProfile.data.orgStatus}</Badge>
 				</div>
-				{#if githubProfile.data?.orgStatus !== 'joined'}
+				{#if githubProfile.data.orgStatus !== 'joined'}
 					<Button
 						class="mt-2 w-min"
 						onclick={async () => await addSelfToOrgMutation.mutateAsync({})}
@@ -169,18 +178,23 @@
 					</div>
 				{/if}
 			</Card.Content>
-		{:else}
+		{:else if githubProfile.status === 'error'}
 			<Card.Content>
-				<Button
-					onclick={async () => await linkMutation.mutateAsync()}
-					disabled={linkMutation.isPending}
-				>
-					{#if linkMutation.isPending}
-						<LoaderCircle class="h-6 w-auto animate-spin" />
-					{/if}
-					Link Account</Button
-				>
+				<WarningAlert title="GitHub Reauthentication Required">
+					<p class="mb-2">
+						You may have already linked your GitHub account, but GitHub is requiring us to ask for
+						your permission again. If you're trying to unlink your GitHub account, please
+						reauthenticate first.
+					</p>
+					{@render linkGithubButton()}
+				</WarningAlert>
 			</Card.Content>
+		{:else if githubAccount == null}
+			<Card.Content>
+				{@render linkGithubButton()}
+			</Card.Content>
+		{:else}
+			<Card.Content class="text-muted-foreground italic">Loading GitHub profile...</Card.Content>
 		{/if}
 	{:else}
 		<Card.Content class="text-muted-foreground italic">Loading</Card.Content>
