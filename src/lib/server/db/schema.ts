@@ -10,30 +10,10 @@ export const configuration = pgTable('configuration', {
 	value: json('value')
 });
 
-// export const user = pgTable('user', {
-// 	id: text('id').primaryKey().$defaultFn(cuid2),
-// 	githubId: integer('github_id').notNull(),
-// 	username: text('username').notNull(),
-// 	fullName: text('full_name'),
-// 	isOrgAdmin: boolean().default(false).notNull(),
-// 	isOrgMember: boolean().default(false).notNull(),
-// 	teamId: text('team_id').references(() => team.id)
-// });
-
-export type PersonRole = 'admin' | 'mentor' | 'competitor';
-
 // export const profile = pgTable('profile', {
 // 	id: text('id').primaryKey().$defaultFn(cuid2),
 // 	primaryRole: text('role').$type<PersonRole>().default('competitor'),
 // 	linkedUserId: text('linked_user_id').references(() => user.id, { onDelete: 'cascade' })
-// });
-
-// export const session = pgTable('session', {
-// 	id: text('id').primaryKey().$defaultFn(cuid2),
-// 	userId: text('user_id')
-// 		.notNull()
-// 		.references(() => user.id),
-// 	expiresAt: timestamp('expires_at').notNull()
 // });
 
 // const simpleCode = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 6);
