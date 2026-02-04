@@ -1,6 +1,7 @@
+import { dev } from '$app/environment';
 import { checkRolePermission } from '$lib/auth/permissions';
 import { eventTimingConfigSchema } from '$lib/server/config/schemas';
-import { o, publicProcedure } from '../shared';
+import { o, protectedProcedure, publicProcedure } from '../shared';
 import { ORPCError } from '@orpc/server';
 
 const enforceConfigViewPermission = o.middleware(({ context, next }) => {
@@ -59,6 +60,7 @@ const configViewProcedure = o.use(enforceConfigViewPermission);
 const configEditProcedure = o.use(enforceConfigEditPermission);
 
 export const configRouter = {
+	// Configuration snippets available to unauthenticated users or users who are not otherwise allowed to view configuration
 	viewPublic: {
 		eventStartTime: publicProcedure.handler(async ({ context }) => {
 			const eventStartTime = await context.config.getEventStartTime();
@@ -67,6 +69,18 @@ export const configRouter = {
 		hasEventStarted: publicProcedure.handler(async ({ context }) => {
 			const eventStartTime = await context.config.getEventStartTime();
 			return eventStartTime;
+		}),
+		allowAccessToEventPages: protectedProcedure.handler(async ({ context }) => {
+			// Always allow access in dev mode
+			if (dev) return true;
+
+			// Always allow access for admins
+			if (context.user.role?.split(',').includes('admin')) return true;
+
+			// Otherwise, check to see if the event has started yet
+			const eventStartTime = await context.config.getEventStartTime();
+
+			return new Date() >= eventStartTime;
 		})
 	},
 	view: {
