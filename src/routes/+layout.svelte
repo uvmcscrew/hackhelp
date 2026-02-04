@@ -25,6 +25,7 @@
 
 	const queryCache = new QueryCache({
 		onError: (error, _) => {
+			console.error(error);
 			toast.error('Failed to fetch data', {
 				description: error.message
 			});
@@ -32,7 +33,8 @@
 	});
 
 	const mutationCache = new MutationCache({
-		onError: (error, _) => {
+		onError: (error) => {
+			console.error(error);
 			toast.error('Failed to perform action', {
 				description: error.message
 			});

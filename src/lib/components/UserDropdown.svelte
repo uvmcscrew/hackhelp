@@ -4,20 +4,27 @@
 	import { buttonVariants } from './ui/button';
 
 	import * as DropdownMenu from './ui/dropdown-menu';
-	import type { User } from '$lib/server/db/schema';
 	import { goto } from '$app/navigation';
 	import { posthogHandler } from '$lib/utils';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
 	import { resolve } from '$app/paths';
+	import type { AuthData } from '$lib/auth/server.server';
+	import { sessionQueryOptions, signOutAndClearCache } from '$lib/auth/client.svelte';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	type Props = {
-		user: User;
+		authData: AuthData;
 	};
-	const { user }: Props = $props();
+	const { authData }: Props = $props();
 
-	let accountData = createQuery(() => orpc.account.whoami.queryOptions({ initialData: { user } }));
-	const image = `https://avatars.githubusercontent.com/u/${accountData.data.user.githubId}`;
+	const qc = useQueryClient();
+
+	const userInfo = createQuery(() => ({
+		...sessionQueryOptions,
+		initialData: authData
+	}));
+
+	const roles = $derived((userInfo.data?.user.role || '').split(','));
+	const isAdmin = $derived(roles.includes('admin'));
 </script>
 
 <DropdownMenu.Root>
@@ -25,31 +32,43 @@
 		class={buttonVariants({ variant: 'secondary', size: 'icon', class: 'rounded-full' })}
 	>
 		<Avatar.Root>
-			<Avatar.Image src={image} alt="User avatar" />
+			<Avatar.Image src={userInfo.data?.user.image} alt="User avatar" />
 			<Avatar.Fallback><CircleUser class="h-5 w-5" /></Avatar.Fallback>
 		</Avatar.Root>
 
 		<span class="sr-only">Toggle user menu</span>
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
-		<DropdownMenu.Label>{accountData.data.user.fullName}</DropdownMenu.Label>
+		<DropdownMenu.Label
+			>{userInfo.data?.user.name ||
+				userInfo.data?.user.username ||
+				userInfo.data?.user.email}</DropdownMenu.Label
+		>
 		<DropdownMenu.Separator />
-		{#if accountData.data.user.isOrgAdmin}
+		{#if isAdmin}
 			<DropdownMenu.Item class="w-full hover:cursor-pointer"
 				>{#snippet child({ props })}
-					<a {...props} href="/admin"> Admin</a>
-				{/snippet}</DropdownMenu.Item
-			>
-			<DropdownMenu.Item class="w-full hover:cursor-pointer"
-				>{#snippet child({ props })}
-					<a {...props} href="/home">Competitor Home</a>
+					<a {...props} href="/admin">Admin</a>
 				{/snippet}</DropdownMenu.Item
 			>
 		{/if}
-
+		{#if roles.includes('mentor') || isAdmin}
+			<DropdownMenu.Item class="w-full hover:cursor-pointer"
+				>{#snippet child({ props })}
+					<a {...props} href="/mentor">Mentor Home</a>
+				{/snippet}</DropdownMenu.Item
+			>
+		{/if}
+		{#if roles.includes('judge') || isAdmin}
+			<DropdownMenu.Item class="w-full hover:cursor-pointer"
+				>{#snippet child({ props })}
+					<a {...props} href="/judging">Judge Home</a>
+				{/snippet}</DropdownMenu.Item
+			>
+		{/if}
 		<DropdownMenu.Item class="w-full hover:cursor-pointer"
 			>{#snippet child({ props })}
-				<a {...props} href="/account">Settings</a>
+				<a {...props} href="/account">Account Settings</a>
 			{/snippet}</DropdownMenu.Item
 		>
 		<DropdownMenu.Separator />
@@ -58,9 +77,9 @@
 				<button
 					{...props}
 					onclick={async (_e) => {
-						await fetch('/auth/logout', { method: 'POST' });
+						await signOutAndClearCache(qc);
 						posthogHandler((posthog) => posthog.reset());
-						await goto(resolve('/auth/login'));
+						await goto(resolve('/(auth)/login'), { replaceState: true, invalidateAll: true });
 					}}>Logout</button
 				>
 			{/snippet}</DropdownMenu.Item
