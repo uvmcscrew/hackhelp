@@ -6,6 +6,7 @@ import { octokit } from '$lib/github';
 import { RequestError as OctokitRequestError } from 'octokit';
 import { ORPCError, type } from '@orpc/server';
 import { addRole, checkRolePermission } from '$lib/auth/permissions';
+import { dev } from '$app/environment';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -161,6 +162,21 @@ export const accountRouter = {
 			permissions: { profile: ['create', 'update'] }
 		});
 	}),
+
+	shouldShowNavigationButtons: protectedProcedure
+		.route({ method: 'GET' })
+		.handler(async ({ context }) => {
+			// Always show navigation buttons in dev environment
+			if (dev) return true;
+
+			// Always show navigation buttons for administrators
+			if (context.user.role?.split(',').includes('admin')) return true;
+
+			// Otherwise, check to see if the event has started yet
+			const eventStartTime = await context.config.getEventStartTime();
+
+			return new Date() >= eventStartTime;
+		}),
 
 	canRequestVerification: protectedProcedure
 		.route({ method: 'GET' })
