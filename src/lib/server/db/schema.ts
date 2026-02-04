@@ -7,7 +7,8 @@ import { user, session } from './auth';
 
 export const configuration = pgTable('configuration', {
 	key: text('key').primaryKey(),
-	value: json('value')
+	lastUpdated: timestamp('last_updated').notNull().defaultNow(),
+	value: json('value').notNull()
 });
 
 // export const profile = pgTable('profile', {
