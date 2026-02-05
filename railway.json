@@ -5,7 +5,7 @@
 		"buildCommand": "bun svelte-kit sync && bun --bun run build"
 	},
 	"deploy": {
-		"startCommand": "echo \"Bun Version: $(bun --version)\" && echo \"Bun Mise Path: $(mise where bun)\" && echo \"Bun Mise Version: $(mise exec bun -- bun --version)\" && mise exec bun -- bun ./build/index.js",
+		"startCommand": "node ./build/index.js",
 		"preDeployCommand": "bun run db:migrate"
 	}
 }
