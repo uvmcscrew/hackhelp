@@ -56,7 +56,8 @@
 		onSettled: async (_d, _e, _v, _r, ctx) =>
 			await Promise.allSettled([
 				ctx.client.invalidateQueries({ queryKey: accountsQueryOptions.queryKey }),
-				ctx.client.invalidateQueries({ queryKey: orpc.account.getGitHubProfile.queryKey() })
+				ctx.client.invalidateQueries({ queryKey: orpc.account.getGitHubProfile.queryKey() }),
+				ctx.client.invalidateQueries({ queryKey: orpc.account.checkGithubTokens.queryKey() })
 			])
 	}));
 
@@ -76,7 +77,8 @@
 			onSettled: async (_d, _e, _v, _r, ctx) =>
 				await Promise.allSettled([
 					ctx.client.invalidateQueries({ queryKey: accountsQueryOptions.queryKey }),
-					ctx.client.invalidateQueries({ queryKey: orpc.account.getGitHubProfile.queryKey() })
+					ctx.client.cancelQueries({ queryKey: orpc.account.getGitHubProfile.queryKey() }),
+					ctx.client.cancelQueries({ queryKey: orpc.account.checkGithubTokens.queryKey() })
 				])
 		})
 	);
