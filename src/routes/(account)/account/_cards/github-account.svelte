@@ -118,10 +118,6 @@
 		<Card.Title>GitHub</Card.Title>
 		<Card.Description
 			>Link your GitHub account to gain access to programming resources.
-			<i
-				>Please note: one of your GitHub account emails must match the email on your HackHelp
-				account.</i
-			>
 		</Card.Description>
 	</Card.Header>
 	{#if accountQuery.status === 'success'}

@@ -37,8 +37,7 @@
 	<Card.Header>
 		<Card.Title>UVM NetID</Card.Title>
 		<Card.Description
-			>Link your UVM NetID to make your account eligible for automatic verification. If your current
-			account email is not set to your netid@uvm.edu email, linking will fail for security reasons.</Card.Description
+			>Link your UVM NetID to make your account eligible for automatic verification.</Card.Description
 		>
 	</Card.Header>
 	{#if accountQuery.status === 'success'}
