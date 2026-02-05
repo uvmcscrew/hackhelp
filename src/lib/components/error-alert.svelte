@@ -32,9 +32,11 @@
 			{#if title}
 				<h3 class="text-sm font-medium text-red-200">{title}</h3>
 			{/if}
-			<div class="mt-2 text-sm text-red-200/80">
-				{@render children?.()}
-			</div>
+			{#if children}
+				<div class="mt-2 text-sm text-red-200/80">
+					{@render children()}
+				</div>
+			{/if}
 		</div>
 	</div>
 </div>
