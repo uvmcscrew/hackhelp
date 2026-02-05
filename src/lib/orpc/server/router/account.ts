@@ -7,6 +7,7 @@ import { RequestError as OctokitRequestError } from 'octokit';
 import { ORPCError, type } from '@orpc/server';
 import { addRole, checkRolePermission } from '$lib/auth/permissions';
 import { dev } from '$app/environment';
+import { formatDistance, isPast } from 'date-fns';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -81,30 +82,57 @@ async function getGithubUserInformation(context: AuthedContext): Promise<GithubU
 			method: 'POST'
 		});
 
-		if (!refreshResponse.ok) {
+		console.log(
+			'Refreshing Github Access Token',
+			refreshURL.toString(),
+			'Status: ',
+			refreshResponse.status,
+			refreshResponse.statusText
+		);
+
+		const refreshResBody = new URLSearchParams(await refreshResponse.text());
+
+		console.log('Refresh Response Body', refreshResBody);
+
+		if (!refreshResponse.ok || refreshResBody.get('error')) {
 			return {
 				err: new ORPCError('INTERNAL_SERVER_ERROR', {
-					message: 'Failed to refresh GitHub access token'
+					message: `Failed to refresh GitHub access token: ${refreshResBody.get('error_description')}`
 				}),
-				errType: refreshResponse.statusText,
+				errType: !refreshResponse.ok
+					? refreshResponse.statusText
+					: (refreshResBody.get('error') ?? ''),
 				providerAccount: githubAccount
 			};
 		}
 
-		const refreshData = (await refreshResponse.json()) as GitHubAccessTokenRefreshResponse;
+		const accessToken = refreshResBody.get('access_token');
+		if (!accessToken) {
+			return {
+				err: new ORPCError('INTERNAL_SERVER_ERROR', {
+					message: `Failed to refresh GitHub access token. Token not found in response`
+				}),
+				errType: 'Unknown',
+				providerAccount: githubAccount
+			};
+		}
+		const expirySeconds = parseInt(refreshResBody.get('expires_in') || '0');
+
 		// Update the account in the database
 		const newExpiry = new Date();
-		newExpiry.setSeconds(newExpiry.getSeconds() + refreshData.expires_in);
+		newExpiry.setSeconds(newExpiry.getSeconds() + expirySeconds);
 		await context.db.client
 			.update(context.db.schema.account)
 			.set({
-				accessToken: refreshData.access_token,
+				accessToken: accessToken,
 				accessTokenExpiresAt: newExpiry
 			})
 			.where(eq(context.db.schema.account.id, githubAccount.id));
 
 		// Update the local variable to use the new access token
-		githubAccount.accessToken = refreshData.access_token;
+		githubAccount.accessToken = accessToken;
+
+		console.log('Github Access Token Refresh Complete');
 	}
 
 	try {
@@ -130,11 +158,10 @@ async function getGithubUserInformation(context: AuthedContext): Promise<GithubU
 	} catch (err) {
 		if (err instanceof OctokitRequestError) {
 			// @ts-expect-error I'm not writing a type for this
-			const githubErrMessage = err.response?.data.message as string;
+			const githubErrMessage = (err.response?.data.message as string) || 'Unknown GitHub Error';
 			console.error('GitHub Request Error', err);
 			const oErr = new ORPCError('BAD_REQUEST', {
-				// @ts-expect-error ik its bad
-				message: `Cannot authenticate to GitHub: ${err.response?.data.message}`
+				message: `Cannot authenticate to GitHub: ${githubErrMessage}`
 			});
 
 			return { err: oErr, errType: githubErrMessage, providerAccount: githubAccount };
@@ -242,6 +269,32 @@ export const accountRouter = {
 				profile: { username: user.login, fullName: user.name, avatar: user.avatar_url }
 			} satisfies GetGithubProfile;
 		}),
+
+	checkGithubTokens: protectedProcedure.handler(async ({ context }) => {
+		const accounts = await getProviderAccounts(context, 'github');
+
+		if (accounts.length === 0)
+			throw new ORPCError('BAD_REQUEST', {
+				message: 'You must have a linked GitHub account to make this request'
+			});
+
+		const githubAccount = accounts[0];
+
+		if (!githubAccount.accessTokenExpiresAt || !githubAccount.refreshTokenExpiresAt) {
+			throw new ORPCError('INTERNAL_SERVER_ERROR');
+		}
+
+		const now = new Date();
+
+		return {
+			accessTokenExpiredAt: githubAccount.accessTokenExpiresAt,
+			refreshTokenExpiredAt: githubAccount.refreshTokenExpiresAt,
+			accessTokenExpiredAgo: `${formatDistance(now, githubAccount.accessTokenExpiresAt)} ago`,
+			refreshTokenExpiredAgo: `${formatDistance(now, githubAccount.refreshTokenExpiresAt)} ago`,
+			accessTokenExpired: isPast(githubAccount.accessTokenExpiresAt),
+			refreshTokenExpired: isPast(githubAccount.accessTokenExpiresAt)
+		};
+	}),
 
 	addGitHubUserToOrg: protectedProcedure.handler(async ({ context }) => {
 		const {

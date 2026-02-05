@@ -23,9 +23,17 @@
 		return providerAccounts.length === 0 ? null : providerAccounts[0];
 	});
 
+	let githubTokensStatus = createQuery(() => orpc.account.checkGithubTokens.queryOptions());
+
 	let githubProfile = createQuery(() =>
 		orpc.account.getGitHubProfile.queryOptions({
-			enabled: !(githubAccount == null)
+			// If the user has a linked github account, we only disable this query if the refresh token is confirmed out of date. If the token status query hasn't resolved, we shouldn't block this query from fetching
+			enabled:
+				githubAccount === null
+					? false
+					: githubTokensStatus.status === 'success'
+						? !githubTokensStatus.data.refreshTokenExpired
+						: true
 		})
 	);
 
@@ -179,7 +187,7 @@
 					</div>
 				{/if}
 			</Card.Content>
-		{:else if githubProfile.status === 'error'}
+		{:else if githubTokensStatus.data?.refreshTokenExpired}
 			<Card.Content>
 				<WarningAlert title="GitHub Reauthentication Required">
 					<p class="mb-2">
