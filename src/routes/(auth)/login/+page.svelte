@@ -103,6 +103,14 @@
 				<Badge variant="secondary">Last Used</Badge>
 			{/if}
 		</Button>
+		{#if passkeySignInMutation.error}
+			<ErrorAlert title={passkeySignInMutation.error.message}>
+				{@const errorCauseMessage = passkeySignInMutation.error.cause
+					? (passkeySignInMutation.error.cause as { message: string }).message
+					: null}
+				{#if errorCauseMessage}{errorCauseMessage}{/if}
+			</ErrorAlert>
+		{/if}
 		<Button
 			disabled={loading}
 			aria-disabled={loading}
@@ -145,15 +153,6 @@
 		<ErrorAlert class="mt-2" title={emailSignInMutation.error.message}>
 			{@const errorCauseMessage = emailSignInMutation.error.cause
 				? (emailSignInMutation.error.cause as { message: string }).message
-				: null}
-			{#if errorCauseMessage}{errorCauseMessage}{/if}
-		</ErrorAlert>
-	{/if}
-
-	{#if passkeySignInMutation.error}
-		<ErrorAlert class="mt-2" title={passkeySignInMutation.error.message}>
-			{@const errorCauseMessage = passkeySignInMutation.error.cause
-				? (passkeySignInMutation.error.cause as { message: string }).message
 				: null}
 			{#if errorCauseMessage}{errorCauseMessage}{/if}
 		</ErrorAlert>
