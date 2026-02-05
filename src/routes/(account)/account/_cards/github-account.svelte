@@ -23,17 +23,23 @@
 		return providerAccounts.length === 0 ? null : providerAccounts[0];
 	});
 
-	let githubTokensStatus = createQuery(() => orpc.account.checkGithubTokens.queryOptions());
+	let githubTokensStatus = createQuery(() =>
+		orpc.account.checkGithubTokens.queryOptions({
+			enabled: !(githubAccount === null)
+		})
+	);
+
+	// If the user has a linked github account, we only disable this query if the refresh token is confirmed out of date. If the token status query hasn't resolved, we shouldn't block this query from fetching
+	let enableGithubProfileQuery = $derived.by(() => {
+		const hasLinkedGithub = !(githubAccount === null);
+		const needsNewRefreshToken =
+			githubTokensStatus.status === 'success' && githubTokensStatus.data.refreshTokenExpired;
+		return hasLinkedGithub && !needsNewRefreshToken;
+	});
 
 	let githubProfile = createQuery(() =>
 		orpc.account.getGitHubProfile.queryOptions({
-			// If the user has a linked github account, we only disable this query if the refresh token is confirmed out of date. If the token status query hasn't resolved, we shouldn't block this query from fetching
-			enabled:
-				githubAccount === null
-					? false
-					: githubTokensStatus.status === 'success'
-						? !githubTokensStatus.data.refreshTokenExpired
-						: true
+			enabled: enableGithubProfileQuery
 		})
 	);
 
@@ -117,7 +123,11 @@
 		</Card.Description>
 	</Card.Header>
 	{#if accountQuery.status === 'success'}
-		{#if githubAccount && githubProfile.status === 'success'}
+		{#if githubAccount == null}
+			<Card.Content>
+				{@render linkGithubButton()}
+			</Card.Content>
+		{:else if githubAccount && githubProfile.status === 'success'}
 			<Card.Content class="flex flex-col">
 				<div class="flex gap-x-2">
 					<Avatar.Root class="h-16 w-16">
@@ -197,10 +207,6 @@
 					</p>
 					{@render linkGithubButton()}
 				</WarningAlert>
-			</Card.Content>
-		{:else if githubAccount == null}
-			<Card.Content>
-				{@render linkGithubButton()}
 			</Card.Content>
 		{:else}
 			<Card.Content class="text-muted-foreground italic">Loading GitHub profile...</Card.Content>
