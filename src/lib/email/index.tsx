@@ -9,12 +9,14 @@ const transporter = nodemailer.createTransport(serverEnv.SMTP_URL, {
 });
 
 export async function sendMagicLinkEmail(to: string, emailProps: MagicLinkEmailProps) {
-	return await transporter.sendMail({
+	console.log('Sending Magic Link email to', to);
+	const mail = await transporter.sendMail({
 		from: serverEnv.PUBLIC_SMTP_FROM,
 		to,
 		subject: 'Your HackHelp Login Link',
 		html: await render(<MagicLinkEmail {...emailProps} />)
 	});
+	console.log(mail);
 }
 
 export async function sendEmailOtp(to: string, emailProps: OTPEmailProps) {
@@ -24,10 +26,12 @@ export async function sendEmailOtp(to: string, emailProps: OTPEmailProps) {
 			: emailProps.type === 'sign-in'
 				? 'Sign-in Code'
 				: 'Password Reset Code';
-	return await transporter.sendMail({
+	console.log('Sending OTP email to', to);
+	const mail = await transporter.sendMail({
 		from: serverEnv.PUBLIC_SMTP_FROM,
 		to,
 		subject: `${title} | HackHelp`,
 		html: await render(<OTPEmail {...emailProps} />)
 	});
+	console.log(mail);
 }
