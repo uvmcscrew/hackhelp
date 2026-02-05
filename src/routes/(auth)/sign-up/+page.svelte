@@ -7,44 +7,57 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import ArrowRight from 'lucide-svelte/icons/arrow-right';
-	import ErrorBox from '../error-box.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { createMutation } from '@tanstack/svelte-query';
+	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
+	import ErrorAlert from '$lib/components/error-alert.svelte';
 
-	let emailText = $state('');
-	let loading = $state(false);
-	let signUpError = $state<{
-		message?: string;
-		status: number;
-		statusText: string;
-	} | null>(null);
+	let uvmNetIdSignUpMutation = createMutation(() => ({
+		mutationFn: async () => {
+			await authClient.signIn.oauth2({
+				providerId: 'uvm-netid',
+				callbackURL: '/account',
+				errorCallbackURL: '/auth/error',
+				newUserCallbackURL: '/account',
+				scopes: ['openid', 'email', 'profile'],
+				disableRedirect: false,
+				requestSignUp: true,
+				fetchOptions: {
+					throw: true
+				}
+			});
+		}
+	}));
 
-	async function uvmNetIdSignUp() {
-		loading = true;
-		const { data: _data, error } = await authClient.signIn.oauth2({
-			providerId: 'uvm-netid',
-			callbackURL: '/account',
-			errorCallbackURL: '/auth/error',
-			newUserCallbackURL: '/account',
-			scopes: ['openid', 'email', 'profile'],
-			disableRedirect: false,
-			requestSignUp: true
-		});
-		if (error) signUpError = error;
-	}
+	let emailSignUpMutation = createMutation(() => ({
+		mutationFn: async (
+			event: SubmitEvent & {
+				currentTarget: EventTarget & HTMLFormElement;
+			}
+		) => {
+			event.preventDefault();
 
-	async function emailSignUp() {
-		loading = true;
-		const { error } = await authClient.signIn.magicLink({
-			email: emailText,
-			callbackURL: '/account',
-			errorCallbackURL: '/auth/error',
-			newUserCallbackURL: '/account'
-		});
-		if (error) signUpError = error;
-		await goto(resolve('/(auth)/sign-up/email-sent'));
-		loading = false;
-	}
+			const formData = new FormData(event.currentTarget);
+
+			const email = (formData.get('email') as string) || '';
+
+			await authClient.signIn.magicLink({
+				email,
+				callbackURL: '/account',
+				errorCallbackURL: '/auth/error',
+				newUserCallbackURL: '/account',
+				fetchOptions: {
+					throw: true
+				}
+			});
+		},
+		onSuccess: async () => {
+			await goto(resolve('/(auth)/sign-up/email-sent'));
+		}
+	}));
+
+	let loading = $derived(emailSignUpMutation.isPending || uvmNetIdSignUpMutation.isPending);
 </script>
 
 <svelte:head>
@@ -53,8 +66,12 @@
 
 <CardContent>
 	<div class="flex flex-col">
-		<Button disabled={loading} aria-disabled={loading} onclick={uvmNetIdSignUp}
-			>Sign up with UVM NetID</Button
+		<Button
+			disabled={loading}
+			aria-disabled={loading}
+			onclick={async () => await uvmNetIdSignUpMutation.mutateAsync()}
+			>{#if uvmNetIdSignUpMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
+			{/if}Sign up with UVM NetID</Button
 		>
 	</div>
 
@@ -66,7 +83,7 @@
 			<span class=" bg-card px-6">or</span>
 		</div>
 	</div>
-	<form class="flex flex-col gap-y-2" onsubmit={emailSignUp}>
+	<form class="flex flex-col gap-y-2" onsubmit={emailSignUpMutation.mutate}>
 		<Label>Email</Label>
 		<Input
 			id="email"
@@ -74,17 +91,22 @@
 			type="email"
 			autocomplete="email"
 			minlength={1}
-			bind:value={emailText}
 			disabled={loading}
 			aria-disabled={loading}
 		/>
 		<Button type="submit" variant="secondary" disabled={loading} aria-disabled={loading}
-			>Email me a sign up link</Button
+			>{#if emailSignUpMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
+			{/if} Email me a sign up link</Button
 		>
 	</form>
 
-	{#if signUpError}
-		<ErrorBox error={signUpError} />
+	{#if emailSignUpMutation.error}
+		<ErrorAlert class="mt-2" title={emailSignUpMutation.error.message}>
+			{@const errorCauseMessage = emailSignUpMutation.error.cause
+				? (emailSignUpMutation.error.cause as { message: string }).message
+				: null}
+			{#if errorCauseMessage}{errorCauseMessage}{/if}
+		</ErrorAlert>
 	{/if}
 </CardContent>
 

@@ -9,63 +9,82 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import ArrowRight from 'lucide-svelte/icons/arrow-right';
-	import ErrorBox from '../error-box.svelte';
+	import { createMutation } from '@tanstack/svelte-query';
+	import ErrorAlert from '$lib/components/error-alert.svelte';
+	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
+	import { BetterFetchError } from '@better-fetch/fetch';
 
-	let emailText = $state('');
-	let loading = $state(false);
-	let signInError = $state<{
-		message?: string;
-		status: number;
-		statusText: string;
-	} | null>(null);
 	let lastUsedMethod = null;
 	// let lastUsedMethod = $derived(authClient.getLastUsedLoginMethod());
 
-	async function passkeySignIn() {
-		loading = true;
-		console.log('Passkey signin');
-		const { error } = await authClient.signIn.passkey({
-			autoFill: false,
-			fetchOptions: {
-				async onSuccess(_context) {
-					await goto(resolve('/(account)/account'));
-				},
-				onError(context) {
-					console.error('Authentication failed:', context.error.message);
-					signInError = context.error;
+	let passkeySignInMutation = createMutation(() => ({
+		mutationFn: async () => {
+			const { error } = await authClient.signIn.passkey({
+				autoFill: false,
+				fetchOptions: {
+					throw: true
 				}
+			});
+
+			// When passkey auth gets cancelled it doesn't throw, but it should anyway to trigger the tanstack query mutation logic
+			if (error) {
+				throw new BetterFetchError(error.status, error.statusText, error);
 			}
-		});
-		if (error) signInError = error;
-		loading = false;
-	}
+		},
+		onSuccess: async () => {
+			await goto(resolve('/(account)/account'));
+		}
+	}));
 
-	async function uvmNetIdSignIn() {
-		loading = true;
-		const { data: _data, error } = await authClient.signIn.oauth2({
-			providerId: 'uvm-netid', // required
-			callbackURL: '/account',
-			errorCallbackURL: '/auth/error',
-			newUserCallbackURL: '/account',
-			scopes: ['openid', 'email', 'profile'],
-			requestSignUp: false
-		});
-		if (error) signInError = error;
-		loading = false;
-	}
+	let uvmNetIdSignInMutation = createMutation(() => ({
+		mutationFn: async () => {
+			await authClient.signIn.oauth2({
+				providerId: 'uvm-netid',
+				callbackURL: '/account',
+				errorCallbackURL: '/auth/error?provider=uvm-netid',
+				newUserCallbackURL: '/account',
+				scopes: ['openid', 'email', 'profile'],
+				disableRedirect: false,
+				requestSignUp: false,
+				fetchOptions: {
+					throw: true
+				}
+			});
+		}
+	}));
 
-	async function emailSignIn() {
-		loading = true;
-		const { error } = await authClient.signIn.magicLink({
-			email: emailText,
-			callbackURL: '/account',
-			errorCallbackURL: '/auth/error',
-			newUserCallbackURL: '/account'
-		});
-		if (error) signInError = error;
-		await goto(resolve('/(auth)/login/email-sent'));
-		loading = false;
-	}
+	let emailSignInMutation = createMutation(() => ({
+		mutationFn: async (
+			event: SubmitEvent & {
+				currentTarget: EventTarget & HTMLFormElement;
+			}
+		) => {
+			event.preventDefault();
+
+			const formData = new FormData(event.currentTarget);
+
+			const email = (formData.get('email') as string) || '';
+
+			await authClient.signIn.magicLink({
+				email,
+				callbackURL: '/account',
+				errorCallbackURL: '/auth/error',
+				newUserCallbackURL: '/account',
+				fetchOptions: {
+					throw: true
+				}
+			});
+		},
+		onSuccess: async () => {
+			await goto(resolve('/(auth)/login/email-sent'));
+		}
+	}));
+
+	let loading = $derived(
+		emailSignInMutation.isPending ||
+			uvmNetIdSignInMutation.isPending ||
+			passkeySignInMutation.isPending
+	);
 </script>
 
 <svelte:head>
@@ -74,14 +93,23 @@
 
 <CardContent>
 	<div class="relative flex flex-col gap-y-4">
-		<Button disabled={loading} aria-disabled={loading} onclick={passkeySignIn}
-			>Sign In with Passkey
+		<Button
+			disabled={loading}
+			aria-disabled={loading}
+			onclick={() => passkeySignInMutation.mutate()}
+			>{#if passkeySignInMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
+			{/if}Sign In with Passkey
 			{#if lastUsedMethod === 'passkey'}
 				<Badge variant="secondary">Last Used</Badge>
 			{/if}
 		</Button>
-		<Button disabled={loading} aria-disabled={loading} variant="secondary" onclick={uvmNetIdSignIn}
-			>Sign In with UVM NetID
+		<Button
+			disabled={loading}
+			aria-disabled={loading}
+			variant="secondary"
+			onclick={() => uvmNetIdSignInMutation.mutate()}
+			>{#if uvmNetIdSignInMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
+			{/if}Sign In with UVM NetID
 			{#if lastUsedMethod === 'uvm-netid'}
 				<Badge variant="yellow">Last Used</Badge>
 			{/if}
@@ -96,7 +124,7 @@
 			<span class=" bg-card px-6">or</span>
 		</div>
 	</div>
-	<form class="flex flex-col gap-y-2" onsubmit={emailSignIn}>
+	<form class="flex flex-col gap-y-2" onsubmit={emailSignInMutation.mutate}>
 		<Label for="email">Email</Label>
 		<Input
 			id="email"
@@ -104,17 +132,31 @@
 			type="email"
 			autocomplete="email"
 			minlength={1}
-			bind:value={emailText}
 			disabled={loading}
 			aria-disabled={loading}
 		/>
 		<Button type="submit" variant="secondary" disabled={loading} aria-disabled={loading}
-			>Email me a login link</Button
+			>{#if emailSignInMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
+			{/if}Email me a login link</Button
 		>
 	</form>
 
-	{#if signInError}
-		<ErrorBox error={signInError} />
+	{#if emailSignInMutation.error}
+		<ErrorAlert class="mt-2" title={emailSignInMutation.error.message}>
+			{@const errorCauseMessage = emailSignInMutation.error.cause
+				? (emailSignInMutation.error.cause as { message: string }).message
+				: null}
+			{#if errorCauseMessage}{errorCauseMessage}{/if}
+		</ErrorAlert>
+	{/if}
+
+	{#if passkeySignInMutation.error}
+		<ErrorAlert class="mt-2" title={passkeySignInMutation.error.message}>
+			{@const errorCauseMessage = passkeySignInMutation.error.cause
+				? (passkeySignInMutation.error.cause as { message: string }).message
+				: null}
+			{#if errorCauseMessage}{errorCauseMessage}{/if}
+		</ErrorAlert>
 	{/if}
 </CardContent>
 
