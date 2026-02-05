@@ -4,7 +4,9 @@ import { MagicLinkEmail, type MagicLinkEmailProps } from './emails/magic-link';
 import { serverEnv } from '$lib/env/server';
 import { OTPEmail, type OTPEmailProps } from './emails/email-otp';
 
-const transporter = nodemailer.createTransport(serverEnv.SMTP_URL);
+const transporter = nodemailer.createTransport(serverEnv.SMTP_URL, {
+	logger: true
+});
 
 export async function sendMagicLinkEmail(to: string, emailProps: MagicLinkEmailProps) {
 	return await transporter.sendMail({
