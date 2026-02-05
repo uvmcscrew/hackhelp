@@ -51,12 +51,6 @@ type GithubUserInformation = (
 	providerAccount: Awaited<ReturnType<typeof getProviderAccounts>>[0];
 };
 
-type GitHubAccessTokenRefreshResponse = {
-	access_token: string;
-	expires_in: number;
-	// Remaining parameters omitted bc they don't matter for us
-};
-
 async function getGithubUserInformation(context: AuthedContext): Promise<GithubUserInformation> {
 	const accounts = await getProviderAccounts(context, 'github');
 
