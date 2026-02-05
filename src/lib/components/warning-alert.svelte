@@ -1,15 +1,17 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { twMerge } from 'tailwind-merge';
 
 	type Props = {
 		children?: Snippet;
 		title?: string;
+		class?: string;
 	};
 
-	let { children, title }: Props = $props();
+	let { children, title, class: cssClass }: Props = $props();
 </script>
 
-<div class="rounded-md bg-yellow-500/10 p-4 outline outline-yellow-500/15">
+<div class={twMerge('rounded-md bg-yellow-500/10 p-4 outline outline-yellow-500/15', cssClass)}>
 	<div class="flex">
 		<div class="shrink-0">
 			<svg
