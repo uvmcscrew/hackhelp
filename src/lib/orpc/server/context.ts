@@ -1,5 +1,5 @@
 import db from '$lib/server/db';
-import { githubApp } from '$lib/github';
+import { getGithubAppInstallationClient } from '$lib/github';
 import type { Cookies } from '@sveltejs/kit';
 import { logger } from '$lib/logger';
 import type { AuthLocals } from '../../../app';
@@ -18,13 +18,13 @@ export type AuthedContext = Context & {
 	session: NonNullable<AuthLocals['session']>;
 };
 
-export function createOrpcContext(opts: ContextGeneratorParams) {
+export async function createOrpcContext(opts: ContextGeneratorParams) {
 	return {
 		config: configurationService,
 		req: opts.request,
 		...opts.locals.auth,
 		db,
-		githubApp,
+		githubApp: await getGithubAppInstallationClient(),
 		cookies: opts.cookies,
 		logger: logger.child({ requestId: opts.request.headers.get('x-railway-request-id') })
 	};
