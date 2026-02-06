@@ -6,8 +6,20 @@
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import { accountsQueryOptions } from './accounts';
 	import { Confetti } from 'svelte-confetti';
+	import type { UserAccounts } from '$lib/auth/server.server';
 
-	let accountQuery = createQuery(() => accountsQueryOptions);
+	type Props = {
+		initialData: {
+			accounts: UserAccounts;
+		};
+	};
+
+	let { initialData }: Props = $props();
+
+	let accountQuery = createQuery(() => ({
+		...accountsQueryOptions,
+		initialData: initialData.accounts
+	}));
 
 	let uvmNetIdAccount = $derived.by(() => {
 		let providerAccounts = accountQuery.data

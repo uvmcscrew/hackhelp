@@ -23,8 +23,6 @@
 	import GithubAccount from './_cards/github-account.svelte';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import { page } from '$app/state';
-	import { o } from '$lib/orpc/server/shared';
-	import { dev } from '$app/environment';
 
 	let { data }: PageProps = $props();
 	const queryClient = useQueryClient();
@@ -35,9 +33,17 @@
 		initialData: data.userInitialData
 	}));
 
-	let showNavButtonsQuery = createQuery(orpc.account.shouldShowNavigationButtons.queryOptions);
+	let showNavButtonsQuery = createQuery(() =>
+		orpc.account.shouldShowNavigationButtons.queryOptions({
+			initialData: data.shouldShowNavigationButtons
+		})
+	);
 
-	let profilePermissionQuery = createQuery(orpc.account.canCreateProfile.queryOptions);
+	let profilePermissionQuery = createQuery(() =>
+		orpc.account.canCreateProfile.queryOptions({
+			initialData: data.canCreateProfile
+		})
+	);
 
 	const roles = $derived((session.data?.user.role || '').split(','));
 	const isAdmin = $derived(roles.includes('admin'));
@@ -49,7 +55,7 @@
 
 <div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
 	<h1 class="w-full text-center text-2xl font-semibold">Account</h1>
-	{#if showNavButtonsQuery.data === true}
+	{#if showNavButtonsQuery.data}
 		<div class="text-foreground flex w-full justify-center gap-x-2">
 			{#if isAdmin}
 				<Button variant="outline" class="hover:cursor-pointer" href="/admin">Admin Dashboard</Button
@@ -109,22 +115,22 @@
 			<Tabs.Trigger value="profile">Profile</Tabs.Trigger>
 			<Tabs.Trigger value="passkeys">Passkeys</Tabs.Trigger>
 			<Tabs.Trigger value="netid">UVM NetID</Tabs.Trigger>
-			{#if profilePermissionQuery.data === true}
+			{#if profilePermissionQuery.data}
 				<Tabs.Trigger value="github">GitHub</Tabs.Trigger>
 			{/if}
 		</Tabs.List>
 		<Tabs.Content value="profile">
-			<Profile />
+			<Profile initialData={data} />
 		</Tabs.Content>
 		<Tabs.Content value="passkeys">
 			<PasskeysCard />
 		</Tabs.Content>
 		<Tabs.Content value="netid">
-			<UVMNetIDAccount />
+			<UVMNetIDAccount initialData={data} />
 		</Tabs.Content>
-		{#if profilePermissionQuery.data === true}
+		{#if profilePermissionQuery.data}
 			<Tabs.Content value="github">
-				<GithubAccount />
+				<GithubAccount initialData={data} />
 			</Tabs.Content>
 		{/if}
 	</Tabs.Root>

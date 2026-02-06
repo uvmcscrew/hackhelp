@@ -90,3 +90,4 @@ export const auth = betterAuth({
 export type AuthData = typeof auth.$Infer.Session;
 export type User = AuthData['user'];
 export type Session = AuthData['session'];
+export type UserAccounts = Awaited<ReturnType<typeof auth.api.listUserAccounts>>;
