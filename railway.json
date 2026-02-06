@@ -6,6 +6,7 @@
 	},
 	"deploy": {
 		"startCommand": "bun ./build/index.js",
-		"preDeployCommand": "bun run db:migrate"
+		"preDeployCommand": "bun run db:migrate",
+		"healthcheckPath": "/api/health"
 	}
 }

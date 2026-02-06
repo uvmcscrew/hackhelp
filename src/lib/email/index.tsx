@@ -8,6 +8,17 @@ const transporter = nodemailer.createTransport(serverEnv.SMTP_URL, {
 	logger: true
 });
 
+export async function testSMTPConnection() {
+	try {
+		await transporter.verify();
+		return true;
+	} catch (e) {
+		console.log('Failed to connect to SMTP Server');
+		console.error(e);
+		return false;
+	}
+}
+
 export async function sendMagicLinkEmail(to: string, emailProps: MagicLinkEmailProps) {
 	console.log('Sending Magic Link email to', to);
 	const mail = await transporter.sendMail({
