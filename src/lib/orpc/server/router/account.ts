@@ -167,6 +167,15 @@ async function getGithubUserInformation(context: AuthedContext): Promise<GithubU
 	}
 }
 
+type MicrosoftGraphUserInformation = {
+	sub: string;
+	name: string;
+	picture: string;
+	family_name: string;
+	given_name: string;
+	email: string;
+};
+
 type GetGithubProfile =
 	| { hasGithubProfile: false; message: string; orgStatus?: never; profile?: never }
 	| {
@@ -234,12 +243,59 @@ export const accountRouter = {
 		return false;
 	}),
 
-	hasUvmProfile: protectedProcedure.handler(async ({ context }) => {
+	getUvmProfile: protectedProcedure.handler(async ({ context }) => {
 		const accounts = await getProviderAccounts(context, 'uvm-netid');
 
-		if (accounts.length === 0) return false;
+		if (accounts.length === 0)
+			throw new ORPCError('BAD_REQUEST', {
+				message: 'You must have a linked UVM NetID account to make this request'
+			});
 
-		return true;
+		const uvmAccount = accounts[0];
+
+		const accessTokenExpired = uvmAccount.accessTokenExpiresAt
+			? isPast(uvmAccount.accessTokenExpiresAt)
+			: false;
+
+		if (accessTokenExpired) {
+			return {
+				accessTokenExpired: true
+			};
+		}
+
+		const userinfoResponse = await fetch('https://graph.microsoft.com/oidc/userinfo', {
+			headers: {
+				Authorization: `Bearer ${uvmAccount.accessToken}`
+			}
+		});
+
+		if (!userinfoResponse.ok) {
+			console.error('Failed to fetch UVM profile', await userinfoResponse.text());
+			throw new ORPCError('INTERNAL_SERVER_ERROR', {
+				message: 'Failed to fetch UVM profile'
+			});
+		}
+
+		const userinfo = (await userinfoResponse.json()) as MicrosoftGraphUserInformation;
+
+		// Fetch the profile photo
+		//
+		const pfpRawResponse = await fetch(userinfo.picture, {
+			headers: {
+				Authorization: `Bearer ${uvmAccount.accessToken}`
+			}
+		});
+
+		console.log({ pfpRawResponse });
+
+		// const pfpBlob = await pfpRawResponse.blob()
+		// pfpBlob.
+
+		// const base64pfp = `data:image/jpeg;base64,${(await pfpRawResponse.arrayBuffer('binary')).toString('base64')}`;
+
+		// userinfo.picture = userinfo.picture.replace('$value', userinfo.sub);
+
+		return { accessTokenExpired, userinfo };
 	}),
 
 	getGitHubProfile: protectedProcedure
