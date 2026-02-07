@@ -239,7 +239,48 @@ export const accountRouter = {
 
 		if (accounts.length === 0) return false;
 
-		return true;
+		const uvmAccount = accounts[0];
+
+		const accessTokenExpired = uvmAccount.accessTokenExpiresAt
+			? isPast(uvmAccount.accessTokenExpiresAt)
+			: false;
+
+		if (accessTokenExpired) {
+			return {
+				accessTokenExpired: true
+			};
+		}
+
+		const userinfoResponse = await fetch('https://graph.microsoft.com/oidc/userinfo', {
+			headers: {
+				Authorization: `Bearer ${uvmAccount.accessToken}`
+			}
+		});
+
+		if (!userinfoResponse.ok) {
+			console.error('Failed to fetch UVM profile', await userinfoResponse.text());
+			throw new ORPCError('INTERNAL_SERVER_ERROR', {
+				message: 'Failed to fetch UVM profile'
+			});
+		}
+
+		const userinfo = (await userinfoResponse.json()) as MicrosoftGraphUserInformation;
+
+		// Fetch the profile photo
+		//
+		const pfpRawResponse = await fetch(userinfo.picture, {
+			headers: {
+				Authorization: `Bearer ${uvmAccount.accessToken}`
+			}
+		});
+
+		console.log({ pfpRawResponse });
+
+		const base64pfp = `data:image/jpeg;base64,${Buffer.copyBytesFrom(await pfpRawResponse.bytes()).toString('base64')}`;
+
+		userinfo.picture = base64pfp;
+
+		return { accessTokenExpired, userinfo };
 	}),
 
 	getGitHubProfile: protectedProcedure
