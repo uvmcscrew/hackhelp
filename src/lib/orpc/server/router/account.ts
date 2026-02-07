@@ -1,4 +1,4 @@
-import { o, protectedProcedure } from '../shared';
+import { protectedProcedure } from '../shared';
 import { and, eq } from 'drizzle-orm';
 import { serverEnv } from '$lib/env/server';
 import type { AuthedContext } from '../context';
@@ -9,6 +9,8 @@ import { addRole, checkRolePermission } from '$lib/auth/permissions';
 import { dev } from '$app/environment';
 import { formatDistance, isPast } from 'date-fns';
 import z from 'zod';
+import { deserialize, serialize } from 'superjson';
+import { personProfileRole, profileDataSchema, type ProfileData } from '$lib/schemas';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -459,7 +461,106 @@ export const accountRouter = {
 
 	profile: {
 		initialize: protectedProcedure
-			.input(z.object({ primaryRole: z.enum(['participant', 'mentor', 'judge']) }))
-			.handler(({ context }) => {})
+			.input(z.object({ primaryRole: personProfileRole }))
+			.handler(async ({ context, input }) => {
+				const roles = (context.user.role || '').split(',');
+
+				// First, check if the user is requesting a primaryRole that they are not authorized to have
+				// This runs first because it does not require a database query
+				if (!(input.primaryRole === 'competitor')) {
+					if (!roles.includes(input.primaryRole)) {
+						throw new ORPCError('UNAUTHORIZED', {
+							message: 'Missing required role to become Mentor or Judge'
+						});
+					}
+				}
+
+				// Second, check if the user has a profile and if so, reject the request
+				const existingProfiles = await context.db.client
+					.select()
+					.from(context.db.schema.profile)
+					.where(eq(context.db.schema.profile.id, context.user.id));
+
+				if (existingProfiles.length !== 0)
+					throw new ORPCError('BAD_REQUEST', {
+						message: 'Cannot create profile - you already have one'
+					});
+
+				// Initial profileData object with default values
+				const profileData = profileDataSchema.parse({});
+
+				// Create the profile with the initial role information
+				await context.db.client.insert(context.db.schema.profile).values({
+					id: context.user.id,
+					primaryRole: input.primaryRole,
+					data: serialize(profileData)
+				});
+			}),
+		get: protectedProcedure.handler(async ({ context }) => {
+			const existingProfiles = await context.db.client
+				.select()
+				.from(context.db.schema.profile)
+				.where(eq(context.db.schema.profile.id, context.user.id));
+
+			if (existingProfiles.length === 0) return null;
+
+			const profile = existingProfiles[0];
+			const profileData = deserialize<ProfileData>(profile.data);
+
+			return {
+				profile: {
+					...profile,
+					data: profileData
+				}
+			};
+		}),
+		update: protectedProcedure
+			// TODO: add stuff for affiliation here
+			.input(z.object({ data: profileDataSchema, primaryRole: personProfileRole.optional() }))
+			.handler(async ({ context, input }) => {
+				const roles = (context.user.role || '').split(',');
+
+				// First, check if the user is requesting a primaryRole that they are not authorized to have
+				// This runs first because it does not require a database query
+				if (input.primaryRole) {
+					if (!(input.primaryRole === 'competitor')) {
+						if (!roles.includes(input.primaryRole)) {
+							throw new ORPCError('UNAUTHORIZED', {
+								message: 'Missing required role to become Mentor or Judge'
+							});
+						}
+					}
+				}
+
+				const existingProfiles = await context.db.client
+					.select()
+					.from(context.db.schema.profile)
+					.where(eq(context.db.schema.profile.id, context.user.id));
+
+				if (existingProfiles.length === 0)
+					throw new ORPCError('BAD_REQUEST', {
+						message: 'You do not have a profile'
+					});
+
+				const existingProfile = existingProfiles[0];
+
+				const newProfile = (
+					await context.db.client
+						.update(context.db.schema.profile)
+						.set({
+							primaryRole: input.primaryRole || existingProfile.primaryRole,
+							data: serialize(input.data)
+						})
+						.where(eq(context.db.schema.profile.id, context.user.id))
+						.returning()
+				)[0];
+
+				return {
+					profile: {
+						...newProfile,
+						data: input.data
+					}
+				};
+			})
 	}
 };
