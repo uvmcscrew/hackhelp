@@ -14,11 +14,23 @@ export const createTicketSchema = z.object({
 	issueNumber: z.coerce.number().int().positive()
 });
 
-export const batchWhitelistSchema = z.object({
-	firstName: z.string().nonempty(),
-	lastName: z.string().nonempty(),
-	email: z.email(),
-	githubUsername: z.string().nonempty()
+export const profileDataSchema = z.object({
+	shirtSize: z.enum(['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl']).nullable().default(null),
+	mainlineDietaryRestrictions: z.object({
+		halal: z.boolean().default(false),
+		kosher: z.boolean().default(false),
+		vegan: z.boolean().default(false),
+		vegetarian: z.boolean().default(false),
+		peanuts: z.boolean().default(false),
+		eggs: z.boolean().default(false),
+		fish: z.boolean().default(false),
+		shellfish: z.boolean().default(false),
+		wheat: z.boolean().default(false),
+		treenuts: z.boolean().default(false),
+		soy: z.boolean().default(false),
+		glutenFree: z.boolean().default(false)
+	}),
+	otherAllergies: z.string()
 });
 
-export type BatchWhitelist = z.infer<typeof batchWhitelistSchema>;
+export type ProfileData = z.infer<typeof profileDataSchema>;

@@ -1,21 +1,35 @@
-import { pgTable, text, integer, boolean, timestamp, json } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, json, index } from 'drizzle-orm/pg-core';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { customAlphabet } from 'nanoid';
 import type { WorkRooms } from '$lib/utils';
+import { user } from './auth';
+import type { ProfileData } from '$lib/schemas';
 
-import { user, session } from './auth';
+export const configuration = pgTable(
+	'configuration',
+	{
+		key: text('key').primaryKey(),
+		lastUpdated: timestamp('last_updated').notNull().defaultNow(),
+		value: json('value').notNull()
+	},
+	(table) => [index('configuration_key_idx').on(table.key)]
+);
 
-export const configuration = pgTable('configuration', {
-	key: text('key').primaryKey(),
-	lastUpdated: timestamp('last_updated').notNull().defaultNow(),
-	value: json('value').notNull()
-});
+type PersonRole = 'mentor' | 'judge' | 'competitor' | 'organizer';
 
-// export const profile = pgTable('profile', {
-// 	id: text('id').primaryKey().$defaultFn(cuid2),
-// 	primaryRole: text('role').$type<PersonRole>().default('competitor'),
-// 	linkedUserId: text('linked_user_id').references(() => user.id, { onDelete: 'cascade' })
-// });
+export const profile = pgTable(
+	'profile',
+	{
+		// id: text('id').primaryKey().$defaultFn(cuid2),
+		id: text('id')
+			.primaryKey()
+			.references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+		primaryRole: text('role').$type<PersonRole>().default('competitor'),
+		affiliation: text('affiliation'),
+		data: json('data').$type<ProfileData>()
+	},
+	(table) => [index('profile_userId_idx').on(table.id)]
+);
 
 // const simpleCode = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 6);
 
