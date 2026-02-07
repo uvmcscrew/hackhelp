@@ -14,8 +14,11 @@ export const createTicketSchema = z.object({
 	issueNumber: z.coerce.number().int().positive()
 });
 
+export const personProfileRole = z.enum(['competitor', 'mentor', 'judge', 'admin']);
+export type PersonProfileRole = z.infer<typeof personProfileRole>;
+
 export const profileDataSchema = z.object({
-	shirtSize: z.enum(['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl']).nullable().default(null),
+	shirtSize: z.enum(['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl']).optional(),
 	mainlineDietaryRestrictions: z.object({
 		halal: z.boolean().default(false),
 		kosher: z.boolean().default(false),
@@ -30,7 +33,7 @@ export const profileDataSchema = z.object({
 		soy: z.boolean().default(false),
 		glutenFree: z.boolean().default(false)
 	}),
-	otherAllergies: z.string()
+	otherAllergies: z.string().optional()
 });
 
 export type ProfileData = z.infer<typeof profileDataSchema>;

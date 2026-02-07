@@ -36,6 +36,13 @@
       "when": 1770491758462,
       "tag": "0004_wandering_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1770494329603,
+      "tag": "0005_fast_alex_wilder",
+      "breakpoints": true
     }
   ]
 }

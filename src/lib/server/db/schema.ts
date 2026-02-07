@@ -3,30 +3,28 @@ import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { customAlphabet } from 'nanoid';
 import type { WorkRooms } from '$lib/utils';
 import { user } from './auth';
-import type { ProfileData } from '$lib/schemas';
+import type { PersonProfileRole } from '$lib/schemas';
+import type { SuperJSONResult } from 'superjson';
 
 export const configuration = pgTable(
 	'configuration',
 	{
 		key: text('key').primaryKey(),
 		lastUpdated: timestamp('last_updated').notNull().defaultNow(),
-		value: json('value').notNull()
+		value: json('value').notNull().$type<SuperJSONResult>()
 	},
 	(table) => [index('configuration_key_idx').on(table.key)]
 );
 
-type PersonRole = 'mentor' | 'judge' | 'competitor' | 'organizer';
-
 export const profile = pgTable(
 	'profile',
 	{
-		// id: text('id').primaryKey().$defaultFn(cuid2),
 		id: text('id')
 			.primaryKey()
 			.references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-		primaryRole: text('role').$type<PersonRole>().default('competitor'),
+		primaryRole: text('role').$type<PersonProfileRole>().default('competitor'),
 		affiliation: text('affiliation'),
-		data: json('data').$type<ProfileData>()
+		data: json('data').$type<SuperJSONResult>().notNull()
 	},
 	(table) => [index('profile_userId_idx').on(table.id)]
 );
