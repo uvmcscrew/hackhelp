@@ -13,8 +13,20 @@
 	import { delay } from '$lib/utils';
 	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import WarningAlert from '$lib/components/warning-alert.svelte';
+	import type { UserAccounts } from '$lib/auth/server.server';
 
-	let accountQuery = createQuery(() => accountsQueryOptions);
+	type Props = {
+		initialData: {
+			accounts: UserAccounts;
+		};
+	};
+
+	let { initialData }: Props = $props();
+
+	let accountQuery = createQuery(() => ({
+		...accountsQueryOptions,
+		initialData: initialData.accounts
+	}));
 
 	let githubAccount = $derived.by(() => {
 		let providerAccounts = accountQuery.data

@@ -9,17 +9,32 @@
 
 	const qc = useQueryClient();
 
-	const profilePermissionQuery = createQuery(orpc.account.canCreateProfile.queryOptions);
+	type Props = {
+		initialData: {
+			canRequestVerification: boolean;
+			canCreateProfile: boolean;
+		};
+	};
+
+	let { initialData }: Props = $props();
+
+	const profilePermissionQuery = createQuery(() =>
+		orpc.account.canCreateProfile.queryOptions({
+			initialData: initialData.canCreateProfile
+		})
+	);
 	const canRequestVerificationQuery = createQuery(() =>
 		orpc.account.canRequestVerification.queryOptions({
-			enabled: profilePermissionQuery.data === false
+			// If we know for sure that the user is allowed to create a profile, then that means they're already verified
+			enabled: profilePermissionQuery.status === 'success' ? !profilePermissionQuery.data : true,
+			initialData: initialData.canRequestVerification
 		})
 	);
 	const requestVerificationMutation = createMutation(() =>
 		orpc.account.requestVerification.mutationOptions({
 			onSuccess: async (isVerified) => {
 				if (isVerified) {
-					await qc.invalidateQueries({ queryKey: orpc.account.canCreateProfile.queryKey() });
+					await qc.cancelQueries({ queryKey: orpc.account.canCreateProfile.queryKey() });
 				}
 			}
 		})
@@ -33,9 +48,9 @@
 			>Set important information related to your participation in the hackathon.</Card.Description
 		>
 	</Card.Header>
-	{#if profilePermissionQuery.data === true}
+	{#if profilePermissionQuery.data}
 		<Card.Content>Yippee!</Card.Content>
-	{:else if profilePermissionQuery.data === false && canRequestVerificationQuery.status === 'success'}
+	{:else if canRequestVerificationQuery.status === 'success'}
 		{#if canRequestVerificationQuery.data}
 			<Card.Content>
 				<p class="mb-2">Your account can request automatic verification!</p>

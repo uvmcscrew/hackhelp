@@ -6,8 +6,24 @@
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import { accountsQueryOptions } from './accounts';
 	import { Confetti } from 'svelte-confetti';
+	import type { UserAccounts } from '$lib/auth/server.server';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import * as Avatar from '$lib/components/ui/avatar';
+	import CircleUser from 'lucide-svelte/icons/circle-user';
+	import WarningAlert from '$lib/components/warning-alert.svelte';
 
-	let accountQuery = createQuery(() => accountsQueryOptions);
+	type Props = {
+		initialData: {
+			accounts: UserAccounts;
+		};
+	};
+
+	let { initialData }: Props = $props();
+
+	let accountQuery = createQuery(() => ({
+		...accountsQueryOptions,
+		initialData: initialData.accounts
+	}));
 
 	let uvmNetIdAccount = $derived.by(() => {
 		let providerAccounts = accountQuery.data
@@ -15,6 +31,12 @@
 			: [];
 		return providerAccounts.length === 0 ? null : providerAccounts[0];
 	});
+
+	let uvmProfileQuery = createQuery(() =>
+		orpc.account.getUvmProfile.queryOptions({
+			enabled: !(uvmNetIdAccount === null)
+		})
+	);
 
 	let linkMutation = createMutation(() => ({
 		mutationKey: ['auth', 'accounts', 'uvm-netid'],
@@ -25,10 +47,22 @@
 				errorCallbackURL: '/auth/error?provider=uvm-netid',
 				scopes: ['openid', 'email', 'profile']
 			}),
-		onSettled: (_d, _e, _v, _r, ctx) =>
-			ctx.client.invalidateQueries({ queryKey: accountsQueryOptions.queryKey })
+		onSettled: async (_d, _e, _v, _r, ctx) =>
+			await Promise.allSettled([
+				ctx.client.invalidateQueries({ queryKey: accountsQueryOptions.queryKey }),
+				ctx.client.invalidateQueries({ queryKey: orpc.account.getUvmProfile.queryKey() })
+			])
 	}));
 </script>
+
+{#snippet linkButton()}
+	<Button onclick={async () => await linkMutation.mutateAsync()} disabled={linkMutation.isPending}>
+		{#if linkMutation.isPending}
+			<LoaderCircle class="h-6 w-auto animate-spin" />
+		{/if}
+		Link Account</Button
+	>
+{/snippet}
 
 <Card.Root class="relative">
 	{#if linkMutation.isSuccess}
@@ -41,21 +75,34 @@
 		>
 	</Card.Header>
 	{#if accountQuery.status === 'success'}
-		{#if uvmNetIdAccount}
+		{#if uvmNetIdAccount !== null && uvmProfileQuery.data?.accessTokenExpired === false && uvmProfileQuery.data.userinfo}
+			<Card.Content class="flex flex-col">
+				<div class="flex gap-x-2">
+					<Avatar.Root class="h-16 w-16">
+						<Avatar.Image src={uvmProfileQuery.data.userinfo.picture} alt="User avatar" />
+						<Avatar.Fallback><CircleUser class="h-16 w-16" /></Avatar.Fallback>
+					</Avatar.Root>
+					<div class="basis-full">
+						<h2 class="font-semibold">{uvmProfileQuery.data.userinfo.name}</h2>
+						<Button variant="link" class="text-muted-foreground m-0 p-0 font-mono"
+							>{uvmProfileQuery.data.userinfo.email}</Button
+						>
+					</div>
+				</div>
+			</Card.Content>
+		{:else if uvmProfileQuery.data?.accessTokenExpired === true}
 			<Card.Content>
-				Account ID: {uvmNetIdAccount.accountId}
+				<WarningAlert title="UVM NetID Reauthentication Required">
+					<p class="mb-2">
+						You may have already linked your UVM NetID, but our access token has expired and we need
+						to refresh it. Please log in again.
+					</p>
+					{@render linkButton()}
+				</WarningAlert>
 			</Card.Content>
 		{:else}
 			<Card.Content>
-				<Button
-					onclick={async () => await linkMutation.mutateAsync()}
-					disabled={linkMutation.isPending}
-				>
-					{#if linkMutation.isPending}
-						<LoaderCircle class="h-6 w-auto animate-spin" />
-					{/if}
-					Link Account</Button
-				>
+				{@render linkButton()}
 			</Card.Content>
 		{/if}
 	{:else}

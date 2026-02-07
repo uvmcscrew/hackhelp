@@ -167,6 +167,15 @@ async function getGithubUserInformation(context: AuthedContext): Promise<GithubU
 	}
 }
 
+type MicrosoftGraphUserInformation = {
+	sub: string;
+	name: string;
+	picture: string;
+	family_name: string;
+	given_name: string;
+	email: string;
+};
+
 type GetGithubProfile =
 	| { hasGithubProfile: false; message: string; orgStatus?: never; profile?: never }
 	| {
@@ -234,10 +243,13 @@ export const accountRouter = {
 		return false;
 	}),
 
-	hasUvmProfile: protectedProcedure.handler(async ({ context }) => {
+	getUvmProfile: protectedProcedure.handler(async ({ context }) => {
 		const accounts = await getProviderAccounts(context, 'uvm-netid');
 
-		if (accounts.length === 0) return false;
+		if (accounts.length === 0)
+			throw new ORPCError('BAD_REQUEST', {
+				message: 'You must have a linked UVM NetID account to make this request'
+			});
 
 		const uvmAccount = accounts[0];
 

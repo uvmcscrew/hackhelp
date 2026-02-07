@@ -3,12 +3,10 @@
 
 	import { ModeWatcher } from 'mode-watcher';
 	import { browser, dev } from '$app/environment';
-	import { MutationCache, QueryCache, QueryClient } from '@tanstack/svelte-query';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client';
 	import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
-	import { toast } from 'svelte-sonner';
 
 	import '@fontsource-variable/lora';
 	import '@fontsource-variable/inter';
@@ -16,44 +14,12 @@
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import { posthogHandler } from '$lib/utils';
 
-	let { children } = $props();
+	let { data, children } = $props();
 
 	if (browser && !dev) {
 		beforeNavigate(() => posthogHandler((posthog) => posthog.capture('$pageleave')));
 		afterNavigate(() => posthogHandler((posthog) => posthog.capture('$pageview')));
 	}
-
-	const queryCache = new QueryCache({
-		onError: (error, _) => {
-			console.error(error);
-			toast.error('Failed to fetch data', {
-				description: error.message
-			});
-		}
-	});
-
-	const mutationCache = new MutationCache({
-		onError: (error) => {
-			console.error(error);
-			toast.error('Failed to perform action', {
-				description: error.message
-			});
-		}
-	});
-
-	const queryClient = new QueryClient({
-		queryCache,
-		mutationCache,
-		defaultOptions: {
-			queries: {
-				enabled: browser,
-				refetchInterval: 90 * 1000, // 90 seconds at minimum
-				staleTime: 5 * 60 * 1000, // 5 minutes
-				refetchOnWindowFocus: true,
-				refetchOnMount: 'always'
-			}
-		}
-	});
 
 	const persister = createAsyncStoragePersister({
 		storage: browser ? window.localStorage : null
@@ -62,7 +28,7 @@
 
 <ModeWatcher />
 
-<PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
+<PersistQueryClientProvider client={data.queryClient} persistOptions={{ persister }}>
 	<Toaster />
 	{@render children()}
 	<SvelteQueryDevtools />
