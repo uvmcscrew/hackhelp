@@ -8,6 +8,7 @@ import { ORPCError, type } from '@orpc/server';
 import { addRole, checkRolePermission } from '$lib/auth/permissions';
 import { dev } from '$app/environment';
 import { formatDistance, isPast } from 'date-fns';
+import z from 'zod';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -454,15 +455,11 @@ export const accountRouter = {
 		return {
 			avatarUrl: user.avatar_url
 		};
-	})
-};
+	}),
 
-// #############################################
-// #         AUTHENTICATION ROUTER             #
-// #############################################
-
-export const authRouter = {
-	getOAuthUrlMutation: o.route({ method: 'POST' }).handler(({ context: _ }) => {
-		return false;
-	})
+	profile: {
+		initialize: protectedProcedure
+			.input(z.object({ primaryRole: z.enum(['participant', 'mentor', 'judge']) }))
+			.handler(({ context }) => {})
+	}
 };
