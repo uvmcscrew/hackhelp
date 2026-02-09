@@ -50,14 +50,12 @@
 		<CardContent>
 			<ErrorAlert title={errorTitle}
 				>{#if errorDescription}
-					<p class="mt-2 text-sm text-red-200/80">
+					<p class="mt-2 text-sm">
 						{errorDescription}
 					</p>
-					<p class="mt-2 text-sm text-red-200/80">
-						If this error persists, contact the hackathon organizers.
-					</p>
+					<p class="mt-2 text-sm">If this error persists, contact the hackathon organizers.</p>
 				{:else}
-					<p class="mt-2 text-sm text-red-200/80">
+					<p class="mt-2 text-sm">
 						Please try again, and if this error persists, contact the hackathon organizers.
 					</p>
 				{/if}
