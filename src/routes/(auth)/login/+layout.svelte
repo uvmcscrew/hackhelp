@@ -7,7 +7,10 @@
 
 <CardHeader
 	><CardTitle>HackHelp Sign In</CardTitle>
-	<CardDescription>If you're a UVM student or faculty member, use NetID sign in.</CardDescription>
+	<CardDescription
+		>If you're a UVM student or faculty member, use NetID sign in. Otherwise, if you have a .edu
+		email, use it!</CardDescription
+	>
 </CardHeader>
 
 {@render children()}

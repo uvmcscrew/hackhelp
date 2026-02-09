@@ -9,7 +9,7 @@
 	><CardTitle>HackHelp Sign Up</CardTitle>
 	<CardDescription
 		>If you're a UVM student or faculty member, use NetID sign up to automatically verify your
-		account.</CardDescription
+		account. Otherwise, if you have a .edu email, use it!</CardDescription
 	>
 </CardHeader>
 
