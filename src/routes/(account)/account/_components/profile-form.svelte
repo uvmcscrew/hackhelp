@@ -47,10 +47,13 @@
 		'aria-disabled': updateProfileMutation.isPending
 	});
 
+	// svelte-ignore state_referenced_locally
 	let shirtSize = $state(initialProfile.profile.data.shirtSize);
 
+	// svelte-ignore state_referenced_locally
 	let dietaryRestrictionsState = $state(initialProfile.profile.data.mainlineDietaryRestrictions);
 	let selectedDRs = $derived(pickBy(dietaryRestrictionsState, (v) => v));
+	// svelte-ignore state_referenced_locally
 	let otherAllergies = $state(initialProfile.profile.data.otherAllergies);
 
 	// Combobox state
