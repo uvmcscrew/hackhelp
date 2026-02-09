@@ -20,7 +20,8 @@ export const load = async (event: ServerLoadEvent) => {
 		shouldShowNavigationButtons: await appRouter.account.shouldShowNavigationButtons.callable({
 			context
 		})(),
-		canCreateProfile: await appRouter.account.canCreateProfile.callable({ context })(),
-		canRequestVerification: await appRouter.account.canRequestVerification.callable({ context })()
+		canCreateProfile: await appRouter.account.profile.canInitialize.callable({ context })(),
+		canRequestVerification: await appRouter.account.canRequestVerification.callable({ context })(),
+		profile: await appRouter.account.profile.get.callable({ context })()
 	};
 };

@@ -16,10 +16,10 @@
 	import type { PageProps } from './$types';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import PasskeysCard from './_cards/passkeys-card.svelte';
-	import Profile from './_cards/profile.svelte';
+	import ProfileParentCard from './_cards/profile.svelte';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import UVMNetIDAccount from './_cards/uvmnetid-account.svelte';
-	import GithubAccount from './_cards/github-account.svelte';
+	import UVMNetIDAccountCard from './_cards/uvmnetid-account.svelte';
+	import GithubAccountCard from './_cards/github-account.svelte';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import { page } from '$app/state';
 	import RoleBadge from '$lib/components/role-badge.svelte';
@@ -121,17 +121,17 @@
 			{/if}
 		</Tabs.List>
 		<Tabs.Content value="profile">
-			<Profile initialData={data} />
+			<ProfileParentCard initialData={data} />
 		</Tabs.Content>
 		<Tabs.Content value="passkeys">
 			<PasskeysCard />
 		</Tabs.Content>
 		<Tabs.Content value="netid">
-			<UVMNetIDAccount initialData={data} />
+			<UVMNetIDAccountCard initialData={data} />
 		</Tabs.Content>
 		{#if profilePermissionQuery.data}
 			<Tabs.Content value="github">
-				<GithubAccount initialData={data} />
+				<GithubAccountCard initialData={data} />
 			</Tabs.Content>
 		{/if}
 	</Tabs.Root>
