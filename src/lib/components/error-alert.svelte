@@ -11,7 +11,12 @@
 	let { children, title, class: cssClass }: Props = $props();
 </script>
 
-<div class={twMerge('rounded-md bg-red-500/15 p-4 outline outline-red-500/25', cssClass)}>
+<div
+	class={twMerge(
+		'rounded-md bg-red-50 p-4 dark:bg-red-500/15 dark:outline dark:outline-red-500/25',
+		cssClass
+	)}
+>
 	<div class="flex">
 		<div class="shrink-0">
 			<svg
@@ -30,10 +35,10 @@
 		</div>
 		<div class="ml-3">
 			{#if title}
-				<h3 class="text-sm font-medium text-red-200">{title}</h3>
+				<h3 class="text-sm font-medium text-red-800 dark:text-red-200">{title}</h3>
 			{/if}
 			{#if children}
-				<div class="mt-2 text-sm text-red-200/80">
+				<div class="mt-2 text-sm text-red-700 dark:text-red-200/80">
 					{@render children()}
 				</div>
 			{/if}

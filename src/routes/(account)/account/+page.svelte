@@ -7,7 +7,6 @@
 	import DoorOpen from 'lucide-svelte/icons/door-open';
 
 	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
 
 	import { goto } from '$app/navigation';
 	import MadeWith from '$lib/components/MadeWith.svelte';
@@ -17,12 +16,15 @@
 	import type { PageProps } from './$types';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import PasskeysCard from './_cards/passkeys-card.svelte';
-	import Profile from './_cards/profile.svelte';
+	import ProfileParentCard from './_cards/profile.svelte';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import UVMNetIDAccount from './_cards/uvmnetid-account.svelte';
-	import GithubAccount from './_cards/github-account.svelte';
+	import UVMNetIDAccountCard from './_cards/uvmnetid-account.svelte';
+	import GithubAccountCard from './_cards/github-account.svelte';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import { page } from '$app/state';
+	import RoleBadge from '$lib/components/role-badge.svelte';
+	import NameEditor from './_components/name-editor.svelte';
+	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
 
 	let { data }: PageProps = $props();
 	const queryClient = useQueryClient();
@@ -40,7 +42,7 @@
 	);
 
 	let profilePermissionQuery = createQuery(() =>
-		orpc.account.canCreateProfile.queryOptions({
+		orpc.account.profile.canInitialize.queryOptions({
 			initialData: data.canCreateProfile
 		})
 	);
@@ -79,29 +81,28 @@
 	<Card.Root
 		><Card.CardHeader class="flex flex-row items-center justify-between"
 			><Card.CardTitle>Profile</Card.CardTitle>
-			<Button
-				variant="destructive"
-				title="Sign Out"
-				class="hover:cursor-pointer"
-				onclick={async () => {
-					await signOutAndClearCache(queryClient);
-					posthogHandler((posthog) => posthog.reset());
-					await goto(resolve('/(auth)/login'));
-				}}><DoorOpen class="h-8 w-8" />Sign Out</Button
-			></Card.CardHeader
+			<div class="inline-flex gap-x-2">
+				<ColorModeButton />
+				<Button
+					variant="destructive"
+					title="Sign Out"
+					class="hover:cursor-pointer"
+					onclick={async () => {
+						await signOutAndClearCache(queryClient);
+						posthogHandler((posthog) => posthog.reset());
+						await goto(resolve('/(auth)/login'));
+					}}><DoorOpen class="h-8 w-8" />Sign Out</Button
+				>
+			</div></Card.CardHeader
 		><Card.CardContent class="flex flex-row"
 			><Avatar.Root class="h-16 w-16">
 				<Avatar.Image src={session.data?.user.image} alt="User avatar" />
 				<Avatar.Fallback><CircleUser class="h-16 w-16" /></Avatar.Fallback>
 			</Avatar.Root>
 			<div class="flex flex-col pl-4">
-				<span class="inline-flex gap-x-2">
-					<h2 class="min-h-4 text-lg font-medium">{session.data?.user.name}</h2>
-					{#if isAdmin}
-						<Badge class="ml-2 rounded-full bg-purple-400 px-2 py-1" hoverEffects={false}
-							>Administrator</Badge
-						>
-					{/if}
+				<span class="inline-flex items-center gap-x-2">
+					<NameEditor />
+					<RoleBadge />
 				</span>
 				<div>
 					<span class="text-muted-foreground pt-4 text-sm">{session.data?.user.email}</span>
@@ -120,17 +121,17 @@
 			{/if}
 		</Tabs.List>
 		<Tabs.Content value="profile">
-			<Profile initialData={data} />
+			<ProfileParentCard initialData={data} />
 		</Tabs.Content>
 		<Tabs.Content value="passkeys">
 			<PasskeysCard />
 		</Tabs.Content>
 		<Tabs.Content value="netid">
-			<UVMNetIDAccount initialData={data} />
+			<UVMNetIDAccountCard initialData={data} />
 		</Tabs.Content>
 		{#if profilePermissionQuery.data}
 			<Tabs.Content value="github">
-				<GithubAccount initialData={data} />
+				<GithubAccountCard initialData={data} />
 			</Tabs.Content>
 		{/if}
 	</Tabs.Root>

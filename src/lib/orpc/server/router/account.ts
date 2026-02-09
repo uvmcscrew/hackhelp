@@ -1,4 +1,4 @@
-import { o, protectedProcedure } from '../shared';
+import { protectedProcedure } from '../shared';
 import { and, eq } from 'drizzle-orm';
 import { serverEnv } from '$lib/env/server';
 import type { AuthedContext } from '../context';
@@ -8,6 +8,10 @@ import { ORPCError, type } from '@orpc/server';
 import { addRole, checkRolePermission } from '$lib/auth/permissions';
 import { dev } from '$app/environment';
 import { formatDistance, isPast } from 'date-fns';
+import z from 'zod';
+import { deserialize, serialize } from 'superjson';
+import { personProfileRole, profileDataSchema, type ProfileData } from '$lib/schemas';
+import { WHITELISTED_EMAIL_DOMAINS } from '$lib/utils';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -32,6 +36,54 @@ async function getProviderAccounts(context: AuthedContext, providerId: string) {
 				eq(context.db.schema.account.providerId, providerId)
 			)
 		);
+}
+
+/**
+ * This function checks if a user is already verified, or if they are allowed to become verified
+ * @param context The ORPC Context
+ */
+async function checkUserVerification(context: AuthedContext) {
+	if (
+		checkRolePermission({
+			roles: context.user.role || '',
+			permissions: { profile: ['create', 'update'] }
+		})
+	) {
+		return { isVerified: true, canVerify: false };
+	}
+
+	const emailDomain = context.user.email.split('@')[1];
+
+	// @ts-expect-error string is too general yeah yeah
+	if (context.user.emailVerified && WHITELISTED_EMAIL_DOMAINS.includes(emailDomain)) {
+		return {
+			canVerify: true,
+			isVerified: false
+		};
+	}
+
+	const accounts = await context.db.client
+		.select()
+		.from(context.db.schema.account)
+		.where(eq(context.db.schema.account.userId, context.user.id));
+
+	for (const acc of accounts) {
+		if (acc.providerId === 'uvm-netid') {
+			return {
+				canVerify: true,
+				isVerified: false
+			};
+		}
+	}
+
+	return { canVerify: false, isVerified: false };
+}
+
+async function verifyUser(context: AuthedContext) {
+	await context.db.client
+		.update(context.db.schema.user)
+		.set({ role: addRole(context.user.role || '', 'verifiedUser').join(',') })
+		.where(eq(context.db.schema.user.id, context.user.id));
 }
 
 type GithubUserInformation = (
@@ -186,12 +238,14 @@ type GetGithubProfile =
 	  };
 
 export const accountRouter = {
-	canCreateProfile: protectedProcedure.route({ method: 'GET' }).handler(({ context }) => {
-		return checkRolePermission({
-			roles: context.user.role || '',
-			permissions: { profile: ['create', 'update'] }
-		});
-	}),
+	updateName: protectedProcedure
+		.input(z.object({ newName: z.string() }))
+		.handler(async ({ context, input }) => {
+			await context.db.client
+				.update(context.db.schema.user)
+				.set({ name: input.newName })
+				.where(eq(context.db.schema.user.id, context.user.id));
+		}),
 
 	shouldShowNavigationButtons: protectedProcedure
 		.route({ method: 'GET' })
@@ -286,14 +340,11 @@ export const accountRouter = {
 			}
 		});
 
-		console.log({ pfpRawResponse });
+		// console.log({ pfpRawResponse });
 
-		// const pfpBlob = await pfpRawResponse.blob()
-		// pfpBlob.
+		const base64pfp = `data:image/jpeg;base64,${Buffer.copyBytesFrom(await pfpRawResponse.bytes()).toString('base64')}`;
 
-		// const base64pfp = `data:image/jpeg;base64,${(await pfpRawResponse.arrayBuffer('binary')).toString('base64')}`;
-
-		// userinfo.picture = userinfo.picture.replace('$value', userinfo.sub);
+		userinfo.picture = base64pfp;
 
 		return { accessTokenExpired, userinfo };
 	}),
@@ -457,15 +508,147 @@ export const accountRouter = {
 		return {
 			avatarUrl: user.avatar_url
 		};
-	})
-};
+	}),
 
-// #############################################
-// #         AUTHENTICATION ROUTER             #
-// #############################################
+	profile: {
+		canInitialize: protectedProcedure.handler(async ({ context }) => {
+			if (
+				checkRolePermission({
+					roles: context.user.role || '',
+					permissions: { profile: ['create'] }
+				})
+			)
+				return true;
 
-export const authRouter = {
-	getOAuthUrlMutation: o.route({ method: 'POST' }).handler(({ context: _ }) => {
-		return false;
-	})
+			const verificationStatus = await checkUserVerification(context);
+
+			if (verificationStatus.isVerified) return true;
+			if (verificationStatus.canVerify) return true;
+
+			return false;
+		}),
+		initialize: protectedProcedure
+			.input(z.object({ primaryRole: personProfileRole }))
+			.handler(async ({ context, input }) => {
+				const verificationStatus = await checkUserVerification(context);
+
+				if (!verificationStatus.canVerify && !verificationStatus.isVerified) {
+					throw new ORPCError('UNAUTHORIZED', {
+						message: 'You are not eligible for verification'
+					});
+				}
+
+				if (verificationStatus.canVerify) {
+					await verifyUser(context);
+				}
+
+				const roles = (context.user.role || '').split(',');
+
+				// Check if the user is requesting a primaryRole that they are not authorized to have
+				if (input.primaryRole !== 'competitor') {
+					if (!roles.includes(input.primaryRole)) {
+						throw new ORPCError('UNAUTHORIZED', {
+							message: 'Missing required role to become Mentor or Judge'
+						});
+					}
+				}
+
+				// Second, check if the user has a profile and if so, reject the request
+				const existingProfiles = await context.db.client
+					.select()
+					.from(context.db.schema.profile)
+					.where(eq(context.db.schema.profile.id, context.user.id));
+
+				if (existingProfiles.length !== 0)
+					throw new ORPCError('BAD_REQUEST', {
+						message: 'Cannot create profile - you already have one'
+					});
+
+				// Initial profileData object with default values
+				const profileData = profileDataSchema.parse({ mainlineDietaryRestrictions: {} });
+
+				// Create the profile with the initial role information
+				await context.db.client.insert(context.db.schema.profile).values({
+					id: context.user.id,
+					primaryRole: input.primaryRole,
+					data: serialize(profileData)
+				});
+			}),
+		get: protectedProcedure.handler(async ({ context }) => {
+			const existingProfiles = await context.db.client
+				.select()
+				.from(context.db.schema.profile)
+				.where(eq(context.db.schema.profile.id, context.user.id));
+
+			if (existingProfiles.length === 0) return null;
+
+			const profile = existingProfiles[0];
+			const profileData = deserialize<ProfileData>(profile.data);
+
+			return {
+				profile: {
+					...profile,
+					data: profileData
+				}
+			};
+		}),
+		update: protectedProcedure
+			// TODO: add stuff for affiliation here
+			.input(z.object({ data: profileDataSchema, primaryRole: personProfileRole.optional() }))
+			.handler(async ({ context, input }) => {
+				if (
+					!checkRolePermission({
+						roles: context.user.role || '',
+						permissions: { profile: ['update'] }
+					})
+				) {
+					throw new ORPCError('UNAUTHORIZED', {
+						message: 'You do not have permission to update a profile'
+					});
+				}
+				const roles = (context.user.role || '').split(',');
+
+				// First, check if the user is requesting a primaryRole that they are not authorized to have
+				// This runs first because it does not require a database query
+				if (input.primaryRole) {
+					if (!(input.primaryRole === 'competitor')) {
+						if (!roles.includes(input.primaryRole)) {
+							throw new ORPCError('UNAUTHORIZED', {
+								message: 'Missing required role to become Mentor or Judge'
+							});
+						}
+					}
+				}
+
+				const existingProfiles = await context.db.client
+					.select()
+					.from(context.db.schema.profile)
+					.where(eq(context.db.schema.profile.id, context.user.id));
+
+				if (existingProfiles.length === 0)
+					throw new ORPCError('BAD_REQUEST', {
+						message: 'You do not have a profile'
+					});
+
+				const existingProfile = existingProfiles[0];
+
+				const newProfile = (
+					await context.db.client
+						.update(context.db.schema.profile)
+						.set({
+							primaryRole: input.primaryRole || existingProfile.primaryRole,
+							data: serialize(input.data)
+						})
+						.where(eq(context.db.schema.profile.id, context.user.id))
+						.returning()
+				)[0];
+
+				return {
+					profile: {
+						...newProfile,
+						data: input.data
+					}
+				};
+			})
+	}
 };
