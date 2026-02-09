@@ -565,7 +565,7 @@ export const accountRouter = {
 					});
 
 				// Initial profileData object with default values
-				const profileData = profileDataSchema.parse({});
+				const profileData = profileDataSchema.parse({ mainlineDietaryRestrictions: {} });
 
 				// Create the profile with the initial role information
 				await context.db.client.insert(context.db.schema.profile).values({
