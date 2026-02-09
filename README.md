@@ -63,6 +63,12 @@ bun dev
 
 then visit http://localhost:5173
 
+#### Analyze bundle size
+
+```sh
+bunx vite-bundle-analyzer
+```
+
 ### Development Notes
 
 #### Code Line Counting
