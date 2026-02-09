@@ -42,7 +42,7 @@
 	);
 
 	let profilePermissionQuery = createQuery(() =>
-		orpc.account.canCreateProfile.queryOptions({
+		orpc.account.profile.canInitialize.queryOptions({
 			initialData: data.canCreateProfile
 		})
 	);

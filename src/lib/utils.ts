@@ -27,6 +27,14 @@ export function posthogHandler(posthogFn: (ph: PostHog) => void) {
 	}
 }
 
+export const WHITELISTED_EMAIL_DOMAINS = [
+	'uvm.edu',
+	'middlebury.edu',
+	'champlain.edu',
+	'smcvt.edu',
+	'mcgill.ca'
+] as const;
+
 export const MAX_TEAMS_PER_CHALLENGE = 6;
 
 export const WORK_ROOMS = [
