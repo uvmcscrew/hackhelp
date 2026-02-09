@@ -55,10 +55,10 @@
 	<title>Account Home | HackHelp</title>
 </svelte:head>
 
-<div class="flex min-h-screen w-xl flex-col gap-y-4 pt-16">
+<div class="flex min-h-screen w-full flex-col gap-y-4 px-2 pt-16 lg:mx-0 lg:w-xl">
 	<h1 class="w-full text-center text-2xl font-semibold">Account</h1>
 	{#if showNavButtonsQuery.data}
-		<div class="text-foreground flex w-full justify-center gap-x-2">
+		<div class="text-foreground flex w-full flex-col justify-center gap-x-2 gap-y-2 lg:flex-row">
 			{#if isAdmin}
 				<Button variant="outline" class="hover:cursor-pointer" href="/admin">Admin Dashboard</Button
 				>
