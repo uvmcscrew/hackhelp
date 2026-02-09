@@ -51,8 +51,8 @@
 			>Set important information related to your participation in the hackathon.</Card.Description
 		>
 	</Card.Header>
-	{#if profileCardViewState === 'form'}
-		<ProfileForm />
+	{#if profileCardViewState === 'form' && profileQuery.data}
+		<ProfileForm initialProfile={profileQuery.data} />
 	{:else if profileCardViewState === 'initialize'}
 		<ProfileInitialize />
 	{:else if profileCardViewState === 'no'}
