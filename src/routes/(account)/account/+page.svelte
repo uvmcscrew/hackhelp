@@ -55,7 +55,7 @@
 	<title>Account Home | HackHelp</title>
 </svelte:head>
 
-<div class="mx-auto flex min-h-screen w-xl flex-col gap-y-4 pt-16">
+<div class="flex min-h-screen w-xl flex-col gap-y-4 pt-16">
 	<h1 class="w-full text-center text-2xl font-semibold">Account</h1>
 	{#if showNavButtonsQuery.data}
 		<div class="text-foreground flex w-full justify-center gap-x-2">
