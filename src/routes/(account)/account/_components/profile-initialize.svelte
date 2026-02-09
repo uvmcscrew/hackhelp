@@ -11,6 +11,8 @@
 
 	const sessionQuery = createQuery(() => sessionQueryOptions);
 
+	let canInitializeProfileQuery = createQuery(orpc.account.profile.canInitialize.queryOptions);
+
 	const initializeProfileMutation = createMutation(() =>
 		orpc.account.profile.initialize.mutationOptions({
 			onSuccess: async () => {
@@ -19,33 +21,40 @@
 		})
 	);
 
-	const roles = $derived((sessionQuery.data?.user.role ?? '').split(','));
+	let roles = $derived((sessionQuery.data?.user.role ?? '').split(','));
 
-	const roleButtons = $derived(
-		roles
-			.filter(
-				(r) =>
-					![
-						'user',
-						// Don't show competitor initialize button if user has mentor, judge, or admin roles
-						(roles.includes('mentor') || roles.includes('judge') || roles.includes('admin')) &&
-							'verifiedUser',
+	let initializeButtons = $derived.by(() => {
+		if (roles.includes('admin')) {
+			return ['admin'];
+		}
 
-						roles.includes('admin') && 'judge',
-						roles.includes('admin') && 'mentor'
-					].includes(r)
-			)
-			.map((r) => (r.toLowerCase() === 'verifieduser' ? 'competitor' : r))
-	);
+		let btnRoles = [];
+
+		if (roles.includes('mentor')) {
+			btnRoles.push('mentor');
+		}
+
+		if (roles.includes('judge')) {
+			btnRoles.push('judge');
+		}
+
+		if (btnRoles.length > 0) return btnRoles;
+
+		if (roles.includes('verifiedUser') || canInitializeProfileQuery.data) {
+			return ['competitor'];
+		}
+
+		return [];
+	});
 </script>
 
 <CardContent class="flex gap-x-2">
-	{#each roleButtons as rb (rb)}
-		{@const buttonTitle = capitalize(rb === 'admin' ? 'Organizer' : rb)}
+	{#each initializeButtons as btn (btn)}
+		{@const buttonTitle = capitalize(btn === 'admin' ? 'Organizer' : btn)}
 		<Button
 			onclick={async () =>
 				await initializeProfileMutation.mutateAsync({
-					primaryRole: rb as 'competitor' | 'mentor' | 'judge' | 'admin'
+					primaryRole: btn as 'competitor' | 'mentor' | 'judge' | 'admin'
 				})}
 			disabled={initializeProfileMutation.isPending}
 			aria-disabled={initializeProfileMutation.isPending}
