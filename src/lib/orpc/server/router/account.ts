@@ -7,11 +7,12 @@ import { RequestError as OctokitRequestError } from 'octokit';
 import { ORPCError, type } from '@orpc/server';
 import { addRole, checkRolePermission } from '$lib/auth/permissions';
 import { dev } from '$app/environment';
-import { formatDistance, isPast } from 'date-fns';
+import { addSeconds, formatDistance, isPast } from 'date-fns';
 import z from 'zod';
 import { deserialize, serialize } from 'superjson';
 import { personProfileRole, profileDataSchema, type ProfileData } from '$lib/schemas';
 import { WHITELISTED_EMAIL_DOMAINS } from '$lib/utils';
+import type { Account } from 'better-auth';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -103,6 +104,63 @@ type GithubUserInformation = (
 	providerAccount: Awaited<ReturnType<typeof getProviderAccounts>>[0];
 };
 
+async function refreshGithubAccessToken(
+	context: AuthedContext,
+	providerAccount: Account
+): Promise<
+	| { refreshed: false; accessToken?: never; error: string }
+	| { refreshed: true; accessToken: string; error?: never }
+> {
+	if (!providerAccount.accessToken || !providerAccount.accessTokenExpiresAt)
+		return { refreshed: false, error: 'Missing access token or access token expiry' };
+	if (!providerAccount.refreshToken || !providerAccount.refreshTokenExpiresAt)
+		return { refreshed: false, error: 'Missing refresh token or refresh token expiry' };
+
+	// Can't refresh with an invalid refresh token
+	if (isPast(providerAccount.refreshTokenExpiresAt)) {
+		return { refreshed: false, error: 'Refresh token is expired' };
+	}
+
+	// Form API call to refresh the access token
+	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/refreshing-user-access-tokens
+	const refreshURL = new URL('https://github.com/login/oauth/access_token');
+	refreshURL.searchParams.set('client_id', serverEnv.GITHUB_APP_CLIENT_ID);
+	refreshURL.searchParams.set('client_secret', serverEnv.GITHUB_APP_CLIENT_SECRET);
+	refreshURL.searchParams.set('grant_type', 'refresh_token');
+	refreshURL.searchParams.set('refresh_token', providerAccount.refreshToken);
+
+	// Hit API
+	const refreshResponse = await fetch(refreshURL, {
+		method: 'POST'
+	});
+
+	const refreshResBody = new URLSearchParams(await refreshResponse.text());
+
+	const accessToken = refreshResBody.get('access_token');
+	const expirySeconds = parseInt(refreshResBody.get('expires_in') || '0');
+
+	// If there's an error or we're missing some values, return an error
+	if (!refreshResponse.ok || refreshResBody.get('error') || !accessToken || expirySeconds === 0) {
+		return {
+			refreshed: false,
+			error: refreshResBody.get('error_description') ?? 'Failed to refresh access token'
+		};
+	}
+
+	const expiryDate = addSeconds(new Date(), expirySeconds);
+
+	// Update database
+	await context.db.client
+		.update(context.db.schema.account)
+		.set({
+			accessToken,
+			accessTokenExpiresAt: expiryDate
+		})
+		.where(eq(context.db.schema.account.id, providerAccount.id));
+
+	return { refreshed: true, accessToken };
+}
+
 async function getGithubUserInformation(context: AuthedContext): Promise<GithubUserInformation> {
 	const accounts = await getProviderAccounts(context, 'github');
 
@@ -114,66 +172,21 @@ async function getGithubUserInformation(context: AuthedContext): Promise<GithubU
 	const githubAccount = accounts[0];
 
 	// Check access token expiry, and refresh if necessary
-	if (
-		githubAccount.accessTokenExpiresAt &&
-		new Date(githubAccount.accessTokenExpiresAt) < new Date()
-	) {
-		const refreshURL = new URL('https://github.com/login/oauth/access_token');
-		refreshURL.searchParams.set('client_id', serverEnv.GITHUB_APP_CLIENT_ID);
-		refreshURL.searchParams.set('client_secret', serverEnv.GITHUB_APP_CLIENT_SECRET);
-		refreshURL.searchParams.set('grant_type', 'refresh_token');
-		refreshURL.searchParams.set('refresh_token', githubAccount.refreshToken || '');
-
-		const refreshResponse = await fetch(refreshURL, {
-			method: 'POST'
-		});
-
-		console.log(
-			'Refreshing Github Access Token',
-			refreshURL.toString(),
-			'Status: ',
-			refreshResponse.status,
-			refreshResponse.statusText
+	if (githubAccount.accessTokenExpiresAt && isPast(githubAccount.accessTokenExpiresAt)) {
+		const { refreshed, accessToken, error } = await refreshGithubAccessToken(
+			context,
+			githubAccount
 		);
 
-		const refreshResBody = new URLSearchParams(await refreshResponse.text());
-
-		console.log('Refresh Response Body', refreshResBody);
-
-		if (!refreshResponse.ok || refreshResBody.get('error')) {
+		if (!refreshed) {
 			return {
 				err: new ORPCError('INTERNAL_SERVER_ERROR', {
-					message: `Failed to refresh GitHub access token: ${refreshResBody.get('error_description')}`
+					message: `Failed to refresh GitHub access token: ${error}`
 				}),
-				errType: !refreshResponse.ok
-					? refreshResponse.statusText
-					: (refreshResBody.get('error') ?? ''),
+				errType: error,
 				providerAccount: githubAccount
 			};
 		}
-
-		const accessToken = refreshResBody.get('access_token');
-		if (!accessToken) {
-			return {
-				err: new ORPCError('INTERNAL_SERVER_ERROR', {
-					message: `Failed to refresh GitHub access token. Token not found in response`
-				}),
-				errType: 'Unknown',
-				providerAccount: githubAccount
-			};
-		}
-		const expirySeconds = parseInt(refreshResBody.get('expires_in') || '0');
-
-		// Update the account in the database
-		const newExpiry = new Date();
-		newExpiry.setSeconds(newExpiry.getSeconds() + expirySeconds);
-		await context.db.client
-			.update(context.db.schema.account)
-			.set({
-				accessToken: accessToken,
-				accessTokenExpiresAt: newExpiry
-			})
-			.where(eq(context.db.schema.account.id, githubAccount.id));
 
 		// Update the local variable to use the new access token
 		githubAccount.accessToken = accessToken;
@@ -385,14 +398,9 @@ export const accountRouter = {
 			throw new ORPCError('INTERNAL_SERVER_ERROR');
 		}
 
-		const now = new Date();
-
 		return {
 			accessTokenExpiredAt: githubAccount.accessTokenExpiresAt,
 			refreshTokenExpiredAt: githubAccount.refreshTokenExpiresAt,
-			accessTokenExpiredAgo: `${formatDistance(now, githubAccount.accessTokenExpiresAt)} ago`,
-			refreshTokenExpiredAgo: `${formatDistance(now, githubAccount.refreshTokenExpiresAt)} ago`,
-			accessTokenExpired: isPast(githubAccount.accessTokenExpiresAt),
 			refreshTokenExpired: isPast(githubAccount.accessTokenExpiresAt)
 		};
 	}),
