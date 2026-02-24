@@ -15,23 +15,23 @@
 	// Captain mutations
 	const toggleCanJoinMut = createMutation(() =>
 		orpc.teams.toggleCanJoin.mutationOptions({
-			onSuccess: () => queryClient.invalidateQueries({ queryKey: ['teams'] })
+			onSuccess: () => queryClient.invalidateQueries({ queryKey: orpc.teams.myTeam.queryKey() })
 		})
 	);
 	const toggleIsPublicMut = createMutation(() =>
 		orpc.teams.toggleIsPublic.mutationOptions({
-			onSuccess: () => queryClient.invalidateQueries({ queryKey: ['teams'] })
+			onSuccess: () => queryClient.invalidateQueries({ queryKey: orpc.teams.myTeam.queryKey() })
 		})
 	);
 	const kickMemberMut = createMutation(() =>
 		orpc.teams.kickMember.mutationOptions({
-			onSuccess: () => queryClient.invalidateQueries({ queryKey: ['teams'] })
+			onSuccess: () => queryClient.invalidateQueries({ queryKey: orpc.teams.myTeam.queryKey() })
 		})
 	);
 	const leaveTeamMut = createMutation(() =>
 		orpc.teams.leaveTeam.mutationOptions({
 			onSuccess: async (_) => {
-				await queryClient.invalidateQueries({ queryKey: ['teams'] });
+				await queryClient.cancelQueries({ queryKey: orpc.teams.myTeam.queryKey() });
 				await goto(resolve('/(authed)/home'));
 			}
 		})

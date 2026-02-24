@@ -15,7 +15,6 @@
 		<p class="text-muted-foreground">Loading...</p>
 	{:else if myTeamQuery.data}
 		{@const team = myTeamQuery.data}
-
 		<Card.Root>
 			<Card.Header>
 				<div class="flex items-center justify-between">
