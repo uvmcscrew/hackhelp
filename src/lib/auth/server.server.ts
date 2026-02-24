@@ -83,6 +83,7 @@ export const auth = betterAuth({
 					discoveryUrl: serverEnv.UVM_NETID_OIDC_DISCOVERY_URL,
 					authorizationUrl: 'https://my.mlh.io/oauth/authorize',
 					tokenUrl: 'https://my.mlh.io/oauth/token',
+					userInfoUrl: 'https://api.mlh.com/v4/users/me',
 					scopes: [
 						'public',
 						'offline_access',
