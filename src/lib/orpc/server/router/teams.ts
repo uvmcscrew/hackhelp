@@ -6,6 +6,48 @@ import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
 
 export const teamsRouter = {
+	byId: publicProcedure.input(z.object({ id: z.string() })).handler(async ({ context, input }) => {
+		const [team] = await context.db.client
+			.select()
+			.from(context.db.schema.team)
+			.where(eq(context.db.schema.team.id, input.id));
+
+		if (!team) throw new ORPCError('NOT_FOUND', { message: 'Team not found' });
+
+		const canViewExtendedInfo = !!context.user;
+
+		const members = await context.db.client
+			.select({
+				membership: context.db.schema.teamMembers,
+				user: {
+					name: context.db.schema.user.name,
+					email: context.db.schema.user.email,
+					image: context.db.schema.user.image
+				}
+			})
+			.from(context.db.schema.teamMembers)
+			.where(eq(context.db.schema.teamMembers.teamId, team.id))
+			.leftJoin(
+				context.db.schema.user,
+				eq(context.db.schema.teamMembers.userId, context.db.schema.user.id)
+			);
+
+		const filteredMembers = members
+			.filter((m) => m.user !== null)
+			.map((m) => ({
+				...m,
+				user: {
+					...m.user!,
+					email: canViewExtendedInfo ? m.user!.email : ''
+				}
+			}));
+
+		return {
+			...team,
+			members: filteredMembers
+		};
+	}),
+
 	listAll: publicProcedure.handler(async ({ context }) => {
 		const canViewExtendedInfo = !!context.user;
 
