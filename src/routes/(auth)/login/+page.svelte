@@ -53,6 +53,22 @@
 		}
 	}));
 
+	let mlhSignInMutation = createMutation(() => ({
+		mutationFn: async () => {
+			await authClient.signIn.oauth2({
+				providerId: 'mlh',
+				callbackURL: '/account',
+				errorCallbackURL: '/auth/error?provider=mlh',
+				newUserCallbackURL: '/account',
+				disableRedirect: false,
+				requestSignUp: false,
+				fetchOptions: {
+					throw: true
+				}
+			});
+		}
+	}));
+
 	let emailSignInMutation = createMutation(() => ({
 		mutationFn: async (
 			event: SubmitEvent & {
@@ -83,6 +99,7 @@
 	let loading = $derived(
 		emailSignInMutation.isPending ||
 			uvmNetIdSignInMutation.isPending ||
+			mlhSignInMutation.isPending ||
 			passkeySignInMutation.isPending
 	);
 </script>
@@ -121,6 +138,14 @@
 			{#if lastUsedMethod === 'uvm-netid'}
 				<Badge variant="yellow">Last Used</Badge>
 			{/if}
+		</Button>
+		<Button
+			disabled={loading}
+			aria-disabled={loading}
+			variant="secondary"
+			onclick={() => mlhSignInMutation.mutate()}
+			>{#if mlhSignInMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
+			{/if}Sign In with MLH
 		</Button>
 	</div>
 
