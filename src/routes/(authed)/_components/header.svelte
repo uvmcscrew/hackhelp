@@ -22,8 +22,6 @@
 		}
 		return [];
 	});
-
-	console.log({ links });
 </script>
 
 <!-- {@debug links} -->
