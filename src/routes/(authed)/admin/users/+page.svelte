@@ -15,5 +15,5 @@
 		<p class="text-muted-foreground text-sm">Manage all registered users.</p>
 	</div>
 
-	<UserTable users={usersQuery.data ?? []} />
+	<UserTable users={usersQuery.data?.users || []} />
 </div>
