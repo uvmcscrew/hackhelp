@@ -1,4 +1,13 @@
-import { pgTable, text, integer, boolean, timestamp, json, index } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	text,
+	integer,
+	boolean,
+	timestamp,
+	json,
+	index,
+	primaryKey
+} from 'drizzle-orm/pg-core';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { customAlphabet } from 'nanoid';
 import type { WorkRooms } from '$lib/utils';
@@ -29,17 +38,27 @@ export const profile = pgTable(
 	(table) => [index('profile_userId_idx').on(table.id)]
 );
 
-// const simpleCode = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 6);
+const hexCode = customAlphabet('abcdef0123456789', 6);
 
-// export const team = pgTable('team', {
-// 	id: text('id').primaryKey().$defaultFn(cuid2),
-// 	githubId: integer('github_id').notNull(),
-// 	githubSlug: text('github_slug').notNull(),
-// 	name: text('name').notNull(),
-// 	joinCode: text('join_code').notNull().unique().$defaultFn(simpleCode),
-// 	canJoin: boolean().default(true).notNull(),
-// 	selectedChallengeId: text('selected_challenge_id').references(() => challenge.id)
-// });
+export const team = pgTable('team', {
+	id: text('id').primaryKey().$defaultFn(cuid2),
+	githubId: integer('github_id'),
+	githubSlug: text('github_slug'),
+	name: text('name').notNull(),
+	joinCode: text('join_code').notNull().unique().$defaultFn(hexCode),
+	canJoin: boolean().default(true).notNull(),
+	isPublic: boolean().default(true).notNull(),
+	selectedChallengeId: text('selected_challenge_id').references(() => challenge.id)
+});
+
+export const teamMembers = pgTable(
+	'teamMember',
+	{
+		teamId: text('teamId').references(() => team.id),
+		userId: text('userId').references(() => user.id)
+	},
+	(t) => [primaryKey({ columns: [t.teamId, t.userId] })]
+);
 
 export const TICKET_RESOLUTION_STATUS = ['open', 'assigned', 'inProgress', 'closed'] as const;
 export type TicketResolutionStatus = (typeof TICKET_RESOLUTION_STATUS)[number];
@@ -61,11 +80,12 @@ export type TicketResolutionStatus = (typeof TICKET_RESOLUTION_STATUS)[number];
 // 		.$type<TicketResolutionStatus>()
 // });
 
-// export const challenge = pgTable('challenge', {
-// 	id: text('id').primaryKey().$defaultFn(cuid2),
-// 	title: text('title').notNull(),
-// 	linkedRepo: text('linked_repo').notNull()
-// });
+export const challenge = pgTable('challenge', {
+	id: text('id').primaryKey().$defaultFn(cuid2),
+	title: text('title').notNull(),
+	description: text('descr'),
+	linkedRepo: text('linked_repo')
+});
 
 export * from './auth';
 
