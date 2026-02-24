@@ -246,6 +246,19 @@ type MicrosoftGraphUserInformation = {
 	email: string;
 };
 
+type MLHUserProfile = {
+	id: number;
+	first_name: string;
+	last_name: string;
+	email: string;
+	phone_number: string | null;
+	level_of_study: string | null;
+	major: string | null;
+	date_of_birth: string | null;
+	gender: string | null;
+	school: { id: number; name: string } | null;
+};
+
 type GetGithubProfile =
 	| { hasGithubProfile: false; message: string; orgStatus?: never; profile?: never }
 	| {
@@ -410,8 +423,7 @@ export const accountRouter = {
 		}
 
 		return {
-			accessTokenExpiredAt: githubAccount.accessTokenExpiresAt,
-			refreshTokenExpiredAt: githubAccount.refreshTokenExpiresAt,
+			needsRefresh: isPast(githubAccount.accessTokenExpiresAt),
 			refreshTokenExpired: isPast(githubAccount.accessTokenExpiresAt)
 		};
 	}),
@@ -527,6 +539,86 @@ export const accountRouter = {
 		return {
 			avatarUrl: user.avatar_url
 		};
+	}),
+
+	getMlhProfile: protectedProcedure.handler(async ({ context }) => {
+		const accounts = await getProviderAccounts(context, 'mlh');
+
+		if (accounts.length === 0)
+			throw new ORPCError('BAD_REQUEST', {
+				message: 'You must have a linked MLH account to make this request'
+			});
+
+		const mlhAccount = accounts[0];
+
+		const accessTokenExpired = mlhAccount.accessTokenExpiresAt
+			? isPast(mlhAccount.accessTokenExpiresAt)
+			: false;
+
+		if (accessTokenExpired) {
+			return { accessTokenExpired: true as const, profile: null };
+		}
+
+		const profileResponse = await fetch('https://my.mlh.io/api/v4/user.json', {
+			headers: {
+				Authorization: `Bearer ${mlhAccount.accessToken}`
+			}
+		});
+
+		if (!profileResponse.ok) {
+			console.error('Failed to fetch MLH profile', await profileResponse.text());
+			throw new ORPCError('INTERNAL_SERVER_ERROR', {
+				message: 'Failed to fetch MLH profile'
+			});
+		}
+
+		const body = (await profileResponse.json()) as { data: MLHUserProfile };
+		return { accessTokenExpired: false as const, profile: body.data };
+	}),
+
+	importProfileFromMlh: protectedProcedure.handler(async ({ context }) => {
+		const accounts = await getProviderAccounts(context, 'mlh');
+
+		if (accounts.length === 0)
+			throw new ORPCError('BAD_REQUEST', {
+				message: 'You must have a linked MLH account to make this request'
+			});
+
+		const mlhAccount = accounts[0];
+
+		const accessTokenExpired = mlhAccount.accessTokenExpiresAt
+			? isPast(mlhAccount.accessTokenExpiresAt)
+			: false;
+
+		if (accessTokenExpired)
+			throw new ORPCError('UNAUTHORIZED', { message: 'MLH access token has expired' });
+
+		const profileResponse = await fetch('https://my.mlh.io/api/v4/user.json', {
+			headers: {
+				Authorization: `Bearer ${mlhAccount.accessToken}`
+			}
+		});
+
+		if (!profileResponse.ok) {
+			console.error('Failed to fetch MLH profile for import', await profileResponse.text());
+			throw new ORPCError('INTERNAL_SERVER_ERROR', {
+				message: 'Failed to fetch MLH profile'
+			});
+		}
+
+		const body = (await profileResponse.json()) as { data: MLHUserProfile };
+		const mlhProfile = body.data;
+
+		const fullName = [mlhProfile.first_name, mlhProfile.last_name].filter(Boolean).join(' ');
+
+		if (fullName) {
+			await context.db.client
+				.update(context.db.schema.user)
+				.set({ name: fullName })
+				.where(eq(context.db.schema.user.id, context.user.id));
+		}
+
+		return { name: fullName || null };
 	}),
 
 	profile: {
