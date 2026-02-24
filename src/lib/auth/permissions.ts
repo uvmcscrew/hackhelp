@@ -16,7 +16,7 @@ const statements = {
 	 * Individual user permissions; what a user can do to resources they own/are a part of.
 	 * i.e. can a user create a team, update their profile
 	 */
-	team: ['create', 'join', 'delete'],
+	team: ['create', 'join', 'delete', 'viewPublic'],
 	teamChallenge: ['update'],
 	teamMembers: ['invite', 'remove'],
 	profile: ['create', 'update', 'delete'],
@@ -30,17 +30,15 @@ const statements = {
 
 export const ac = createAccessControl({ ...defaultStatements, ...statements });
 
+// @ts-expect-error This just keeps the admin role synced to have all permissions
 const admin = ac.newRole({
 	...adminAc.statements,
-	// ...ac.statements,
-	configuration: ['view', 'update', 'delete'],
-	team: ['create', 'join', 'delete'],
-	mentor: ['view'],
-	judging: ['view']
+	...ac.statements
 });
 
 const verifiedUser = ac.newRole({
-	profile: ['create', 'update']
+	profile: ['create', 'update'],
+	team: ['viewPublic']
 });
 
 const mentor = ac.newRole({

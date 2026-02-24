@@ -54,11 +54,19 @@ export const team = pgTable('team', {
 export const teamMembers = pgTable(
 	'teamMember',
 	{
-		teamId: text('teamId').references(() => team.id),
-		userId: text('userId').references(() => user.id)
+		teamId: text('teamId')
+			.references(() => team.id)
+			.notNull(),
+		userId: text('userId')
+			.references(() => user.id)
+			.notNull(),
+		isCaptain: boolean('isCaptain').default(false).notNull(),
+		role: text('teamRole').notNull()
 	},
 	(t) => [primaryKey({ columns: [t.teamId, t.userId] })]
 );
+
+export type TeamMembership = typeof teamMembers.$inferSelect;
 
 export const TICKET_RESOLUTION_STATUS = ['open', 'assigned', 'inProgress', 'closed'] as const;
 export type TicketResolutionStatus = (typeof TICKET_RESOLUTION_STATUS)[number];
