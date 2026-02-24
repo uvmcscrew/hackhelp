@@ -4,7 +4,6 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import UserTable from './_components/user-table.svelte';
-	import { Skeleton } from '$lib/components/ui/skeleton';
 
 	const usersQuery = createQuery(() => orpc.admin.users.all.queryOptions());
 </script>

@@ -3,3 +3,5 @@
 
 	let { data }: PageProps = $props();
 </script>
+
+Admin Home
