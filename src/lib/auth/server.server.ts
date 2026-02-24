@@ -21,6 +21,29 @@ type UVMEntraProfile = {
 	preferred_username: string;
 };
 
+export type MLHUserProfile = {
+	id: string;
+	first_name: string;
+	last_name: string;
+	email: string;
+	phone_number: string | null;
+	profile: {
+		country_of_residence: string | null;
+		race_or_ethnicity: string | null;
+		gender: string | null;
+		age: number | null;
+	} | null;
+	education: Array<{
+		id: string;
+		current: boolean;
+		school_name: string;
+		school_type: string | null;
+		start_date: number | null;
+		end_date: number | null;
+		major: string | null;
+	}> | null;
+};
+
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: 'pg'
@@ -82,7 +105,7 @@ export const auth = betterAuth({
 					clientSecret: serverEnv.MLH_OAUTH_CLIENT_SECRET,
 					authorizationUrl: 'https://my.mlh.io/oauth/authorize',
 					tokenUrl: 'https://my.mlh.io/oauth/token',
-					userInfoUrl: 'https://api.mlh.com/v4/users/me',
+					userInfoUrl: 'https://api.mlh.com/v4/users/me?expand[]=education',
 					scopes: [
 						'public',
 						'offline_access',
@@ -90,7 +113,13 @@ export const auth = betterAuth({
 						'user:read:education',
 						'user:read:email',
 						'user:read:event_preferences'
-					]
+					],
+					mapProfileToUser: (profile) => {
+						const mlhProfile = profile as MLHUserProfile;
+						return {
+							name: `${mlhProfile.first_name} ${mlhProfile.last_name}`
+						};
+					}
 				}
 			]
 		}),

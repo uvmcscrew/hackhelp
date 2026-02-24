@@ -3,15 +3,15 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import { orpc } from '$lib/orpc/client/index.svelte';
-	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import WarningAlert from '$lib/components/warning-alert.svelte';
 	import type { RouterOutputs } from '$lib/orpc/server';
 	import ProfileInitialize from '../_components/profile-initialize.svelte';
 	import ProfileForm from '../_components/profile-form.svelte';
+	import ProfileInitializeMlh from '../_components/profile-initialize-mlh.svelte';
+	import ProfileMlhSync from '../_components/profile-mlh-sync.svelte';
 	import { accountsQueryOptions } from './accounts';
 	import type { UserAccounts } from '$lib/auth/server.server';
-	import { Button } from '$lib/components/ui/button';
-	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 
 	type Props = {
 		initialData: {
@@ -22,8 +22,6 @@
 	};
 
 	let { initialData }: Props = $props();
-
-	const qc = useQueryClient();
 
 	const profileQuery = createQuery(() =>
 		orpc.account.profile.get.queryOptions({
@@ -47,26 +45,20 @@
 		accountQuery.data?.some((acc) => acc.providerId === 'mlh') ?? false
 	);
 
-	const importFromMlhMutation = createMutation(() =>
-		orpc.account.importProfileFromMlh.mutationOptions({
-			onSuccess: async () => {
-				await Promise.allSettled([
-					qc.invalidateQueries({ queryKey: ['auth', 'user'] }),
-					qc.invalidateQueries({ queryKey: orpc.account.profile.get.queryKey() })
-				]);
-			}
-		})
-	);
-
+	/**
+	 * View states:
+	 *  - 'mlh-sync'       — has MLH + has profile → show sync button only
+	 *  - 'mlh-initialize' — has MLH + no profile  → show MLH one-click create
+	 *  - 'form'           — no MLH + has profile  → show regular profile form
+	 *  - 'initialize'     — no MLH + can create   → show role-picker initialize
+	 *  - 'no'             — not eligible at all
+	 */
 	const profileCardViewState = $derived.by(() => {
 		if (profileQuery.data !== null) {
-			return 'form';
+			return hasMlhAccount ? 'mlh-sync' : 'form';
 		}
-
-		if (canCreateProfileQuery.data) {
-			return 'initialize';
-		}
-
+		if (hasMlhAccount) return 'mlh-initialize';
+		if (canCreateProfileQuery.data) return 'initialize';
 		return 'no';
 	});
 </script>
@@ -78,21 +70,11 @@
 			>Set important information related to your participation in the hackathon.</Card.Description
 		>
 	</Card.Header>
-	{#if profileCardViewState === 'form' && profileQuery.data}
-		{#if hasMlhAccount}
-			<Card.Content class="pb-0">
-				<Button
-					variant="outline"
-					onclick={async () => await importFromMlhMutation.mutateAsync({})}
-					disabled={importFromMlhMutation.isPending}
-				>
-					{#if importFromMlhMutation.isPending}
-						<LoaderCircle class="h-6 w-auto animate-spin" />
-					{/if}
-					Import profile from MLH
-				</Button>
-			</Card.Content>
-		{/if}
+	{#if profileCardViewState === 'mlh-sync' && profileQuery.data}
+		<ProfileMlhSync />
+	{:else if profileCardViewState === 'mlh-initialize'}
+		<ProfileInitializeMlh />
+	{:else if profileCardViewState === 'form' && profileQuery.data}
 		<ProfileForm initialProfile={profileQuery.data} />
 	{:else if profileCardViewState === 'initialize'}
 		<ProfileInitialize />
@@ -107,8 +89,8 @@
 	<WarningAlert title="Your account cannot request verification">
 		<div class="mt-2 text-sm">
 			<p>
-				To be automatically verified, your account must have a linked UVM NetID profile or an email
-				address associated with Middlebury College or Champlain College.
+				To be automatically verified, your account must have a linked UVM NetID profile, a linked
+				MLH account, or an email address associated with Middlebury College or Champlain College.
 			</p>
 			<p>
 				Mentors, judges, and other event participants can contact the hackathon organizers to have

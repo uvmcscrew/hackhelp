@@ -25,6 +25,10 @@ const userRouter = {
 			.leftJoin(
 				context.db.schema.profile,
 				eq(context.db.schema.user.id, context.db.schema.profile.id)
+			)
+			.leftJoin(
+				context.db.schema.account,
+				eq(context.db.schema.user.id, context.db.schema.account.userId)
 			);
 		return { users: rows };
 	}),
@@ -64,7 +68,8 @@ const userRouter = {
 				.from(context.db.schema.user)
 				.where(eq(context.db.schema.user.id, input.userId));
 
-			if (!target) throw new ORPCError('NOT_FOUND', { message: 'User not found' });
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			if (!target) throw new ORPCError('BAD_REQUEST', { message: 'User not found' });
 
 			// Add both verifiedUser and judge roles
 			let updatedRoles = addRole(target.role ?? '', 'verifiedUser');
@@ -100,7 +105,39 @@ const userRouter = {
 				.from(context.db.schema.user)
 				.where(eq(context.db.schema.user.id, input.userId));
 
-			if (!target) throw new ORPCError('NOT_FOUND', { message: 'User not found' });
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			if (!target) throw new ORPCError('BAD_REQUEST', { message: 'User not found' });
+
+			// Add both verifiedUser and mentor roles
+			let updatedRoles = addRole(target.role ?? '', 'verifiedUser');
+			updatedRoles = addRole(updatedRoles.join(','), 'mentor');
+
+			await context.db.client
+				.update(context.db.schema.user)
+				.set({ role: updatedRoles.join(',') })
+				.where(eq(context.db.schema.user.id, input.userId));
+
+			// Upsert the profile with primaryRole = 'mentor'
+			const defaultData = serialize(profileDataSchema.parse({ mainlineDietaryRestrictions: {} }));
+
+			await context.db.client
+				.insert(context.db.schema.profile)
+				.values({ id: input.userId, primaryRole: 'mentor', data: defaultData })
+				.onConflictDoUpdate({
+					target: context.db.schema.profile.id,
+					set: { primaryRole: 'mentor' }
+				});
+		}),
+	grantAdmin: adminProcedure
+		.input(z.object({ userId: z.string().nonempty() }))
+		.handler(async ({ context, input }) => {
+			const [target] = await context.db.client
+				.select()
+				.from(context.db.schema.user)
+				.where(eq(context.db.schema.user.id, input.userId));
+
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			if (!target) throw new ORPCError('BAD_REQUEST', { message: 'User not found' });
 
 			// Add both verifiedUser and mentor roles
 			let updatedRoles = addRole(target.role ?? '', 'verifiedUser');
