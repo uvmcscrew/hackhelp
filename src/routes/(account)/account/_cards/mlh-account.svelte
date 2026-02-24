@@ -76,13 +76,15 @@
 								.join(' ')}
 						</h2>
 						<span class="text-muted-foreground text-sm">{mlhProfileQuery.data.profile.email}</span>
-						{#if mlhProfileQuery.data.profile.school}
+						{#if mlhProfileQuery.data.profile.education?.[0]?.school_name}
 							<p class="text-muted-foreground text-sm">
-								{mlhProfileQuery.data.profile.school.name}
+								{mlhProfileQuery.data.profile.education[0].school_name}
 							</p>
 						{/if}
-						{#if mlhProfileQuery.data.profile.major}
-							<p class="text-muted-foreground text-sm">{mlhProfileQuery.data.profile.major}</p>
+						{#if mlhProfileQuery.data.profile.education?.[0]?.major}
+							<p class="text-muted-foreground text-sm">
+								{mlhProfileQuery.data.profile.education[0].major}
+							</p>
 						{/if}
 					</div>
 				</div>

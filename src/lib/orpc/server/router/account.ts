@@ -8,6 +8,7 @@ import { ORPCError, type } from '@orpc/server';
 import { addRole, checkRolePermission } from '$lib/auth/permissions';
 import { dev } from '$app/environment';
 import { addSeconds, isPast } from 'date-fns';
+import { auth } from '$lib/auth/server.server';
 import z from 'zod';
 import { deserialize, serialize } from 'superjson';
 import { personProfileRole, profileDataSchema, type ProfileData } from '$lib/schemas';
@@ -247,16 +248,26 @@ type MicrosoftGraphUserInformation = {
 };
 
 type MLHUserProfile = {
-	id: number;
+	id: string;
 	first_name: string;
 	last_name: string;
 	email: string;
 	phone_number: string | null;
-	level_of_study: string | null;
-	major: string | null;
-	date_of_birth: string | null;
-	gender: string | null;
-	school: { id: number; name: string } | null;
+	profile: {
+		country_of_residence: string | null;
+		race_or_ethnicity: string | null;
+		gender: string | null;
+		age: number | null;
+	} | null;
+	education: Array<{
+		id: string;
+		current: boolean;
+		school_name: string;
+		school_type: string | null;
+		start_date: number | null;
+		end_date: number | null;
+		major: string | null;
+	}> | null;
 };
 
 type GetGithubProfile =
@@ -551,17 +562,20 @@ export const accountRouter = {
 
 		const mlhAccount = accounts[0];
 
-		const accessTokenExpired = mlhAccount.accessTokenExpiresAt
-			? isPast(mlhAccount.accessTokenExpiresAt)
-			: false;
-
-		if (accessTokenExpired) {
+		let accessToken: string;
+		try {
+			const tokenResult = await auth.api.getAccessToken({
+				body: { providerId: 'mlh', accountId: mlhAccount.id },
+				headers: context.req.headers
+			});
+			accessToken = tokenResult.accessToken;
+		} catch {
 			return { accessTokenExpired: true as const, profile: null };
 		}
 
-		const profileResponse = await fetch('https://my.mlh.io/api/v4/user.json', {
+		const profileResponse = await fetch('https://api.mlh.com/v4/users/me?expand[]=education', {
 			headers: {
-				Authorization: `Bearer ${mlhAccount.accessToken}`
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
 
@@ -572,8 +586,8 @@ export const accountRouter = {
 			});
 		}
 
-		const body = (await profileResponse.json()) as { data: MLHUserProfile };
-		return { accessTokenExpired: false as const, profile: body.data };
+		const profile = (await profileResponse.json()) as MLHUserProfile;
+		return { accessTokenExpired: false as const, profile };
 	}),
 
 	importProfileFromMlh: protectedProcedure.handler(async ({ context }) => {
@@ -586,16 +600,20 @@ export const accountRouter = {
 
 		const mlhAccount = accounts[0];
 
-		const accessTokenExpired = mlhAccount.accessTokenExpiresAt
-			? isPast(mlhAccount.accessTokenExpiresAt)
-			: false;
-
-		if (accessTokenExpired)
+		let accessToken: string;
+		try {
+			const tokenResult = await auth.api.getAccessToken({
+				body: { providerId: 'mlh', accountId: mlhAccount.id },
+				headers: context.req.headers
+			});
+			accessToken = tokenResult.accessToken;
+		} catch {
 			throw new ORPCError('UNAUTHORIZED', { message: 'MLH access token has expired' });
+		}
 
-		const profileResponse = await fetch('https://my.mlh.io/api/v4/user.json', {
+		const profileResponse = await fetch('https://api.mlh.com/v4/users/me?expand[]=education', {
 			headers: {
-				Authorization: `Bearer ${mlhAccount.accessToken}`
+				Authorization: `Bearer ${accessToken}`
 			}
 		});
 
@@ -606,8 +624,7 @@ export const accountRouter = {
 			});
 		}
 
-		const body = (await profileResponse.json()) as { data: MLHUserProfile };
-		const mlhProfile = body.data;
+		const mlhProfile = (await profileResponse.json()) as MLHUserProfile;
 
 		const fullName = [mlhProfile.first_name, mlhProfile.last_name].filter(Boolean).join(' ');
 
