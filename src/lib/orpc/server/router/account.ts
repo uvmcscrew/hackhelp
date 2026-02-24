@@ -519,7 +519,9 @@ export const accountRouter = {
 		}
 		const providerAccount = providerAccounts[0];
 
-		const orgMembers = await context.githubApp.rest.orgs.listMembers();
+		const orgMembers = await context.githubApp.rest.orgs.listMembers({
+			org: serverEnv.PUBLIC_GITHUB_ORGNAME
+		});
 
 		const orgJoined = orgMembers.data.some((m) => `${m.id}` === providerAccount.accountId);
 		if (orgJoined) {
