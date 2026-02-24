@@ -51,14 +51,14 @@
 
 	function handleLeave() {
 		if (confirmLeave) {
-			leaveTeamMut.mutate();
+			leaveTeamMut.mutate({});
 		} else {
 			confirmLeave = true;
 		}
 	}
 
 	function copyJoinCode(code: string) {
-		navigator.clipboard.writeText(code);
+		void navigator.clipboard.writeText(code);
 		copied = true;
 		setTimeout(() => (copied = false), 2000);
 	}
@@ -109,7 +109,10 @@
 				<div class="flex flex-col gap-1.5">
 					<span class="text-muted-foreground text-sm font-medium">Join Code</span>
 					<div class="flex items-center gap-3">
-						<code class="bg-muted rounded px-3 py-1.5 font-mono text-lg tracking-widest">
+						<code
+							style={`background:#${team.joinCode}`}
+							class="bg-muted rounded px-3 py-1.5 font-mono text-lg tracking-widest"
+						>
 							{team.joinCode}
 						</code>
 						<Button variant="outline" size="sm" onclick={() => copyJoinCode(team.joinCode)}>
