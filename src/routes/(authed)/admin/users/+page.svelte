@@ -2,19 +2,11 @@
 
 <script lang="ts">
 	import { createQuery } from '@tanstack/svelte-query';
-	import { authClient } from '$lib/auth/client.svelte';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 	import UserTable from './_components/user-table.svelte';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 
-	const usersQuery = createQuery(() => ({
-		queryKey: ['admin', 'users'],
-		queryFn: async () => {
-			const result = await authClient.admin.listUsers({
-				query: { limit: 1000 },
-				fetchOptions: { throw: true }
-			});
-			return result.users;
-		}
-	}));
+	const usersQuery = createQuery(() => orpc.admin.users.all.queryOptions());
 </script>
 
 <div class="container mx-auto py-8">

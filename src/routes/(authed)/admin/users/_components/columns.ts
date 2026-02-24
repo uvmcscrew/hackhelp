@@ -1,43 +1,63 @@
 import type { ColumnDef } from '@tanstack/table-core';
-import type { UserWithRole } from 'better-auth/plugins/admin';
+import type { RouterOutputs } from '$lib/orpc/server';
 
-export type UserRow = UserWithRole;
+// The row type is the joined user + profile from our oRPC endpoint
+export type UserRow = RouterOutputs['admin']['users']['all']['users'][number];
 
 export const columns: ColumnDef<UserRow>[] = [
 	{
-		accessorKey: 'name',
+		id: 'name',
+		accessorFn: (row) => row.user.name,
 		header: 'Name',
 		enableSorting: true,
 		enableColumnFilter: true
 	},
 	{
-		accessorKey: 'email',
+		id: 'email',
+		accessorFn: (row) => row.user.email,
 		header: 'Email',
 		enableSorting: true,
 		enableColumnFilter: true
 	},
 	{
-		accessorKey: 'username',
-		header: 'Username',
+		id: 'role',
+		accessorFn: (row) => row.user.role,
+		header: 'Roles',
 		enableSorting: true,
 		enableColumnFilter: true
 	},
 	{
-		accessorKey: 'role',
-		header: 'Role',
+		id: 'primaryRole',
+		accessorFn: (row) => row.profile?.primaryRole ?? null,
+		header: 'Primary Role',
 		enableSorting: true,
 		enableColumnFilter: true
 	},
 	{
-		accessorKey: 'banned',
+		id: 'profileInitialized',
+		accessorFn: (row) => row.profile !== null,
+		header: 'Profile',
+		enableSorting: true,
+		enableColumnFilter: false
+	},
+	{
+		id: 'banned',
+		accessorFn: (row) => row.user.banned,
 		header: 'Status',
 		enableSorting: true,
 		enableColumnFilter: true
 	},
 	{
-		accessorKey: 'createdAt',
+		id: 'createdAt',
+		accessorFn: (row) => row.user.createdAt,
 		header: 'Joined',
 		enableSorting: true,
+		enableColumnFilter: false
+	},
+	{
+		id: 'actions',
+		header: 'Actions',
+		enableSorting: false,
 		enableColumnFilter: false
 	}
 ];
