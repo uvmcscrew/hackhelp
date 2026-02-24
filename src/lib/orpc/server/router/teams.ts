@@ -1,8 +1,7 @@
 import { checkRolePermission } from '$lib/auth/permissions';
 import type { TeamMembership } from '$lib/server/db/schema';
-import type { User } from 'better-auth';
 import { publicProcedure, protectedProcedure } from '../shared';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
 
@@ -12,21 +11,6 @@ export const teamsRouter = {
 			roles: context.user?.role || '',
 			permissions: { team: ['viewPublic'] }
 		});
-
-		// const data = await context.db.client
-		// 	.select({
-		// 		team: context.db.schema.team,
-		// 		members: sql`json_agg(json_build_object('id', ${context.db.schema.teamMembers.teamId},
-		//     'userId', ${context.db.schema.teamMembers.userId},
-		//     'role', ${context.db.schema.teamMembers.role},
-		//     'isCaptain', ${context.db.schema.teamMembers.isCaptain}))`
-		// 	})
-		// 	.from(context.db.schema.team)
-		// 	.leftJoin(
-		// 		context.db.schema.teamMembers,
-		// 		eq(context.db.schema.team.id, context.db.schema.teamMembers.teamId)
-		// 	)
-		// 	.groupBy(context.db.schema.team.id);
 
 		const teams = await context.db.client
 			.select()
@@ -73,6 +57,31 @@ export const teamsRouter = {
 
 		return teamWithMembers;
 	}),
+
+	byId: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.handler(async ({ context, input }) => {
+			const teams = await context.db.client
+				.select()
+				.from(context.db.schema.team)
+				.where(eq(context.db.schema.team.id, input.id));
+
+			if (teams.length === 0)
+				throw new ORPCError('BAD_REQUEST', { message: 'Team does not exist' });
+
+			const team = teams[0];
+
+			const members = await context.db.client
+				.select()
+				.from(context.db.schema.teamMembers)
+				.where(eq(context.db.schema.teamMembers.teamId, team.id))
+				.leftJoin(
+					context.db.schema.user,
+					eq(context.db.schema.teamMembers.userId, context.db.schema.user.id)
+				);
+
+			return { ...team, members };
+		}),
 
 	join: protectedProcedure
 		.input(
