@@ -399,6 +399,12 @@ export const accountRouter = {
 
 		const githubAccount = accounts[0];
 
+		if (githubAccount.accessToken && !githubAccount.accessTokenExpiresAt) {
+			return {
+				needsRefresh: false
+			};
+		}
+
 		if (!githubAccount.accessTokenExpiresAt || !githubAccount.refreshTokenExpiresAt) {
 			throw new ORPCError('INTERNAL_SERVER_ERROR');
 		}

@@ -207,7 +207,7 @@
 					</div>
 				{/if}
 			</Card.Content>
-		{:else if githubTokensStatus.data?.refreshTokenExpired}
+		{:else if githubTokensStatus.data?.needsRefresh}
 			<Card.Content>
 				<WarningAlert title="GitHub Reauthentication Required">
 					<p class="mb-2">
