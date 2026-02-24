@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { createQuery } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { sessionQueryOptions } from '$lib/auth/client.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import UserDropdown from '$lib/components/UserDropdown.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { data, children }: LayoutProps = $props();
+
+	const session = createQuery(() => sessionQueryOptions);
 
 	const teamQuery = createQuery(() =>
 		orpc.teams.byId.queryOptions({
@@ -24,7 +28,12 @@
 
 <div class="container mx-auto max-w-2xl py-8">
 	<div class="mb-6">
-		<Button variant="ghost" href="/teams" class="mb-2 px-2">&larr; All Teams</Button>
+		<div class="flex items-center justify-between">
+			<Button variant="ghost" href="/teams" class="mb-2 px-2">&larr; All Teams</Button>
+			{#if session.data}
+				<UserDropdown />
+			{/if}
+		</div>
 
 		{#if teamQuery.isLoading}
 			<p class="text-muted-foreground">Loading team...</p>
