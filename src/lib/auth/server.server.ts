@@ -31,7 +31,7 @@ export const auth = betterAuth({
 		accountLinking: {
 			enabled: true,
 			allowDifferentEmails: true,
-			trustedProviders: ['github', 'uvm-netid']
+			trustedProviders: ['github', 'uvm-netid', 'mlh']
 		}
 	},
 	socialProviders: {
@@ -75,6 +75,22 @@ export const auth = betterAuth({
 							email: uvmProfile.email
 						};
 					}
+				},
+				{
+					providerId: 'mlh',
+					clientId: serverEnv.MLH_OAUTH_CLIENT_ID,
+					clientSecret: serverEnv.MLH_OAUTH_CLIENT_SECRET,
+					discoveryUrl: serverEnv.UVM_NETID_OIDC_DISCOVERY_URL,
+					authorizationUrl: 'https://my.mlh.io/oauth/authorize',
+					tokenUrl: 'https://my.mlh.io/oauth/token',
+					scopes: [
+						'public',
+						'offline_access',
+						'user:read:profile',
+						'user:read:education',
+						'user:read:email',
+						'user:read:event_preferences'
+					]
 				}
 			]
 		}),

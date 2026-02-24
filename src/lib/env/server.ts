@@ -18,7 +18,9 @@ export const serverEnv = createEnv({
 		SMTP_URL: z.string(),
 		UVM_NETID_OIDC_CLIENT_ID: z.string(),
 		UVM_NETID_OIDC_CLIENT_SECRET: z.string(),
-		UVM_NETID_OIDC_DISCOVERY_URL: z.string()
+		UVM_NETID_OIDC_DISCOVERY_URL: z.string(),
+		MLH_OAUTH_CLIENT_ID: z.string(),
+		MLH_OAUTH_CLIENT_SECRET: z.string()
 	},
 	client: {
 		PUBLIC_GITHUB_ORGNAME: z.string().nonempty(),
