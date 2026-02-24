@@ -27,7 +27,7 @@ async function hasPendingInvite(ctx: AuthedContext, githubUsername: string) {
 	return invites.data.some((invite) => invite.login === githubUsername);
 }
 
-async function getProviderAccounts(context: AuthedContext, providerId: string) {
+export async function getProviderAccounts(context: AuthedContext, providerId: string) {
 	return await context.db.client
 		.select()
 		.from(context.db.schema.account)
@@ -111,13 +111,18 @@ async function refreshGithubAccessToken(
 	| { refreshed: false; accessToken?: never; error: string }
 	| { refreshed: true; accessToken: string; error?: never }
 > {
-	if (!providerAccount.accessToken || !providerAccount.accessTokenExpiresAt)
-		return { refreshed: false, error: 'Missing access token or access token expiry' };
+	if (!providerAccount.accessToken) return { refreshed: false, error: 'Missing access token' };
+	// If there is no expiry for the access token, that means we have a non-expiring token
+	if (!providerAccount.accessTokenExpiresAt) {
+		return { refreshed: true, accessToken: providerAccount.accessToken };
+	}
+
+	// Ensure we have the necessary info for refreshing
 	if (!providerAccount.refreshToken || !providerAccount.refreshTokenExpiresAt)
 		return { refreshed: false, error: 'Missing refresh token or refresh token expiry' };
 
-	// Can't refresh with an invalid refresh token
 	if (isPast(providerAccount.refreshTokenExpiresAt)) {
+		// Can't refresh with an invalid refresh token
 		return { refreshed: false, error: 'Refresh token is expired' };
 	}
 
