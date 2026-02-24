@@ -1,5 +1,5 @@
 import { adminProcedure } from '../shared';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
 import { addRole } from '$lib/auth/permissions';
@@ -19,17 +19,20 @@ const userRouter = {
 	 * List all users joined with their profiles.
 	 */
 	all: adminProcedure.handler(async ({ context }) => {
+		const { user, profile, account } = context.db.schema;
+
 		const rows = await context.db.client
-			.select()
-			.from(context.db.schema.user)
-			.leftJoin(
-				context.db.schema.profile,
-				eq(context.db.schema.user.id, context.db.schema.profile.id)
-			)
-			.leftJoin(
-				context.db.schema.account,
-				eq(context.db.schema.user.id, context.db.schema.account.userId)
-			);
+			.select({
+				user,
+				profile,
+				hasGithub: sql<boolean>`bool_or(${account.providerId} = 'github')`.as('has_github'),
+				hasMlh: sql<boolean>`bool_or(${account.providerId} = 'mlh')`.as('has_mlh')
+			})
+			.from(user)
+			.leftJoin(profile, eq(user.id, profile.id))
+			.leftJoin(account, eq(user.id, account.userId))
+			.groupBy(user.id, profile.id);
+
 		return { users: rows };
 	}),
 

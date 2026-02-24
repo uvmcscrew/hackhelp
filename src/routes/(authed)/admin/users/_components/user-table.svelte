@@ -232,6 +232,18 @@
 									<span class="text-muted-foreground text-sm">
 										{formatDate(rowData.user.createdAt)}
 									</span>
+								{:else if cell.column.id === 'hasGithub'}
+									{#if rowData.hasGithub}
+										<Badge variant="green" hoverEffects={false}>Linked</Badge>
+									{:else}
+										<span class="text-muted-foreground text-sm">—</span>
+									{/if}
+								{:else if cell.column.id === 'hasMlh'}
+									{#if rowData.hasMlh}
+										<Badge variant="green" hoverEffects={false}>Linked</Badge>
+									{:else}
+										<span class="text-muted-foreground text-sm">—</span>
+									{/if}
 								{:else if cell.column.id === 'actions'}
 									{@const userId = rowData.user.id}
 									{@const roles = rowData.user.role ?? ''}
