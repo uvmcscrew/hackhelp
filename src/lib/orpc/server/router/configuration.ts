@@ -77,10 +77,10 @@ export const configRouter = {
 			// Always allow access for admins
 			if (context.user.role?.split(',').includes('admin')) return true;
 
-			// Otherwise, check to see if the event has started yet
-			const eventStartTime = await context.config.getEventStartTime();
+			// Allow access once the event prep period begins
+			const eventPrepTime = await context.config.getEventPrepTime();
 
-			return new Date() >= eventStartTime;
+			return new Date() >= eventPrepTime;
 		})
 	},
 	view: {

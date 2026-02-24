@@ -275,10 +275,10 @@ export const accountRouter = {
 			// Always show navigation buttons for administrators
 			if (context.user.role?.split(',').includes('admin')) return true;
 
-			// Otherwise, check to see if the event has started yet
-			const eventStartTime = await context.config.getEventStartTime();
+			// Show navigation buttons once event prep period begins
+			const eventPrepTime = await context.config.getEventPrepTime();
 
-			return new Date() >= eventStartTime;
+			return new Date() >= eventPrepTime;
 		}),
 
 	canRequestVerification: protectedProcedure
