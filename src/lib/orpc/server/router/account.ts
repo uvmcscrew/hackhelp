@@ -512,6 +512,41 @@ export const accountRouter = {
 			.where(eq(context.db.schema.account.id, providerAccount.id));
 	}),
 
+	unsafeUnlinkGithubAccount: protectedProcedure.handler(async ({ context }) => {
+		const providerAccounts = await getProviderAccounts(context, 'github');
+		if (providerAccounts.length === 0) {
+			throw new ORPCError('BAD_REQUEST', { message: 'No linked github profile' });
+		}
+		const providerAccount = providerAccounts[0];
+
+		const orgMembers = await context.githubApp.rest.orgs.listMembers();
+
+		const orgJoined = orgMembers.data.some((m) => `${m.id}` === providerAccount.accountId);
+		if (orgJoined) {
+			const user = orgMembers.data.filter((m) => `${m.id}` === providerAccount.accountId)[0];
+			// If the user is in the organization, remove them if they're not an owner
+			const userIsAdmin =
+				(
+					await context.githubApp.rest.orgs.getMembershipForUser({
+						org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+						username: user.login
+					})
+				).data.role === 'admin';
+
+			if (!userIsAdmin) {
+				await context.githubApp.rest.orgs.removeMember({
+					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					username: user.login
+				});
+			}
+		}
+
+		// Delete the provider account in the database
+		await context.db.client
+			.delete(context.db.schema.account)
+			.where(eq(context.db.schema.account.id, providerAccount.id));
+	}),
+
 	setProfilePhotoToGithub: protectedProcedure.handler(async ({ context }) => {
 		const { user, err } = await getGithubUserInformation(context);
 

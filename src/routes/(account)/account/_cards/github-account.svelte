@@ -95,6 +95,17 @@
 		})
 	);
 
+	let unsafeUnlinkMutation = createMutation(() =>
+		orpc.account.unsafeUnlinkGithubAccount.mutationOptions({
+			onSettled: async (_d, _e, _v, _r, ctx) =>
+				await Promise.allSettled([
+					ctx.client.invalidateQueries({ queryKey: accountsQueryOptions.queryKey }),
+					ctx.client.cancelQueries({ queryKey: orpc.account.getGitHubProfile.queryKey() }),
+					ctx.client.cancelQueries({ queryKey: orpc.account.checkGithubTokens.queryKey() })
+				])
+		})
+	);
+
 	let setGithubPfpMutation = createMutation(() =>
 		orpc.account.setProfilePhotoToGithub.mutationOptions({
 			onSettled: async (_d, _e, _v, _r, ctx) => {
@@ -117,7 +128,10 @@
 </script>
 
 {#snippet linkGithubButton()}
-	<Button onclick={async () => await linkMutation.mutateAsync()} disabled={linkMutation.isPending}>
+	<Button
+		onclick={async () => await linkMutation.mutateAsync()}
+		disabled={linkMutation.isPending || unsafeUnlinkMutation.isPending}
+	>
 		{#if linkMutation.isPending}
 			<LoaderCircle class="h-6 w-auto animate-spin" />
 		{/if}
@@ -212,10 +226,20 @@
 				<WarningAlert title="GitHub Reauthentication Required">
 					<p class="mb-2">
 						You may have already linked your GitHub account, but GitHub is requiring us to ask for
-						your permission again. If you're trying to unlink your GitHub account, please
-						reauthenticate first.
+						your permission again.
 					</p>
-					{@render linkGithubButton()}
+					<div class="flex">
+						{@render linkGithubButton()}
+						<Button
+							variant="destructive"
+							onclick={async () => await unsafeUnlinkMutation.mutateAsync({})}
+							disabled={unsafeUnlinkMutation.isPending}
+						>
+							{#if unsafeUnlinkMutation.isPending}
+								<LoaderCircle class="h-6 w-auto animate-spin" />
+							{/if}>Unlink</Button
+						>
+					</div>
 				</WarningAlert>
 			</Card.Content>
 		{:else}
