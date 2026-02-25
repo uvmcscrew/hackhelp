@@ -12,7 +12,7 @@
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	type Props = {
-		authData: AuthData;
+		authData?: AuthData;
 	};
 	const { authData }: Props = $props();
 

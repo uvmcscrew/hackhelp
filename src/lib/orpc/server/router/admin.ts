@@ -1,5 +1,5 @@
 import { adminProcedure } from '../shared';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, count } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
 import { addRole } from '$lib/auth/permissions';
@@ -7,7 +7,8 @@ import { profileDataSchema } from '$lib/schemas';
 import { serialize } from 'superjson';
 
 /**
- * Administrative actions: user management (roles, verification, profile upsert).
+ * Administrative actions: user management (roles, verification, profile upsert),
+ * and team oversight.
  */
 
 // #############################################
@@ -165,9 +166,67 @@ const userRouter = {
 };
 
 // #############################################
+// #               TEAMS ROUTER                #
+// #############################################
+
+const teamsAdminRouter = {
+	/**
+	 * List all teams (including non-public) with member counts.
+	 */
+	all: adminProcedure.handler(async ({ context }) => {
+		const { team, teamMembers, challenge } = context.db.schema;
+
+		const teams = await context.db.client
+			.select({
+				team,
+				memberCount: count(teamMembers.userId).as('member_count'),
+				challengeName: challenge.title
+			})
+			.from(team)
+			.leftJoin(teamMembers, eq(team.id, teamMembers.teamId))
+			.leftJoin(challenge, eq(team.selectedChallengeId, challenge.id))
+			.groupBy(team.id, challenge.title);
+
+		return { teams };
+	}),
+
+	/**
+	 * Delete a team and all its memberships.
+	 */
+	deleteTeam: adminProcedure
+		.input(z.object({ teamId: z.string().nonempty() }))
+		.handler(async ({ context, input }) => {
+			const { team, teamMembers } = context.db.schema;
+
+			// Delete memberships first
+			await context.db.client.delete(teamMembers).where(eq(teamMembers.teamId, input.teamId));
+			// Delete team
+			const deleted = await context.db.client
+				.delete(team)
+				.where(eq(team.id, input.teamId))
+				.returning();
+
+			if (deleted.length === 0) throw new ORPCError('NOT_FOUND', { message: 'Team not found' });
+		}),
+
+	/**
+	 * Toggle whether a team can accept new joins.
+	 */
+	toggleCanJoin: adminProcedure
+		.input(z.object({ teamId: z.string().nonempty(), canJoin: z.boolean() }))
+		.handler(async ({ context, input }) => {
+			await context.db.client
+				.update(context.db.schema.team)
+				.set({ canJoin: input.canJoin })
+				.where(eq(context.db.schema.team.id, input.teamId));
+		})
+};
+
+// #############################################
 // #               ADMIN ROUTER                #
 // #############################################
 
 export const adminRouter = {
-	users: userRouter
+	users: userRouter,
+	teams: teamsAdminRouter
 };

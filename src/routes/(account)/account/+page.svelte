@@ -50,6 +50,15 @@
 
 	const roles = $derived((session.data?.user.role || '').split(','));
 	const isAdmin = $derived(roles.includes('admin'));
+	const isVerifiedCompetitor = $derived(
+		roles.includes('verifiedUser') && data.profile?.profile.primaryRole === 'competitor'
+	);
+
+	const myTeamQuery = createQuery(() =>
+		orpc.teams.myTeam.queryOptions({
+			enabled: isVerifiedCompetitor
+		})
+	);
 </script>
 
 <svelte:head>
@@ -76,6 +85,9 @@
 			{/if}
 			{#if roles.includes('verifiedUser') && !roles.includes('judge') && !roles.includes('mentor') && !isAdmin}
 				<Button variant="outline" class="hover:cursor-pointer" href="/home">Dashboard</Button>
+			{/if}
+			{#if isVerifiedCompetitor && myTeamQuery.isSuccess && !myTeamQuery.data}
+				<Button variant="outline" class="hover:cursor-pointer" href="/teams">Browse Teams</Button>
 			{/if}
 		</div>
 	{/if}
