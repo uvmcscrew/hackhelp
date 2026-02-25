@@ -89,6 +89,7 @@
 		"drizzle-orm": "^0.39.3",
 		"es-toolkit": "^1.44.0",
 		"formsnap": "2.0.1",
+		"fuse.js": "^7.1.0",
 		"globals": "^15.15.0",
 		"lucide-svelte": "^0.562.0",
 		"mode-watcher": "^1.1.0",

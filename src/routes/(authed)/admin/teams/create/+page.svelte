@@ -12,6 +12,7 @@
 	import Check from 'lucide-svelte/icons/check';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import { cn } from '$lib/utils';
+	import Fuse from 'fuse.js';
 
 	const qc = useQueryClient();
 
@@ -21,13 +22,19 @@
 	let captainSearch = $state('');
 	let comboboxOpen = $state(false);
 
-	const usersQuery = createQuery(() =>
-		orpc.admin.teams.usersWithoutTeam.queryOptions({
-			input: { search: captainSearch }
-		})
+	const usersWoTeamQuery = createQuery(() => orpc.admin.teams.usersWithoutTeam.queryOptions());
+
+	const selectedUser = $derived(usersWoTeamQuery.data?.find((u) => u.id === captainUserId));
+
+	const fuseSearch = $derived(
+		new Fuse(usersWoTeamQuery.data || [], { findAllMatches: true, keys: ['name', 'email'] })
 	);
 
-	const selectedUser = $derived(usersQuery.data?.find((u) => u.id === captainUserId));
+	const filteredUsers = $derived(
+		captainSearch === ''
+			? usersWoTeamQuery.data || []
+			: fuseSearch.search(captainSearch).map((r) => r.item)
+	);
 
 	const createMut = createMutation(() =>
 		orpc.admin.teams.create.mutationOptions({
@@ -93,18 +100,18 @@
 								</Button>
 							{/snippet}
 						</Popover.Trigger>
-						<Popover.Content class="w-[var(--bits-popover-trigger-width)] p-0" align="start">
+						<Popover.Content class="w-(--bits-popover-trigger-width) p-0" align="start">
 							<Command.Root shouldFilter={false}>
 								<Command.Input placeholder="Search users..." bind:value={captainSearch} />
 								<Command.List>
-									{#if usersQuery.isLoading}
+									{#if usersWoTeamQuery.isLoading}
 										<Command.Loading>
 											<p class="py-2 text-center text-sm">Loading...</p>
 										</Command.Loading>
 									{/if}
 									<Command.Empty>No users found.</Command.Empty>
 									<Command.Group>
-										{#each usersQuery.data ?? [] as user (user.id)}
+										{#each filteredUsers as user (user.id)}
 											<Command.Item
 												value={user.id}
 												onSelect={() => {

@@ -1,5 +1,5 @@
 import { adminProcedure } from '../shared';
-import { eq, sql, count, notInArray, or, ilike, and } from 'drizzle-orm';
+import { eq, sql, count, notInArray, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
 import { addRole } from '$lib/auth/permissions';
@@ -225,35 +225,23 @@ const teamsAdminRouter = {
 	 * List users who are not currently on any team.
 	 * Used for the captain/member selection combobox.
 	 */
-	usersWithoutTeam: adminProcedure
-		.input(z.object({ search: z.string().default('') }))
-		.handler(async ({ context, input }) => {
-			const { user, teamMembers } = context.db.schema;
+	usersWithoutTeam: adminProcedure.handler(async ({ context }) => {
+		const { user, teamMembers } = context.db.schema;
 
-			const usersOnTeams = context.db.client
-				.select({ userId: teamMembers.userId })
-				.from(teamMembers);
+		const usersOnTeams = context.db.client.select({ userId: teamMembers.userId }).from(teamMembers);
 
-			const conditions = [notInArray(user.id, usersOnTeams)];
+		const results = await context.db.client
+			.select({
+				id: user.id,
+				name: user.name,
+				email: user.email,
+				image: user.image
+			})
+			.from(user)
+			.where(notInArray(user.id, usersOnTeams));
 
-			if (input.search.trim()) {
-				const term = `%${input.search.trim()}%`;
-				conditions.push(or(ilike(user.name, term), ilike(user.email, term))!);
-			}
-
-			const results = await context.db.client
-				.select({
-					id: user.id,
-					name: user.name,
-					email: user.email,
-					image: user.image
-				})
-				.from(user)
-				.where(and(...conditions))
-				.limit(20);
-
-			return results;
-		}),
+		return results;
+	}),
 
 	/**
 	 * Admin-create a team with a named captain.
