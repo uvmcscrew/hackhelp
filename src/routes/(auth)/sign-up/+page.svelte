@@ -87,17 +87,17 @@
 		<Button
 			disabled={loading}
 			aria-disabled={loading}
-			onclick={async () => await uvmNetIdSignUpMutation.mutateAsync()}
-			>{#if uvmNetIdSignUpMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
-			{/if}Sign up with UVM NetID</Button
+			onclick={async () => await mlhSignUpMutation.mutateAsync()}
+			>{#if mlhSignUpMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
+			{/if}Sign up with MajorLeagueHacking</Button
 		>
 		<Button
 			disabled={loading}
 			aria-disabled={loading}
 			variant="secondary"
-			onclick={async () => await mlhSignUpMutation.mutateAsync()}
-			>{#if mlhSignUpMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
-			{/if}Sign up with MLH</Button
+			onclick={async () => await uvmNetIdSignUpMutation.mutateAsync()}
+			>{#if uvmNetIdSignUpMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
+			{/if}Sign up with UVM NetID</Button
 		>
 	</div>
 
@@ -125,7 +125,6 @@
 			{/if} Email me a sign up link</Button
 		>
 	</form>
-
 	{#if emailSignUpMutation.error}
 		<ErrorAlert class="mt-2" title={emailSignUpMutation.error.message}>
 			{@const errorCauseMessage = emailSignUpMutation.error.cause

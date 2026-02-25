@@ -61,7 +61,7 @@
 				errorCallbackURL: '/auth/error?provider=mlh',
 				newUserCallbackURL: '/account',
 				disableRedirect: false,
-				requestSignUp: false,
+				requestSignUp: true,
 				fetchOptions: {
 					throw: true
 				}
@@ -113,21 +113,11 @@
 		<Button
 			disabled={loading}
 			aria-disabled={loading}
-			onclick={() => passkeySignInMutation.mutate()}
-			>{#if passkeySignInMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
-			{/if}Sign In with Passkey
-			{#if lastUsedMethod === 'passkey'}
-				<Badge variant="secondary">Last Used</Badge>
-			{/if}
+			variant="default"
+			onclick={() => mlhSignInMutation.mutate()}
+			>{#if mlhSignInMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
+			{/if}Sign In with MajorLeagueHacking
 		</Button>
-		{#if passkeySignInMutation.error}
-			<ErrorAlert title={passkeySignInMutation.error.message}>
-				{@const errorCauseMessage = passkeySignInMutation.error.cause
-					? (passkeySignInMutation.error.cause as { message: string }).message
-					: null}
-				{#if errorCauseMessage}{errorCauseMessage}{/if}
-			</ErrorAlert>
-		{/if}
 		<Button
 			disabled={loading}
 			aria-disabled={loading}
@@ -138,14 +128,6 @@
 			{#if lastUsedMethod === 'uvm-netid'}
 				<Badge variant="yellow">Last Used</Badge>
 			{/if}
-		</Button>
-		<Button
-			disabled={loading}
-			aria-disabled={loading}
-			variant="secondary"
-			onclick={() => mlhSignInMutation.mutate()}
-			>{#if mlhSignInMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
-			{/if}Sign In with MLH
 		</Button>
 	</div>
 
@@ -178,6 +160,35 @@
 		<ErrorAlert class="mt-2" title={emailSignInMutation.error.message}>
 			{@const errorCauseMessage = emailSignInMutation.error.cause
 				? (emailSignInMutation.error.cause as { message: string }).message
+				: null}
+			{#if errorCauseMessage}{errorCauseMessage}{/if}
+		</ErrorAlert>
+	{/if}
+
+	<div class="relative my-2">
+		<div aria-hidden="true" class="absolute inset-0 flex items-center">
+			<div class="w-full border-t"></div>
+		</div>
+		<div class="relative flex justify-center text-sm/6 font-medium">
+			<span class=" bg-card px-6">or</span>
+		</div>
+	</div>
+	<Button
+		class="w-full"
+		variant="secondary"
+		disabled={loading}
+		aria-disabled={loading}
+		onclick={() => passkeySignInMutation.mutate()}
+		>{#if passkeySignInMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
+		{/if}Sign In with Passkey
+		{#if lastUsedMethod === 'passkey'}
+			<Badge variant="secondary">Last Used</Badge>
+		{/if}
+	</Button>
+	{#if passkeySignInMutation.error}
+		<ErrorAlert title={passkeySignInMutation.error.message}>
+			{@const errorCauseMessage = passkeySignInMutation.error.cause
+				? (passkeySignInMutation.error.cause as { message: string }).message
 				: null}
 			{#if errorCauseMessage}{errorCauseMessage}{/if}
 		</ErrorAlert>

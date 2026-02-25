@@ -8,8 +8,11 @@
 <CardHeader
 	><CardTitle>HackHelp Sign In</CardTitle>
 	<CardDescription
-		>If you're a UVM student or faculty member, use NetID sign in. Otherwise, if you have a .edu
-		email, use it!</CardDescription
+		>If you already have a HackHelp account, make sure you do not sign in with MLH, unless you've
+		already linked your MLH profile to HackHelp. Competitors must first <a
+			class="text-primary hover:text-primary/80 underline"
+			href="https://go.uvm.edu/hacks26">register on MLH</a
+		>to officially participate in the event.</CardDescription
 	>
 </CardHeader>
 
