@@ -97,31 +97,6 @@ export const teamsRouter = {
 		return teamWithMembers;
 	}),
 
-	byId: protectedProcedure
-		.input(z.object({ id: z.string() }))
-		.handler(async ({ context, input }) => {
-			const teams = await context.db.client
-				.select()
-				.from(context.db.schema.team)
-				.where(eq(context.db.schema.team.id, input.id));
-
-			if (teams.length === 0)
-				throw new ORPCError('BAD_REQUEST', { message: 'Team does not exist' });
-
-			const team = teams[0];
-
-			const members = await context.db.client
-				.select()
-				.from(context.db.schema.teamMembers)
-				.where(eq(context.db.schema.teamMembers.teamId, team.id))
-				.leftJoin(
-					context.db.schema.user,
-					eq(context.db.schema.teamMembers.userId, context.db.schema.user.id)
-				);
-
-			return { ...team, members };
-		}),
-
 	join: protectedProcedure
 		.input(
 			z.object({ joinCode: z.string().length(6), asRole: z.enum(['business', 'programming']) })
