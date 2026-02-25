@@ -12,7 +12,7 @@
 	import ProfileMlhSync from '../_components/profile-mlh-sync.svelte';
 	import { accountsQueryOptions } from './accounts';
 	import type { UserAccounts } from '$lib/auth/server.server';
-	import { authClient } from '$lib/auth/client.svelte';
+	import { authClient, sessionQueryOptions } from '$lib/auth/client.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 
@@ -25,6 +25,8 @@
 	};
 
 	let { initialData }: Props = $props();
+
+	const sessionQuery = createQuery(() => sessionQueryOptions);
 
 	const profileQuery = createQuery(() =>
 		orpc.account.profile.get.queryOptions({
@@ -90,7 +92,22 @@
 	{:else if profileCardViewState === 'form' && profileQuery.data}
 		<ProfileForm initialProfile={profileQuery.data} />
 	{:else if profileCardViewState === 'initialize'}
-		<ProfileInitialize />
+		{#if ['admin', 'mentor', 'judge'].some((r) => (sessionQuery.data?.user.role || '')
+				.split(',')
+				.includes(r))}
+			<ProfileInitialize />
+		{:else}
+			<Button
+				class="mt-2"
+				onclick={async () => await mlhLinkMutation.mutateAsync()}
+				disabled={mlhLinkMutation.isPending}
+			>
+				{#if mlhLinkMutation.isPending}
+					<LoaderCircle class="h-4 w-auto animate-spin" />
+				{/if}
+				Link MLH account
+			</Button>
+		{/if}
 	{:else if profileCardViewState === 'no'}
 		<Card.Content>{@render noAutoVerifyAlert()}</Card.Content>
 	{:else}
