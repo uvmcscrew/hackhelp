@@ -19,10 +19,10 @@
 	);
 
 	const programmers = $derived(
-		teamQuery.data?.members.filter((m) => m.teamMember.role === 'programming') ?? []
+		teamQuery.data?.members.filter((m) => m.membership.role === 'programming') ?? []
 	);
 	const business = $derived(
-		teamQuery.data?.members.filter((m) => m.teamMember.role === 'business') ?? []
+		teamQuery.data?.members.filter((m) => m.membership.role === 'business') ?? []
 	);
 </script>
 
