@@ -112,6 +112,11 @@ class Configuration {
 		const result = await this.getEventTiming();
 		return result.eventStart;
 	}
+
+	async getEventPrepTime(): Promise<Date> {
+		const result = await this.getEventTiming();
+		return result.eventPrep;
+	}
 }
 
 export const configurationService = new Configuration(db);

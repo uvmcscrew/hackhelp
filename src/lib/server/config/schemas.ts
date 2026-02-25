@@ -1,6 +1,7 @@
 import z from 'zod';
 
 export const eventTimingConfigSchema = z.object({
+	eventPrep: z.date().default(new Date('2026-02-25T00:00:00.000Z')),
 	eventStart: z.date().default(new Date('2026-02-28T13:30:00.000Z')),
 	competitionStart: z.date().default(new Date('2026-02-28T14:00:00.000Z')),
 	competitionEnd: z.date().default(new Date('2026-02-28T22:00:00.000Z')),

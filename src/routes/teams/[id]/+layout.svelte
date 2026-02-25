@@ -1,28 +1,88 @@
-<svelte:options runes={true} />
-
 <script lang="ts">
+	import { createQuery } from '@tanstack/svelte-query';
+	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { sessionQueryOptions } from '$lib/auth/client.svelte';
 	import * as Card from '$lib/components/ui/card';
-
-	import MadeWith from '$lib/components/MadeWith.svelte';
-
+	import { Badge } from '$lib/components/ui/badge';
+	import { Button } from '$lib/components/ui/button';
+	import UserDropdown from '$lib/components/UserDropdown.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { data, children }: LayoutProps = $props();
+
+	const session = createQuery(() => sessionQueryOptions);
+
+	const teamQuery = createQuery(() =>
+		orpc.teams.byId.queryOptions({
+			input: { id: data.teamId }
+		})
+	);
+
+	const programmers = $derived(
+		teamQuery.data?.members.filter((m) => m.membership.role === 'programming') ?? []
+	);
+	const business = $derived(
+		teamQuery.data?.members.filter((m) => m.membership.role === 'business') ?? []
+	);
 </script>
 
-<svelte:head>
-	<title>{data.team.name} | HackHelp Team</title>
-</svelte:head>
+<div class="container mx-auto max-w-2xl py-8">
+	<div class="mb-6">
+		<div class="flex items-center justify-between">
+			<Button variant="ghost" href="/teams" class="mb-2 px-2">&larr; All Teams</Button>
+			{#if session.data}
+				<UserDropdown />
+			{/if}
+		</div>
 
-<div class="flex min-h-screen w-full flex-col gap-y-4 px-2 pt-16 lg:mx-0 lg:w-xl">
-	<h1 class="w-full text-center text-2xl font-semibold">Team</h1>
-	<Card.Root
-		><Card.CardHeader class="flex flex-row items-center justify-between"
-			><Card.CardTitle>Profile</Card.CardTitle>
-		</Card.CardHeader><Card.CardContent class="flex flex-row"></Card.CardContent>
-	</Card.Root>
+		{#if teamQuery.isLoading}
+			<p class="text-muted-foreground">Loading team...</p>
+		{:else if teamQuery.isError}
+			<Card.Root>
+				<Card.Header>
+					<Card.Title>Team Not Found</Card.Title>
+					<Card.Description>This team doesn't exist or has been removed.</Card.Description>
+				</Card.Header>
+				<Card.Content>
+					<Button href="/teams">Browse Teams</Button>
+				</Card.Content>
+			</Card.Root>
+		{:else if teamQuery.data}
+			{@const team = teamQuery.data}
 
-	{@render children()}
+			<!-- Shared header -->
+			<Card.Root class="mb-6">
+				<Card.Header>
+					<div class="flex items-center justify-between">
+						<div>
+							<Card.Title class="text-xl">{team.name}</Card.Title>
+							<Card.Description>
+								{team.members.length}/7 members
+							</Card.Description>
+						</div>
+						<div class="flex gap-1">
+							{#if team.canJoin}
+								<Badge variant="green" hoverEffects={false}>Open</Badge>
+							{:else}
+								<Badge variant="secondary" hoverEffects={false}>Closed</Badge>
+							{/if}
+						</div>
+					</div>
+				</Card.Header>
+				<Card.Content>
+					<div class="flex gap-4 text-sm">
+						<span class="text-muted-foreground">
+							Programming: {programmers.length}/5
+						</span>
+						<span class="text-muted-foreground">
+							Business: {business.length}/2
+						</span>
+					</div>
+				</Card.Content>
+			</Card.Root>
 
-	<div class="mt-auto mb-2 inline-flex justify-center"><MadeWith /></div>
+			<!-- Child page content -->
+			{@render children()}
+		{/if}
+	</div>
 </div>
