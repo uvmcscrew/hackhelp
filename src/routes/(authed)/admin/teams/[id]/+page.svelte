@@ -8,15 +8,11 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import * as Select from '$lib/components/ui/select';
-	import * as Popover from '$lib/components/ui/popover';
-	import * as Command from '$lib/components/ui/command';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import CircleUser from 'lucide-svelte/icons/circle-user';
-	import Check from 'lucide-svelte/icons/check';
-	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import Pencil from 'lucide-svelte/icons/pencil';
-	import { cn } from '$lib/utils';
 	import type { PageProps } from './$types';
+	import UserWoTeamSearch from '../_components/user-wo-team-search.svelte';
 
 	let { data }: PageProps = $props();
 	const qc = useQueryClient();
@@ -43,6 +39,7 @@
 	const invalidateAll = async () => {
 		await invalidateTeam();
 		await qc.invalidateQueries({ queryKey: orpc.admin.teams.all.queryKey() });
+		await qc.invalidateQueries({ queryKey: orpc.admin.teams.usersWithoutTeam.queryKey() });
 	};
 
 	// ── Name editing ──
@@ -79,24 +76,13 @@
 	);
 
 	// ── Add member ──
-	let addMemberOpen = $state(false);
-	let addMemberSearch = $state('');
 	let addMemberUserId = $state('');
 	let addMemberRole = $state<'business' | 'programming'>('programming');
-
-	const usersQuery = createQuery(() =>
-		orpc.admin.teams.usersWithoutTeam.queryOptions({
-			input: { search: addMemberSearch }
-		})
-	);
-
-	const selectedNewUser = $derived(usersQuery.data?.find((u) => u.id === addMemberUserId));
 
 	const addMemberMut = createMutation(() =>
 		orpc.admin.teams.addMember.mutationOptions({
 			onSuccess: async () => {
 				addMemberUserId = '';
-				addMemberSearch = '';
 				await invalidateAll();
 			}
 		})
@@ -332,55 +318,7 @@
 						<!-- User combobox -->
 						<div class="flex-1 space-y-2">
 							<Label>User</Label>
-							<Popover.Root bind:open={addMemberOpen}>
-								<Popover.Trigger>
-									{#snippet child({ props })}
-										<Button variant="outline" class="w-full justify-between font-normal" {...props}>
-											{#if selectedNewUser}
-												{selectedNewUser.name || selectedNewUser.email}
-											{:else}
-												<span class="text-muted-foreground">Select a user...</span>
-											{/if}
-											<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-										</Button>
-									{/snippet}
-								</Popover.Trigger>
-								<Popover.Content class="w-[var(--bits-popover-trigger-width)] p-0" align="start">
-									<Command.Root shouldFilter={false}>
-										<Command.Input placeholder="Search users..." bind:value={addMemberSearch} />
-										<Command.List>
-											{#if usersQuery.isLoading}
-												<Command.Loading>
-													<p class="py-2 text-center text-sm">Loading...</p>
-												</Command.Loading>
-											{/if}
-											<Command.Empty>No users found.</Command.Empty>
-											<Command.Group>
-												{#each usersQuery.data ?? [] as user (user.id)}
-													<Command.Item
-														value={user.id}
-														onSelect={() => {
-															addMemberUserId = user.id;
-															addMemberOpen = false;
-														}}
-													>
-														<Check
-															class={cn(
-																'mr-2 h-4 w-4',
-																addMemberUserId === user.id ? 'opacity-100' : 'opacity-0'
-															)}
-														/>
-														<div class="flex flex-col">
-															<span class="text-sm">{user.name || 'Unnamed'}</span>
-															<span class="text-muted-foreground text-xs">{user.email}</span>
-														</div>
-													</Command.Item>
-												{/each}
-											</Command.Group>
-										</Command.List>
-									</Command.Root>
-								</Popover.Content>
-							</Popover.Root>
+							<UserWoTeamSearch bind:selectedUserId={addMemberUserId} />
 						</div>
 
 						<!-- Role -->
