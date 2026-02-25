@@ -8,6 +8,7 @@
 
 <SignoutWatcher />
 
-<Header authData={data.authData} />
-
-{@render children()}
+<div class="min-h-screen w-screen overflow-x-clip">
+	<Header authData={data.authData} />
+	{@render children()}
+</div>
