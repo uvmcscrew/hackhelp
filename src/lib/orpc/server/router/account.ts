@@ -721,7 +721,7 @@ export const accountRouter = {
 			if (fullName) {
 				await context.db.client
 					.update(context.db.schema.user)
-					.set({ name: fullName })
+					.set({ name: fullName, role: addRole(context.user.role || '', 'verifiedUser').join(',') })
 					.where(eq(context.db.schema.user.id, context.user.id));
 			}
 
@@ -791,7 +791,7 @@ export const accountRouter = {
 			if (fullName) {
 				await context.db.client
 					.update(context.db.schema.user)
-					.set({ name: fullName })
+					.set({ name: fullName, role: addRole(context.user.role || '', 'verifiedUser').join(',') })
 					.where(eq(context.db.schema.user.id, context.user.id));
 			}
 
