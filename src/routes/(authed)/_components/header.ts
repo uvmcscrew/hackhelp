@@ -5,8 +5,8 @@ type HeaderNavConfig = Record<string, Links>;
 export const headerNavLinks: HeaderNavConfig = {
 	'/home': [
 		{ text: 'Dashboard', href: '/home' },
-		{ text: 'Team', href: '/home/team' },
-		{ text: 'Challenge', href: '/challenge' }
+		{ text: 'Team', href: '/home/team' }
+		// { text: 'Challenge', href: '/challenge' }
 	],
 	'/admin': [
 		{ text: 'Dashboard', href: '/admin' },
