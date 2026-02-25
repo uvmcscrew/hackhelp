@@ -10,7 +10,7 @@
 
 	import { goto } from '$app/navigation';
 	import MadeWith from '$lib/components/MadeWith.svelte';
-	import { posthogHandler } from '$lib/utils';
+	import { cn, posthogHandler } from '$lib/utils';
 	import { resolve } from '$app/paths';
 	import { sessionQueryOptions, signOutAndClearCache } from '$lib/auth/client.svelte';
 	import type { PageProps } from './$types';
@@ -87,7 +87,12 @@
 				<Button variant="outline" class="hover:cursor-pointer" href="/home">Dashboard</Button>
 			{/if}
 			{#if isVerifiedCompetitor && myTeamQuery.isSuccess && !myTeamQuery.data}
-				<Button variant="outline" class="hover:cursor-pointer" href="/teams">Browse Teams</Button>
+				<div class={cn('flex flex-col gap-y-2 lg:flex-row lg:gap-x-2')}>
+					<Button variant="default" class="hover:cursor-pointer" href="/home/create-team"
+						>Create Team</Button
+					>
+					<Button variant="outline" class="hover:cursor-pointer" href="/teams">Browse Teams</Button>
+				</div>
 			{/if}
 		</div>
 	{/if}

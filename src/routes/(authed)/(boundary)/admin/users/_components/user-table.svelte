@@ -191,7 +191,7 @@
 								{:else if cell.column.id === 'role'}
 									{@const roleStr = rowData.user.role}
 									{#if roleStr}
-										{#each roleStr.split(',') as r (r)}
+										{#each roleStr.split(',').filter((r) => r !== 'user') as r (r)}
 											<Badge
 												variant={getRoleBadgeVariant(r.trim())}
 												hoverEffects={false}
