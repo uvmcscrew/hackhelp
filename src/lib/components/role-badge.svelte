@@ -16,8 +16,6 @@
 	const sessionQuery = createQuery(() => sessionQueryOptions);
 	const profileQuery = createQuery(() => orpc.account.profile.get.queryOptions());
 
-	const ready = $derived(sessionQuery.status === 'success' && profileQuery.status === 'success');
-
 	const roles = $derived((sessionQuery.data?.user.role ?? '').split(','));
 
 	const displayRole = $derived.by(() => {
@@ -43,27 +41,25 @@
 	const label = $derived(capitalize(displayRole));
 </script>
 
-{#if ready}
-	{#if displayRole === 'admin'}
-		{@const adminLabel = adminAsOrganizer ? 'Organizer' : 'Administrator'}
-		<Badge
-			class={twMerge('ml-2 hidden rounded-full bg-purple-400 px-2 py-1 md:visible', extraClasses)}
-			hoverEffects={false}>{adminLabel}</Badge
-		>
-	{:else if displayRole === 'judge'}
-		<Badge
-			class={twMerge('ml-2 hidden rounded-full bg-blue-400 px-2 py-1 md:visible', extraClasses)}
-			hoverEffects={false}>{label}</Badge
-		>
-	{:else if displayRole === 'mentor'}
-		<Badge
-			class={twMerge('ml-2 hidden rounded-full bg-green-400 px-2 py-1 md:visible', extraClasses)}
-			hoverEffects={false}>{label}</Badge
-		>
-	{:else if displayRole === 'competitor'}
-		<Badge
-			class={twMerge('ml-2 hidden rounded-full bg-yellow-400 px-2 py-1 md:visible', extraClasses)}
-			hoverEffects={false}>{label}</Badge
-		>
-	{/if}
+{#if displayRole === 'admin'}
+	{@const adminLabel = adminAsOrganizer ? 'Organizer' : 'Administrator'}
+	<Badge
+		class={twMerge('ml-2 hidden rounded-full bg-purple-400 px-2 py-1 sm:flex', extraClasses)}
+		hoverEffects={false}>{adminLabel}</Badge
+	>
+{:else if displayRole === 'judge'}
+	<Badge
+		class={twMerge('ml-2 hidden rounded-full bg-blue-400 px-2 py-1 sm:flex', extraClasses)}
+		hoverEffects={false}>{label}</Badge
+	>
+{:else if displayRole === 'mentor'}
+	<Badge
+		class={twMerge('ml-2 hidden rounded-full bg-green-400 px-2 py-1 sm:flex', extraClasses)}
+		hoverEffects={false}>{label}</Badge
+	>
+{:else if displayRole === 'competitor'}
+	<Badge
+		class={twMerge('ml-2 hidden rounded-full bg-yellow-400 px-2 py-1 sm:flex', extraClasses)}
+		hoverEffects={false}>{label}</Badge
+	>
 {/if}
