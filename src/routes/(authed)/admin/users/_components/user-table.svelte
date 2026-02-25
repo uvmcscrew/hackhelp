@@ -16,6 +16,7 @@
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import { columns, type UserRow } from './columns';
+	import { capitalize } from 'es-toolkit/string';
 
 	type Props = {
 		users: UserRow[];
@@ -28,14 +29,12 @@
 	const invalidateUsers = () =>
 		qc.invalidateQueries({ queryKey: orpc.admin.users.all.queryOptions().queryKey });
 
+	const grantRoleMutation = createMutation(() =>
+		orpc.admin.users.grantRole.mutationOptions({ onSuccess: invalidateUsers })
+	);
+
 	const grantVerifiedMutation = createMutation(() =>
 		orpc.admin.users.grantVerified.mutationOptions({ onSuccess: invalidateUsers })
-	);
-	const grantJudgeMutation = createMutation(() =>
-		orpc.admin.users.grantJudge.mutationOptions({ onSuccess: invalidateUsers })
-	);
-	const grantMentorMutation = createMutation(() =>
-		orpc.admin.users.grantMentor.mutationOptions({ onSuccess: invalidateUsers })
 	);
 
 	let globalFilter = $state('');
@@ -110,15 +109,9 @@
 
 	// Whether any mutation for a given userId is currently pending
 	function isMutating(userId: string) {
-		const vars = [
-			grantVerifiedMutation.variables,
-			grantJudgeMutation.variables,
-			grantMentorMutation.variables
-		];
+		const vars = [grantVerifiedMutation.variables, grantRoleMutation.variables];
 		return (
-			(grantVerifiedMutation.isPending ||
-				grantJudgeMutation.isPending ||
-				grantMentorMutation.isPending) &&
+			(grantVerifiedMutation.isPending || grantRoleMutation.isPending) &&
 			vars.some((v) => v?.userId === userId)
 		);
 	}
@@ -262,16 +255,16 @@
 													Grant Verified
 												</DropdownMenu.Item>
 											{/if}
-											{#if !hasRole(roles, 'judge')}
-												<DropdownMenu.Item onclick={() => grantJudgeMutation.mutate({ userId })}>
-													Make Judge
-												</DropdownMenu.Item>
-											{/if}
-											{#if !hasRole(roles, 'mentor')}
-												<DropdownMenu.Item onclick={() => grantMentorMutation.mutate({ userId })}>
-													Make Mentor
-												</DropdownMenu.Item>
-											{/if}
+											{#each ['judge', 'mentor', 'admin'] as const as role (role)}
+												{#if !hasRole(roles, role)}
+													{@const ucase = capitalize(role)}
+													<DropdownMenu.Item
+														onclick={() => grantRoleMutation.mutate({ userId, role })}
+													>
+														Make {ucase}
+													</DropdownMenu.Item>
+												{/if}
+											{/each}
 											{#if hasRole(roles, 'verifiedUser') && hasRole(roles, 'judge') && hasRole(roles, 'mentor')}
 												<DropdownMenu.Item disabled>All roles granted</DropdownMenu.Item>
 											{/if}

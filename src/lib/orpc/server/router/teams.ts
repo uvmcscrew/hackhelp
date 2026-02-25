@@ -37,8 +37,9 @@ export const teamsRouter = {
 			.map((m) => ({
 				...m,
 				user: {
+					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 					...m.user!,
-					email: canViewExtendedInfo ? m.user!.email : ''
+					email: canViewExtendedInfo ? m.user?.email : ''
 				}
 			}));
 

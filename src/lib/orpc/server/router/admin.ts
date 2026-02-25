@@ -58,14 +58,8 @@ const userRouter = {
 				.set({ role: updatedRoles })
 				.where(eq(context.db.schema.user.id, input.userId));
 		}),
-
-	/**
-	 * Grant the `judge` role and set primaryRole on the profile.
-	 * Creates the profile (with defaults) if it does not yet exist.
-	 * Also implicitly grants `verifiedUser` so the profile system is unlocked.
-	 */
-	grantJudge: adminProcedure
-		.input(z.object({ userId: z.string().nonempty() }))
+	grantRole: adminProcedure
+		.input(z.object({ userId: z.string().nonempty(), role: z.enum(['mentor', 'judge', 'admin']) }))
 		.handler(async ({ context, input }) => {
 			const [target] = await context.db.client
 				.select()
@@ -75,46 +69,8 @@ const userRouter = {
 			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 			if (!target) throw new ORPCError('BAD_REQUEST', { message: 'User not found' });
 
-			// Add both verifiedUser and judge roles
-			let updatedRoles = addRole(target.role ?? '', 'verifiedUser');
-			updatedRoles = addRole(updatedRoles.join(','), 'judge');
-
-			await context.db.client
-				.update(context.db.schema.user)
-				.set({ role: updatedRoles.join(',') })
-				.where(eq(context.db.schema.user.id, input.userId));
-
-			// Upsert the profile with primaryRole = 'judge'
-			const defaultData = serialize(profileDataSchema.parse({ mainlineDietaryRestrictions: {} }));
-
-			await context.db.client
-				.insert(context.db.schema.profile)
-				.values({ id: input.userId, primaryRole: 'judge', data: defaultData })
-				.onConflictDoUpdate({
-					target: context.db.schema.profile.id,
-					set: { primaryRole: 'judge' }
-				});
-		}),
-
-	/**
-	 * Grant the `mentor` role and set primaryRole on the profile.
-	 * Creates the profile (with defaults) if it does not yet exist.
-	 * Also implicitly grants `verifiedUser` so the profile system is unlocked.
-	 */
-	grantMentor: adminProcedure
-		.input(z.object({ userId: z.string().nonempty() }))
-		.handler(async ({ context, input }) => {
-			const [target] = await context.db.client
-				.select()
-				.from(context.db.schema.user)
-				.where(eq(context.db.schema.user.id, input.userId));
-
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			if (!target) throw new ORPCError('BAD_REQUEST', { message: 'User not found' });
-
-			// Add both verifiedUser and mentor roles
-			let updatedRoles = addRole(target.role ?? '', 'verifiedUser');
-			updatedRoles = addRole(updatedRoles.join(','), 'mentor');
+			// Add both verifiedUser and admin roles
+			const updatedRoles = addRole(target.role ?? '', input.role);
 
 			await context.db.client
 				.update(context.db.schema.user)
@@ -126,41 +82,10 @@ const userRouter = {
 
 			await context.db.client
 				.insert(context.db.schema.profile)
-				.values({ id: input.userId, primaryRole: 'mentor', data: defaultData })
+				.values({ id: input.userId, primaryRole: input.role, data: defaultData })
 				.onConflictDoUpdate({
 					target: context.db.schema.profile.id,
-					set: { primaryRole: 'mentor' }
-				});
-		}),
-	grantAdmin: adminProcedure
-		.input(z.object({ userId: z.string().nonempty() }))
-		.handler(async ({ context, input }) => {
-			const [target] = await context.db.client
-				.select()
-				.from(context.db.schema.user)
-				.where(eq(context.db.schema.user.id, input.userId));
-
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-			if (!target) throw new ORPCError('BAD_REQUEST', { message: 'User not found' });
-
-			// Add both verifiedUser and mentor roles
-			let updatedRoles = addRole(target.role ?? '', 'verifiedUser');
-			updatedRoles = addRole(updatedRoles.join(','), 'mentor');
-
-			await context.db.client
-				.update(context.db.schema.user)
-				.set({ role: updatedRoles.join(',') })
-				.where(eq(context.db.schema.user.id, input.userId));
-
-			// Upsert the profile with primaryRole = 'mentor'
-			const defaultData = serialize(profileDataSchema.parse({ mainlineDietaryRestrictions: {} }));
-
-			await context.db.client
-				.insert(context.db.schema.profile)
-				.values({ id: input.userId, primaryRole: 'mentor', data: defaultData })
-				.onConflictDoUpdate({
-					target: context.db.schema.profile.id,
-					set: { primaryRole: 'mentor' }
+					set: { primaryRole: input.role }
 				});
 		})
 };
