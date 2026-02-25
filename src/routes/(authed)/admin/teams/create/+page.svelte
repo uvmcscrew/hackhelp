@@ -33,6 +33,7 @@
 		orpc.admin.teams.create.mutationOptions({
 			onSuccess: async (data) => {
 				await qc.invalidateQueries({ queryKey: orpc.admin.teams.all.queryOptions().queryKey });
+				// eslint-disable-next-line svelte/no-navigation-without-resolve
 				await goto(`/admin/teams/${data.id}`);
 			}
 		})
@@ -48,6 +49,10 @@
 		});
 	}
 </script>
+
+<svelte:head>
+	<title>Create a Team - Admin | HackHelp</title>
+</svelte:head>
 
 <div class="container mx-auto max-w-lg py-8">
 	<Button variant="ghost" href="/admin/teams" class="mb-4 px-2">&larr; All Teams</Button>

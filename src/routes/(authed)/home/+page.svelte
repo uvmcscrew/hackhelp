@@ -8,6 +8,10 @@
 	const myTeamQuery = createQuery(() => orpc.teams.myTeam.queryOptions());
 </script>
 
+<svelte:head>
+	<title>Home</title>
+</svelte:head>
+
 <div class="container mx-auto flex max-w-2xl flex-col gap-6 py-8">
 	<h1 class="text-2xl font-bold">Dashboard</h1>
 

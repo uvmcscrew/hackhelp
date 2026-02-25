@@ -9,6 +9,10 @@
 	const teamsQuery = createQuery(() => orpc.admin.teams.all.queryOptions());
 </script>
 
+<svelte:head>
+	<title>Teams Administration | HackHelp</title>
+</svelte:head>
+
 <div class="container mx-auto py-8">
 	<div class="mb-6 flex items-start justify-between">
 		<div>

@@ -8,6 +8,10 @@
 	const usersQuery = createQuery(() => orpc.admin.users.all.queryOptions());
 </script>
 
+<svelte:head>
+	<title>User Administration | HackHelp</title>
+</svelte:head>
+
 <div class="container mx-auto py-8">
 	<div class="mb-6">
 		<h1 class="text-2xl font-bold">Users</h1>

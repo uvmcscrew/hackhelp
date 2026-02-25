@@ -120,6 +120,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>{teamQuery.data?.name} | Team Administration</title>
+</svelte:head>
+
 <div class="container mx-auto max-w-2xl py-8">
 	<Button variant="ghost" href="/admin/teams" class="mb-4 px-2">&larr; All Teams</Button>
 
