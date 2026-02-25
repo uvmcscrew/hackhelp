@@ -36,9 +36,9 @@
 
 	const updateNameMut = createMutation(() =>
 		orpc.teams.updateName.mutationOptions({
-			onSuccess: () => {
+			onSuccess: async () => {
 				editingName = false;
-				queryClient.invalidateQueries({ queryKey: orpc.teams.myTeam.queryKey() });
+				await queryClient.invalidateQueries({ queryKey: orpc.teams.myTeam.queryKey() });
 			}
 		})
 	);
