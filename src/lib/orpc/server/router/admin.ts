@@ -108,9 +108,18 @@ const userRouter = {
 				.set({ role: updatedRoles.join(',') })
 				.where(eq(context.db.schema.user.id, input.userId));
 
+			let primaryRole: typeof input.role | null = null;
+			if (updatedRoles.includes('admin')) {
+				primaryRole = 'admin';
+			} else if (updatedRoles.includes('mentor')) {
+				primaryRole = 'mentor';
+			} else if (updatedRoles.includes('judge')) {
+				primaryRole = 'judge';
+			}
+
 			await context.db.client
 				.update(context.db.schema.profile)
-				.set({ primaryRole: null })
+				.set({ primaryRole })
 				.where(eq(context.db.schema.profile.id, input.userId));
 		})
 };
