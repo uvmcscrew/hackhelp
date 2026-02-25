@@ -32,6 +32,9 @@
 	const grantRoleMutation = createMutation(() =>
 		orpc.admin.users.grantRole.mutationOptions({ onSuccess: invalidateUsers })
 	);
+	const removeRoleMutation = createMutation(() =>
+		orpc.admin.users.removeRole.mutationOptions({ onSuccess: invalidateUsers })
+	);
 
 	const grantVerifiedMutation = createMutation(() =>
 		orpc.admin.users.grantVerified.mutationOptions({ onSuccess: invalidateUsers })
@@ -256,8 +259,14 @@
 												</DropdownMenu.Item>
 											{/if}
 											{#each ['judge', 'mentor', 'admin'] as const as role (role)}
-												{#if !hasRole(roles, role)}
-													{@const ucase = capitalize(role)}
+												{@const ucase = capitalize(role)}
+												{#if hasRole(roles, role)}
+													<DropdownMenu.Item
+														onclick={() => removeRoleMutation.mutate({ userId, role })}
+													>
+														Remove {ucase}
+													</DropdownMenu.Item>
+												{:else}
 													<DropdownMenu.Item
 														onclick={() => grantRoleMutation.mutate({ userId, role })}
 													>
@@ -265,9 +274,6 @@
 													</DropdownMenu.Item>
 												{/if}
 											{/each}
-											{#if hasRole(roles, 'verifiedUser') && hasRole(roles, 'judge') && hasRole(roles, 'mentor')}
-												<DropdownMenu.Item disabled>All roles granted</DropdownMenu.Item>
-											{/if}
 										</DropdownMenu.Content>
 									</DropdownMenu.Root>
 								{:else}

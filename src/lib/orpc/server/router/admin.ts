@@ -2,7 +2,7 @@ import { adminProcedure } from '../shared';
 import { eq, sql, count, notInArray, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
-import { addRole } from '$lib/auth/permissions';
+import { addRole, removeRole } from '$lib/auth/permissions';
 import { profileDataSchema } from '$lib/schemas';
 import { serialize } from 'superjson';
 
@@ -87,6 +87,31 @@ const userRouter = {
 					target: context.db.schema.profile.id,
 					set: { primaryRole: input.role }
 				});
+		}),
+
+	removeRole: adminProcedure
+		.input(z.object({ userId: z.string().nonempty(), role: z.enum(['mentor', 'judge', 'admin']) }))
+		.handler(async ({ context, input }) => {
+			const [target] = await context.db.client
+				.select()
+				.from(context.db.schema.user)
+				.where(eq(context.db.schema.user.id, input.userId));
+
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+			if (!target) throw new ORPCError('BAD_REQUEST', { message: 'User not found' });
+
+			// Add both verifiedUser and admin roles
+			const updatedRoles = removeRole(target.role ?? '', input.role);
+
+			await context.db.client
+				.update(context.db.schema.user)
+				.set({ role: updatedRoles.join(',') })
+				.where(eq(context.db.schema.user.id, input.userId));
+
+			await context.db.client
+				.update(context.db.schema.profile)
+				.set({ primaryRole: null })
+				.where(eq(context.db.schema.profile.id, input.userId));
 		})
 };
 
