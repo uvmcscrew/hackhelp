@@ -343,6 +343,89 @@ export const teamsRouter = {
 				);
 		}),
 
+	transferCaptain: protectedProcedure
+		.input(z.object({ targetUserId: z.string() }))
+		.handler(async ({ context, input }) => {
+			// Verify caller is captain
+			const callerMembership = await context.db.client
+				.select()
+				.from(context.db.schema.teamMembers)
+				.where(eq(context.db.schema.teamMembers.userId, context.user.id));
+
+			if (callerMembership.length === 0 || !callerMembership[0].isCaptain) {
+				throw new ORPCError('FORBIDDEN', {
+					message: 'Only the team captain can transfer captaincy'
+				});
+			}
+
+			if (input.targetUserId === context.user.id) {
+				throw new ORPCError('BAD_REQUEST', { message: 'You are already the captain' });
+			}
+
+			const teamId = callerMembership[0].teamId;
+
+			// Verify target is on the same team
+			const targetMembership = await context.db.client
+				.select()
+				.from(context.db.schema.teamMembers)
+				.where(
+					and(
+						eq(context.db.schema.teamMembers.userId, input.targetUserId),
+						eq(context.db.schema.teamMembers.teamId, teamId)
+					)
+				);
+
+			if (targetMembership.length === 0) {
+				throw new ORPCError('NOT_FOUND', { message: 'Member not found on your team' });
+			}
+
+			// Atomically: demote current captain, promote target
+			await context.db.client
+				.update(context.db.schema.teamMembers)
+				.set({ isCaptain: false })
+				.where(
+					and(
+						eq(context.db.schema.teamMembers.userId, context.user.id),
+						eq(context.db.schema.teamMembers.teamId, teamId)
+					)
+				);
+
+			await context.db.client
+				.update(context.db.schema.teamMembers)
+				.set({ isCaptain: true })
+				.where(
+					and(
+						eq(context.db.schema.teamMembers.userId, input.targetUserId),
+						eq(context.db.schema.teamMembers.teamId, teamId)
+					)
+				);
+		}),
+
+	updateName: protectedProcedure
+		.input(z.object({ name: z.string().min(3).max(50) }))
+		.handler(async ({ context, input }) => {
+			// Verify caller is captain
+			const callerMembership = await context.db.client
+				.select()
+				.from(context.db.schema.teamMembers)
+				.where(eq(context.db.schema.teamMembers.userId, context.user.id));
+
+			if (callerMembership.length === 0 || !callerMembership[0].isCaptain) {
+				throw new ORPCError('FORBIDDEN', {
+					message: 'Only the team captain can rename the team'
+				});
+			}
+
+			const [updated] = await context.db.client
+				.update(context.db.schema.team)
+				.set({ name: input.name })
+				.where(eq(context.db.schema.team.id, callerMembership[0].teamId))
+				.returning();
+
+			if (!updated) throw new ORPCError('NOT_FOUND', { message: 'Team not found' });
+			return updated;
+		}),
+
 	leaveTeam: protectedProcedure.handler(async ({ context }) => {
 		const membership = await context.db.client
 			.select()

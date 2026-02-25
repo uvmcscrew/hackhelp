@@ -145,7 +145,7 @@
 						{#each row.getVisibleCells() as cell (cell.id)}
 							<Table.Cell>
 								{#if cell.column.id === 'name'}
-									<a href={`/teams/${rowData.team.id}`} class="font-medium hover:underline">
+									<a href={`/admin/teams/${rowData.team.id}`} class="font-medium hover:underline">
 										{rowData.team.name}
 									</a>
 								{:else if cell.column.id === 'memberCount'}
@@ -184,6 +184,12 @@
 											{/snippet}
 										</DropdownMenu.Trigger>
 										<DropdownMenu.Content align="end">
+											<DropdownMenu.Item class="w-full hover:cursor-pointer">
+												{#snippet child({ props })}
+													<a {...props} href={`/admin/teams/${teamId}`}>Manage</a>
+												{/snippet}
+											</DropdownMenu.Item>
+											<DropdownMenu.Separator />
 											{#if rowData.team.canJoin}
 												<DropdownMenu.Item
 													onclick={() => toggleCanJoinMutation.mutate({ teamId, canJoin: false })}

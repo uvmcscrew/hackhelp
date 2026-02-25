@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
 	import * as Card from '$lib/components/ui/card';
+	import { orpc } from '$lib/orpc/client/index.svelte';
 	import type { RouterOutputs } from '$lib/orpc/server';
+	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
+	import Pencil from 'lucide-svelte/icons/pencil';
 
 	type Props = {
 		team: NonNullable<RouterOutputs['teams']['myTeam']>;
@@ -24,12 +28,66 @@
 	}
 
 	let copied = $state(false);
+
+	// Inline name editing (captain only)
+	const queryClient = useQueryClient();
+	let editingName = $state(false);
+	let nameInput = $state('');
+
+	const updateNameMut = createMutation(() =>
+		orpc.teams.updateName.mutationOptions({
+			onSuccess: () => {
+				editingName = false;
+				queryClient.invalidateQueries({ queryKey: orpc.teams.myTeam.queryKey() });
+			}
+		})
+	);
+
+	function startEditName() {
+		nameInput = team.name;
+		editingName = true;
+	}
+
+	function saveName() {
+		if (!nameInput.trim()) return;
+		updateNameMut.mutate({ name: nameInput.trim() });
+	}
 </script>
 
 <Card.Root>
 	<Card.Header>
 		<div class="flex items-center justify-between">
-			<Card.Title class="text-xl">{team.name}</Card.Title>
+			{#if editingName}
+				<div class="flex flex-1 items-center gap-2">
+					<Input
+						bind:value={nameInput}
+						class="max-w-xs"
+						minlength={3}
+						maxlength={50}
+						onkeydown={(e) => {
+							if (e.key === 'Enter') saveName();
+							if (e.key === 'Escape') editingName = false;
+						}}
+					/>
+					<Button
+						size="sm"
+						onclick={saveName}
+						disabled={updateNameMut.isPending || !nameInput.trim()}
+					>
+						Save
+					</Button>
+					<Button size="sm" variant="ghost" onclick={() => (editingName = false)}>Cancel</Button>
+				</div>
+			{:else}
+				<div class="flex items-center gap-2">
+					<Card.Title class="text-xl">{team.name}</Card.Title>
+					{#if isCaptain}
+						<Button variant="ghost" size="icon" class="h-8 w-8" onclick={startEditName}>
+							<Pencil class="h-4 w-4" />
+						</Button>
+					{/if}
+				</div>
+			{/if}
 			<div class="flex gap-2">
 				{#if isCaptain}
 					<Badge variant="default">Captain</Badge>
@@ -37,6 +95,9 @@
 				<Badge variant="secondary">{team.myMembership.role}</Badge>
 			</div>
 		</div>
+		{#if updateNameMut.isError}
+			<p class="text-destructive text-sm">{updateNameMut.error.message}</p>
+		{/if}
 	</Card.Header>
 	<Card.Content class="flex flex-col gap-5">
 		<!-- Join Code -->
