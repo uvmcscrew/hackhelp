@@ -1,13 +1,15 @@
 import { adminProcedure } from '../shared';
-import { eq, sql, count, notInArray, or, ilike, and } from 'drizzle-orm';
+import { eq, sql, count, notInArray, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
-import { addRole } from '$lib/auth/permissions';
+import { addRole, removeRole } from '$lib/auth/permissions';
 import { profileDataSchema } from '$lib/schemas';
 import { serialize } from 'superjson';
 import { challengesAdminRouter } from './challenges';
 import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
+import { Octokit } from 'octokit';
+import { auth, type MLHUserProfile } from '$lib/auth/server.server';
 
 /**
  * Administrative actions: user management (roles, verification, profile upsert),
@@ -138,7 +140,7 @@ const userRouter = {
 				users: z.array(
 					z.object({
 						name: z.string().nonempty(),
-						email: z.string().email()
+						email: z.email()
 					})
 				)
 			})
@@ -184,6 +186,163 @@ const userRouter = {
 			}
 
 			return { created, skipped, total: input.users.length };
+		}),
+
+	/**
+	 * Get a single user with their profile, linked accounts, and team membership.
+	 * For OAuth providers with stored access tokens, fetches the user's profile
+	 * from the provider API (GitHub, MLH).
+	 */
+	getById: adminProcedure
+		.input(z.object({ userId: z.string().nonempty() }))
+		.handler(async ({ context, input }) => {
+			const { user, profile, account, teamMembers, team } = context.db.schema;
+
+			// Fetch user
+			const [foundUser] = await context.db.client
+				.select()
+				.from(user)
+				.where(eq(user.id, input.userId));
+
+			if (!foundUser) throw new ORPCError('NOT_FOUND', { message: 'User not found' });
+
+			// Fetch profile
+			const [userProfile] = await context.db.client
+				.select()
+				.from(profile)
+				.where(eq(profile.id, input.userId));
+
+			// Fetch linked accounts (include accessToken for provider API calls)
+			const accounts = await context.db.client
+				.select({
+					id: account.id,
+					providerId: account.providerId,
+					accountId: account.accountId,
+					accessToken: account.accessToken,
+					createdAt: account.createdAt
+				})
+				.from(account)
+				.where(eq(account.userId, input.userId));
+
+			// Fetch rich profile data from providers using their access tokens
+			type ProviderProfile =
+				| {
+						providerId: 'github';
+						login: string;
+						avatarUrl: string;
+						profileUrl: string;
+						name: string | null;
+						bio: string | null;
+				  }
+				| {
+						providerId: 'mlh';
+						firstName: string;
+						lastName: string;
+						email: string | null;
+						countryOfResidence: string | null;
+						gender: string | null;
+						age: number | null;
+						education: Array<{
+							current: boolean;
+							schoolName: string;
+							major: string | null;
+						}> | null;
+				  }
+				| { providerId: 'uvm-netid' }
+				| { providerId: 'email' }
+				| { providerId: string; error: string };
+
+			const providerProfiles: ProviderProfile[] = await Promise.all(
+				accounts.map(async (acct): Promise<ProviderProfile> => {
+					try {
+						if (acct.providerId === 'github' && acct.accessToken) {
+							const gh = new Octokit({ auth: acct.accessToken });
+							const { data } = await gh.rest.users.getAuthenticated();
+							return {
+								providerId: 'github',
+								login: data.login,
+								avatarUrl: data.avatar_url,
+								profileUrl: data.html_url,
+								name: data.name ?? null,
+								bio: data.bio ?? null
+							};
+						}
+
+						if (acct.providerId === 'mlh' && acct.accessToken) {
+							const tokenResult = await auth.api.getAccessToken({
+								body: { providerId: 'mlh', accountId: acct.id },
+								headers: context.req.headers
+							});
+							const res = await fetch('https://api.mlh.com/v4/users/me?expand[]=education', {
+								headers: { Authorization: `Bearer ${tokenResult.accessToken}` }
+							});
+							if (!res.ok) {
+								return {
+									providerId: 'mlh',
+									error: `MLH API returned ${res.status}`
+								} as ProviderProfile;
+							}
+							const mlh = (await res.json()) as MLHUserProfile;
+							return {
+								providerId: 'mlh',
+								firstName: mlh.first_name,
+								lastName: mlh.last_name,
+								email: mlh.email ?? null,
+								countryOfResidence: mlh.profile?.country_of_residence ?? null,
+								gender: mlh.profile?.gender ?? null,
+								age: mlh.profile?.age ?? null,
+								education:
+									mlh.education?.map((e) => ({
+										current: e.current,
+										schoolName: e.school_name,
+										major: e.major ?? null
+									})) ?? null
+							};
+						}
+
+						if (acct.providerId === 'uvm-netid') {
+							return { providerId: 'uvm-netid' };
+						}
+
+						if (acct.providerId === 'email') {
+							return { providerId: 'email' };
+						}
+
+						return { providerId: acct.providerId, error: 'Unknown provider' };
+					} catch (e) {
+						return {
+							providerId: acct.providerId,
+							error: e instanceof Error ? e.message : 'Failed to fetch profile'
+						};
+					}
+				})
+			);
+
+			// Fetch team membership (if any)
+			const [membership] = await context.db.client
+				.select({
+					membership: teamMembers,
+					team: {
+						id: team.id,
+						name: team.name
+					}
+				})
+				.from(teamMembers)
+				.where(eq(teamMembers.userId, input.userId))
+				.leftJoin(team, eq(teamMembers.teamId, team.id));
+
+			return {
+				user: foundUser,
+				profile: userProfile ?? null,
+				accounts: providerProfiles,
+				team: membership?.team
+					? {
+							...membership.team,
+							role: membership.membership.role,
+							isCaptain: membership.membership.isCaptain
+						}
+					: null
+			};
 		}),
 
 	/**

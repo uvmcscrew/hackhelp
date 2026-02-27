@@ -400,6 +400,12 @@
 											{/snippet}
 										</DropdownMenu.Trigger>
 										<DropdownMenu.Content align="end">
+											<DropdownMenu.Item class="w-full hover:cursor-pointer">
+												{#snippet child({ props })}
+													<a {...props} href={`/admin/users/${userId}`}>View Details</a>
+												{/snippet}
+											</DropdownMenu.Item>
+											<DropdownMenu.Separator />
 											{#if !hasRole(roles, 'verifiedUser')}
 												<DropdownMenu.Item onclick={() => grantVerifiedMutation.mutate({ userId })}>
 													Grant Verified
