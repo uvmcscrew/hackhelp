@@ -580,27 +580,27 @@ const teamsAdminRouter = {
 				.from(teamMembers)
 				.where(eq(teamMembers.teamId, input.teamId));
 
-			if (members.length >= TEAM_MAX_SIZE) {
-				throw new ORPCError('BAD_REQUEST', {
-					message: `Team is full (${TEAM_MAX_SIZE}/${TEAM_MAX_SIZE} members)`
-				});
-			}
-			if (
-				input.role === 'programming' &&
-				members.filter((m) => m.role === 'programming').length >= PROGRAMMERS_MAX
-			) {
-				throw new ORPCError('BAD_REQUEST', {
-					message: `Too many programmers (${PROGRAMMERS_MAX}/${PROGRAMMERS_MAX})`
-				});
-			}
-			if (
-				input.role === 'business' &&
-				members.filter((m) => m.role === 'business').length >= BUSINESS_MAX
-			) {
-				throw new ORPCError('BAD_REQUEST', {
-					message: `Too many business members (${BUSINESS_MAX}/${BUSINESS_MAX})`
-				});
-			}
+			// if (members.length >= TEAM_MAX_SIZE) {
+			// 	throw new ORPCError('BAD_REQUEST', {
+			// 		message: `Team is full (${TEAM_MAX_SIZE}/${TEAM_MAX_SIZE} members)`
+			// 	});
+			// }
+			// if (
+			// 	input.role === 'programming' &&
+			// 	members.filter((m) => m.role === 'programming').length >= PROGRAMMERS_MAX
+			// ) {
+			// 	throw new ORPCError('BAD_REQUEST', {
+			// 		message: `Too many programmers (${PROGRAMMERS_MAX}/${PROGRAMMERS_MAX})`
+			// 	});
+			// }
+			// if (
+			// 	input.role === 'business' &&
+			// 	members.filter((m) => m.role === 'business').length >= BUSINESS_MAX
+			// ) {
+			// 	throw new ORPCError('BAD_REQUEST', {
+			// 		message: `Too many business members (${BUSINESS_MAX}/${BUSINESS_MAX})`
+			// 	});
+			// }
 
 			await context.db.client.insert(teamMembers).values({
 				teamId: input.teamId,
