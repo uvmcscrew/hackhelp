@@ -10,7 +10,24 @@ import { ORPCError } from '@orpc/client';
  */
 export const challengesRouter = {
 	/**
-	 * List all challenges — only available once challenges are visible.
+	 * Check whether challenges are visible yet.
+	 * Lightweight query intended for frequent polling before reveal.
+	 */
+	availability: protectedProcedure.handler(async ({ context }) => {
+		const config = await context.config.getChallengeConfig();
+		const now = new Date();
+		const visible = config.challengesViewAvailableNow || now >= config.challengesViewAvailableFrom;
+
+		return {
+			visible,
+			availableFrom: config.challengesViewAvailableFrom
+		};
+	}),
+
+	/**
+	 * List all challenges with team counts and registration status.
+	 * Only returns data once challenges are visible.
+	 * Intended to be polled every 1-2s once enabled, so also returns canRegister.
 	 */
 	list: protectedProcedure.handler(async ({ context }) => {
 		const config = await context.config.getChallengeConfig();
@@ -20,10 +37,9 @@ export const challengesRouter = {
 
 		if (!visible) {
 			return {
-				visible: false as const,
 				challenges: [],
-				availableFrom: config.challengesViewAvailableFrom,
-				maxTeamsPerChallenge: config.maxTeamsPerChallenge
+				maxTeamsPerChallenge: config.maxTeamsPerChallenge,
+				canRegister: false
 			};
 		}
 
@@ -42,11 +58,13 @@ export const challengesRouter = {
 			.leftJoin(team, eq(team.selectedChallengeId, challenge.id))
 			.groupBy(challenge.id);
 
+		const canRegister =
+			config.challengesRegisterAvailableNow || now >= config.challengesRegisterAvailableFrom;
+
 		return {
-			visible: true as const,
 			challenges,
-			availableFrom: config.challengesViewAvailableFrom,
-			maxTeamsPerChallenge: config.maxTeamsPerChallenge
+			maxTeamsPerChallenge: config.maxTeamsPerChallenge,
+			canRegister
 		};
 	}),
 

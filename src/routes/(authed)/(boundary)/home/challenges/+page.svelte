@@ -5,16 +5,48 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { onDestroy } from 'svelte';
+	import { cn } from '$lib/utils';
 
 	const queryClient = useQueryClient();
 
-	const challengesQuery = createQuery(() => orpc.challenges.list.queryOptions());
+	// Track whether challenges are visible to control polling
+	let challengesRevealed = $state(false);
+
+	// Query 1: lightweight availability check, polls every 2s until visible
+	const availabilityQuery = createQuery(() => ({
+		...orpc.challenges.availability.queryOptions(),
+		refetchInterval: challengesRevealed ? false : 2000
+	}));
+
+	// Update revealed flag when availability changes
+	$effect(() => {
+		if (availabilityQuery.data?.visible) {
+			challengesRevealed = true;
+		}
+	});
+
+	const isVisible = $derived(availabilityQuery.data?.visible ?? false);
+	const availableFrom = $derived(
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+		availabilityQuery.data?.availableFrom ? new Date(availabilityQuery.data.availableFrom) : null
+	);
+
+	// Query 2: full challenge data, only enabled once visible, polls every 2s
+	const challengesQuery = createQuery(() => ({
+		...orpc.challenges.list.queryOptions(),
+		enabled: isVisible,
+		refetchInterval: 1_000
+	}));
+
 	const myTeamQuery = createQuery(() => orpc.teams.myTeam.queryOptions());
 
 	const selectChallengeMut = createMutation(() =>
 		orpc.challenges.selectForTeam.mutationOptions({
-			onSuccess: () => {
-				queryClient.invalidateQueries({ queryKey: orpc.teams.myTeam.queryKey() });
+			onSuccess: async () => {
+				await Promise.all([
+					queryClient.invalidateQueries({ queryKey: orpc.teams.myTeam.queryKey() }),
+					queryClient.invalidateQueries({ queryKey: orpc.challenges.list.queryKey() })
+				]);
 			}
 		})
 	);
@@ -23,12 +55,6 @@
 	let now = $state(new Date());
 	const interval = setInterval(() => (now = new Date()), 1000);
 	onDestroy(() => clearInterval(interval));
-
-	const challengesData = $derived(challengesQuery.data);
-	const isVisible = $derived(challengesData?.visible ?? false);
-	const availableFrom = $derived(
-		challengesData?.availableFrom ? new Date(challengesData.availableFrom) : null
-	);
 
 	const timeRemaining = $derived.by(() => {
 		if (!availableFrom || isVisible) return null;
@@ -44,7 +70,8 @@
 
 	const isCaptain = $derived(myTeamQuery.data?.myMembership?.isCaptain ?? false);
 	const selectedChallengeId = $derived(myTeamQuery.data?.selectedChallengeId ?? null);
-	const maxTeams = $derived(challengesData?.maxTeamsPerChallenge ?? 0);
+	const maxTeams = $derived(challengesQuery.data?.maxTeamsPerChallenge ?? 0);
+	const canRegister = $derived(challengesQuery.data?.canRegister ?? false);
 
 	function handleSelect(challengeId: string) {
 		if (confirm('Select this challenge for your team?')) {
@@ -57,12 +84,10 @@
 	<title>Challenges</title>
 </svelte:head>
 
-<div class="container mx-auto flex max-w-5xl flex-col gap-6 py-8">
-	<h1 class="text-2xl font-bold">Challenges</h1>
-
-	{#if challengesQuery.isLoading}
+<div class="container w-screen px-6">
+	{#if availabilityQuery.isLoading}
 		<p class="text-muted-foreground">Loading...</p>
-	{:else if challengesQuery.isError}
+	{:else if availabilityQuery.isError}
 		<p class="text-destructive">Failed to load challenges.</p>
 	{:else if !isVisible}
 		<!-- Countdown state -->
@@ -96,14 +121,19 @@
 			<p class="text-destructive text-sm">{selectChallengeMut.error.message}</p>
 		{/if}
 
-		{#if challengesData && challengesData.challenges.length === 0}
+		{#if challengesQuery.isLoading}
+			<p class="text-muted-foreground">Loading challenges...</p>
+		{:else if challengesQuery.data && challengesQuery.data.challenges.length === 0}
 			<p class="text-muted-foreground">No challenges have been posted yet.</p>
-		{:else if challengesData}
-			<div class="grid gap-6 md:grid-cols-3">
-				{#each challengesData.challenges as challenge (challenge.id)}
+		{:else if challengesQuery.data}
+			<h1 class="mt-2 w-full animate-spin p-16 text-center text-4xl font-bold italic">
+				CHALLENGES
+			</h1>
+			<div class="flex w-full flex-row gap-x-4 py-2">
+				{#each challengesQuery.data.challenges as challenge (challenge.id)}
 					{@const isSelected = selectedChallengeId === challenge.id}
 					{@const isFull = maxTeams > 0 && challenge.teamCount >= maxTeams}
-					<Card.Root class={isSelected ? 'ring-primary ring-2' : ''}>
+					<Card.Root class={cn('basis-1/3', isSelected ? 'ring-primary ring-2' : '')}>
 						<Card.Header>
 							<div class="flex items-center justify-between">
 								<Card.Title class="text-lg">{challenge.title}</Card.Title>
@@ -144,16 +174,21 @@
 							</p>
 						</Card.Content>
 						{#if isCaptain && !isSelected}
-							<Card.Footer>
+							<Card.Footer class="flex flex-col items-start gap-1">
+								{#if !canRegister}
+									<p class="text-muted-foreground text-xs">Challenge selection is not open yet.</p>
+								{/if}
 								<Button
 									size="sm"
 									onclick={() => handleSelect(challenge.id)}
-									disabled={selectChallengeMut.isPending || isFull}
+									disabled={selectChallengeMut.isPending || isFull || !canRegister}
 								>
 									{#if selectChallengeMut.isPending}
 										Selecting...
 									{:else if isFull}
 										Full
+									{:else if !canRegister}
+										Selection Not Open
 									{:else}
 										Select Challenge
 									{/if}
