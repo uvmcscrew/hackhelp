@@ -1,10 +1,11 @@
 import { adminProcedure } from '../shared';
-import { eq, sql, count, notInArray, and } from 'drizzle-orm';
+import { eq, sql, count, notInArray, or, ilike, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
-import { addRole, removeRole } from '$lib/auth/permissions';
+import { addRole } from '$lib/auth/permissions';
 import { profileDataSchema } from '$lib/schemas';
 import { serialize } from 'superjson';
+import { challengesAdminRouter } from './challenges';
 
 /**
  * Administrative actions: user management (roles, verification, profile upsert),
@@ -450,5 +451,6 @@ const teamsAdminRouter = {
 
 export const adminRouter = {
 	users: userRouter,
-	teams: teamsAdminRouter
+	teams: teamsAdminRouter,
+	challenges: challengesAdminRouter
 };
