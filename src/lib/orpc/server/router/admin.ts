@@ -7,6 +7,7 @@ import { profileDataSchema } from '$lib/schemas';
 import { serialize } from 'superjson';
 import { challengesAdminRouter } from './challenges';
 import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
+import { createId as cuid2 } from '@paralleldrive/cuid2';
 
 /**
  * Administrative actions: user management (roles, verification, profile upsert),
@@ -123,6 +124,91 @@ const userRouter = {
 				.update(context.db.schema.profile)
 				.set({ primaryRole })
 				.where(eq(context.db.schema.profile.id, input.userId));
+		}),
+
+	/**
+	 * Import users from CSV data.
+	 * Each row must have a `name` and `email`. All imported users are created
+	 * as competitors with an initialized profile. Rows whose email already
+	 * exists in the database are skipped.
+	 */
+	importUsers: adminProcedure
+		.input(
+			z.object({
+				users: z.array(
+					z.object({
+						name: z.string().nonempty(),
+						email: z.string().email()
+					})
+				)
+			})
+		)
+		.handler(async ({ context, input }) => {
+			const { user, profile } = context.db.schema;
+
+			// Fetch all existing emails so we can skip duplicates
+			const existingUsers = await context.db.client.select({ email: user.email }).from(user);
+			const existingEmails = new Set(existingUsers.map((u) => u.email.toLowerCase()));
+
+			const defaultProfileData = serialize(
+				profileDataSchema.parse({ mainlineDietaryRestrictions: {} })
+			);
+
+			let created = 0;
+			let skipped = 0;
+
+			for (const row of input.users) {
+				if (existingEmails.has(row.email.toLowerCase())) {
+					skipped++;
+					continue;
+				}
+
+				const id = cuid2();
+
+				await context.db.client.insert(user).values({
+					id,
+					name: row.name,
+					email: row.email,
+					emailVerified: false,
+					role: 'verifiedUser'
+				});
+
+				await context.db.client.insert(profile).values({
+					id,
+					primaryRole: 'competitor',
+					data: defaultProfileData
+				});
+
+				existingEmails.add(row.email.toLowerCase());
+				created++;
+			}
+
+			return { created, skipped, total: input.users.length };
+		}),
+
+	/**
+	 * Delete a user and all associated data.
+	 * The user table has CASCADE deletes on sessions, accounts, passkeys,
+	 * and profiles. Team memberships reference user.id without CASCADE,
+	 * so we remove those explicitly first.
+	 */
+	deleteUser: adminProcedure
+		.input(z.object({ userId: z.string().nonempty() }))
+		.handler(async ({ context, input }) => {
+			const { user, teamMembers } = context.db.schema;
+
+			// Remove team memberships first (no cascade on this FK)
+			await context.db.client.delete(teamMembers).where(eq(teamMembers.userId, input.userId));
+
+			// Delete the user — cascades to session, account, passkey, profile
+			const deleted = await context.db.client
+				.delete(user)
+				.where(eq(user.id, input.userId))
+				.returning();
+
+			if (deleted.length === 0) {
+				throw new ORPCError('NOT_FOUND', { message: 'User not found' });
+			}
 		})
 };
 

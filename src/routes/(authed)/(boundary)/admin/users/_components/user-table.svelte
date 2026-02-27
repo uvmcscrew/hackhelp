@@ -17,6 +17,7 @@
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import { columns, type UserRow } from './columns';
 	import { capitalize } from 'es-toolkit/string';
+	import Upload from 'lucide-svelte/icons/upload';
 
 	type Props = {
 		users: UserRow[];
@@ -39,6 +40,110 @@
 	const grantVerifiedMutation = createMutation(() =>
 		orpc.admin.users.grantVerified.mutationOptions({ onSuccess: invalidateUsers })
 	);
+
+	const deleteUserMutation = createMutation(() =>
+		orpc.admin.users.deleteUser.mutationOptions({ onSuccess: invalidateUsers })
+	);
+
+	const importUsersMutation = createMutation(() =>
+		orpc.admin.users.importUsers.mutationOptions({ onSuccess: invalidateUsers })
+	);
+
+	// CSV import state
+	let fileInput = $state<HTMLInputElement | null>(null);
+	let importResult = $state<{ created: number; skipped: number; total: number } | null>(null);
+
+	function handleFileSelect(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = () => {
+			const text = reader.result as string;
+			const parsed = parseCsv(text);
+			if (parsed.length === 0) {
+				alert('No valid rows found in CSV. Ensure it has "name" and "email" columns.');
+				return;
+			}
+			importUsersMutation.mutate(
+				{ users: parsed },
+				{
+					onSuccess: (data) => {
+						importResult = data;
+					}
+				}
+			);
+		};
+		reader.readAsText(file);
+		// Reset so the same file can be re-selected
+		input.value = '';
+	}
+
+	function parseCsv(text: string): Array<{ name: string; email: string }> {
+		const lines = text.split(/\r?\n/).filter((l) => l.trim());
+		if (lines.length < 2) return [];
+
+		const headerLine = lines[0].toLowerCase();
+		const headers = headerLine.split(',').map((h) => h.trim().replace(/^"|"$/g, ''));
+		const nameIdx = headers.indexOf('name');
+		const emailIdx = headers.indexOf('email');
+
+		if (nameIdx === -1 || emailIdx === -1) return [];
+
+		const results: Array<{ name: string; email: string }> = [];
+		for (let i = 1; i < lines.length; i++) {
+			const cols = parseCsvLine(lines[i]);
+			const name = cols[nameIdx]?.trim();
+			const email = cols[emailIdx]?.trim();
+			if (name && email && email.includes('@')) {
+				results.push({ name, email });
+			}
+		}
+		return results;
+	}
+
+	function parseCsvLine(line: string): string[] {
+		const result: string[] = [];
+		let current = '';
+		let inQuotes = false;
+		for (let i = 0; i < line.length; i++) {
+			const ch = line[i];
+			if (inQuotes) {
+				if (ch === '"' && line[i + 1] === '"') {
+					current += '"';
+					i++;
+				} else if (ch === '"') {
+					inQuotes = false;
+				} else {
+					current += ch;
+				}
+			} else {
+				if (ch === '"') {
+					inQuotes = true;
+				} else if (ch === ',') {
+					result.push(current);
+					current = '';
+				} else {
+					current += ch;
+				}
+			}
+		}
+		result.push(current);
+		return result;
+	}
+
+	// Delete confirmation
+	let confirmDeleteUserId = $state<string | null>(null);
+
+	function handleDelete(userId: string) {
+		if (confirmDeleteUserId === userId) {
+			deleteUserMutation.mutate({ userId });
+			confirmDeleteUserId = null;
+		} else {
+			confirmDeleteUserId = userId;
+		}
+	}
 
 	let globalFilter = $state('');
 	let sorting = $state<SortingState>([]);
@@ -112,9 +217,15 @@
 
 	// Whether any mutation for a given userId is currently pending
 	function isMutating(userId: string) {
-		const vars = [grantVerifiedMutation.variables, grantRoleMutation.variables];
+		const vars = [
+			grantVerifiedMutation.variables,
+			grantRoleMutation.variables,
+			deleteUserMutation.variables
+		];
 		return (
-			(grantVerifiedMutation.isPending || grantRoleMutation.isPending) &&
+			(grantVerifiedMutation.isPending ||
+				grantRoleMutation.isPending ||
+				deleteUserMutation.isPending) &&
 			vars.some((v) => v?.userId === userId)
 		);
 	}
@@ -122,6 +233,26 @@
 
 <!-- eslint-disable @typescript-eslint/no-unsafe-argument -->
 <div class="space-y-4">
+	<!-- Import result banner -->
+	{#if importResult}
+		<div class="bg-muted flex items-center justify-between rounded-md border px-4 py-3 text-sm">
+			<span>
+				Imported <strong>{importResult.created}</strong> user{importResult.created === 1
+					? ''
+					: 's'}, skipped <strong>{importResult.skipped}</strong> duplicate{importResult.skipped ===
+				1
+					? ''
+					: 's'} (of {importResult.total} rows).
+			</span>
+			<Button variant="ghost" size="sm" onclick={() => (importResult = null)}>Dismiss</Button>
+		</div>
+	{/if}
+	{#if importUsersMutation.isError}
+		<div class="bg-destructive/10 text-destructive rounded-md border px-4 py-3 text-sm">
+			Import failed: {importUsersMutation.error.message}
+		</div>
+	{/if}
+
 	<!-- Toolbar -->
 	<div class="flex items-center gap-2">
 		<Input
@@ -138,6 +269,22 @@
 				? ''
 				: 's'}
 		</span>
+		<input
+			bind:this={fileInput}
+			type="file"
+			accept=".csv"
+			class="hidden"
+			onchange={handleFileSelect}
+		/>
+		<Button
+			variant="outline"
+			size="sm"
+			onclick={() => fileInput?.click()}
+			disabled={importUsersMutation.isPending}
+		>
+			<Upload class="mr-2 h-4 w-4" />
+			{importUsersMutation.isPending ? 'Importing...' : 'Import CSV'}
+		</Button>
 	</div>
 
 	<!-- Table -->
@@ -274,6 +421,13 @@
 													</DropdownMenu.Item>
 												{/if}
 											{/each}
+											<DropdownMenu.Separator />
+											<DropdownMenu.Item
+												class="text-destructive"
+												onclick={() => handleDelete(userId)}
+											>
+												{confirmDeleteUserId === userId ? 'Confirm Delete?' : 'Delete User'}
+											</DropdownMenu.Item>
 										</DropdownMenu.Content>
 									</DropdownMenu.Root>
 								{:else}
