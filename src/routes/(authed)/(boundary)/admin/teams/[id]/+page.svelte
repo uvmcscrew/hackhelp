@@ -13,6 +13,13 @@
 	import Pencil from 'lucide-svelte/icons/pencil';
 	import type { PageProps } from './$types';
 	import UserWoTeamSearch from '../_components/user-wo-team-search.svelte';
+	import {
+		TEAM_MAX_SIZE,
+		PROGRAMMERS_MIN,
+		PROGRAMMERS_MAX,
+		BUSINESS_MIN,
+		BUSINESS_MAX
+	} from '$lib/config/team-rules';
 
 	let { data }: PageProps = $props();
 	const qc = useQueryClient();
@@ -27,9 +34,13 @@
 	let members = $derived(teamQuery.data?.members || []);
 
 	const programmers = $derived(members.filter((m) => m.membership.role === 'programming').length);
-	const programmerCountCorrect = $derived(programmers >= 4 && programmers <= 5);
+	const programmerCountCorrect = $derived(
+		programmers >= PROGRAMMERS_MIN && programmers <= PROGRAMMERS_MAX
+	);
 	const businesspeople = $derived(members.filter((m) => m.membership.role === 'business').length);
-	const businessCountCorrect = $derived(businesspeople >= 1 && businesspeople <= 2);
+	const businessCountCorrect = $derived(
+		businesspeople >= BUSINESS_MIN && businesspeople <= BUSINESS_MAX
+	);
 
 	const invalidateTeam = () =>
 		qc.invalidateQueries({
@@ -162,7 +173,7 @@
 					{/if}
 				</div>
 				<Card.Description>
-					{team.members.length}/7 members &middot; Join code:
+					{team.members.length}/{TEAM_MAX_SIZE} members &middot; Join code:
 					<code class="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">{team.joinCode}</code>
 				</Card.Description>
 			</Card.Header>
@@ -171,10 +182,13 @@
 					variant={programmerCountCorrect && businessCountCorrect ? 'green' : 'secondary'}
 					hoverEffects={false}
 				>
-					{team.members.length}/7 members
+					{team.members.length}/{TEAM_MAX_SIZE} members
 				</Badge>
 				<Badge variant={programmerCountCorrect ? 'green' : 'destructive'} hoverEffects={false}>
-					{programmers}/5 programmers
+					{programmers}/{PROGRAMMERS_MAX} programmers
+				</Badge>
+				<Badge variant={businessCountCorrect ? 'green' : 'destructive'} hoverEffects={false}>
+					{businesspeople}/{BUSINESS_MAX} businesspeople
 				</Badge>
 				<Badge variant={businessCountCorrect ? 'green' : 'destructive'} hoverEffects={false}>
 					{businesspeople}/2 businesspeople
@@ -307,7 +321,7 @@
 		{/if}
 
 		<!-- Add Member Section -->
-		{#if team.members.length < 7}
+		{#if team.members.length < TEAM_MAX_SIZE}
 			<Card.Root>
 				<Card.Header>
 					<Card.Title class="text-base">Add Member</Card.Title>

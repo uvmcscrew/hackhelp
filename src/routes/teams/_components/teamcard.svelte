@@ -3,6 +3,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import type { RouterOutputs } from '$lib/orpc/server';
+	import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
 
 	type Props = {
 		team: RouterOutputs['teams']['listAll'][number];
@@ -19,7 +20,7 @@
 		<div>
 			<Card.Title>{team.name}</Card.Title>
 			<Card.Description>
-				{team.members.length}/7 members
+				{team.members.length}/{TEAM_MAX_SIZE} members
 			</Card.Description>
 		</div>
 		<div class="flex gap-1">
@@ -32,8 +33,8 @@
 	</Card.Header>
 	<Card.Content class="flex flex-col gap-2">
 		<div class="flex gap-4 text-sm">
-			<span class="text-muted-foreground">Programming: {programmers.length}/5</span>
-			<span class="text-muted-foreground">Business: {business.length}/2</span>
+			<span class="text-muted-foreground">Programming: {programmers.length}/{PROGRAMMERS_MAX}</span>
+			<span class="text-muted-foreground">Business: {business.length}/{BUSINESS_MAX}</span>
 		</div>
 		{#if team.members.length > 0}
 			<div class="flex flex-wrap gap-1">

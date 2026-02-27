@@ -7,6 +7,13 @@
 	import type { RouterOutputs } from '$lib/orpc/server';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import Pencil from 'lucide-svelte/icons/pencil';
+	import {
+		TEAM_MAX_SIZE,
+		PROGRAMMERS_MIN,
+		PROGRAMMERS_MAX,
+		BUSINESS_MIN,
+		BUSINESS_MAX
+	} from '$lib/config/team-rules';
 
 	type Props = {
 		team: NonNullable<RouterOutputs['teams']['myTeam']>;
@@ -17,9 +24,13 @@
 	const isCaptain = $derived(team.myMembership.isCaptain);
 
 	const programmers = $derived(team.members.filter((m) => m.membership.role === 'programming'));
-	const programmerCountCorrect = $derived(programmers.length >= 4 && programmers.length <= 5);
+	const programmerCountCorrect = $derived(
+		programmers.length >= PROGRAMMERS_MIN && programmers.length <= PROGRAMMERS_MAX
+	);
 	const business = $derived(team.members.filter((m) => m.membership.role === 'business'));
-	const businessCountCorrect = $derived(business.length >= 1 && business.length <= 2);
+	const businessCountCorrect = $derived(
+		business.length >= BUSINESS_MIN && business.length <= BUSINESS_MAX
+	);
 
 	function copyJoinCode(code: string) {
 		void navigator.clipboard.writeText(code);
@@ -135,13 +146,13 @@
 				variant={programmerCountCorrect && businessCountCorrect ? 'green' : 'secondary'}
 				hoverEffects={false}
 			>
-				{team.members.length}/7 members
+				{team.members.length}/{TEAM_MAX_SIZE} members
 			</Badge>
 			<Badge variant={programmerCountCorrect ? 'green' : 'destructive'} hoverEffects={false}>
-				{programmers.length}/5 programmers
+				{programmers.length}/{PROGRAMMERS_MAX} programmers
 			</Badge>
 			<Badge variant={businessCountCorrect ? 'green' : 'destructive'} hoverEffects={false}>
-				{business.length}/2 business
+				{business.length}/{BUSINESS_MAX} business
 			</Badge>
 		</div>
 	</Card.Content>

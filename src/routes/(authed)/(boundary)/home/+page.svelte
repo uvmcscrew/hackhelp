@@ -4,6 +4,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
+	import { TEAM_MAX_SIZE } from '$lib/config/team-rules';
 
 	const myTeamQuery = createQuery(() => orpc.teams.myTeam.queryOptions());
 </script>
@@ -47,7 +48,7 @@
 				<!-- Members -->
 				<div class="flex flex-col gap-2">
 					<span class="text-muted-foreground text-sm font-medium">
-						Members ({team.members.length}/7)
+						Members ({team.members.length}/{TEAM_MAX_SIZE})
 					</span>
 					<ul class="divide-y">
 						{#each team.members as member (member.membership.userId)}

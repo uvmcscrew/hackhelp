@@ -6,6 +6,7 @@ import { addRole } from '$lib/auth/permissions';
 import { profileDataSchema } from '$lib/schemas';
 import { serialize } from 'superjson';
 import { challengesAdminRouter } from './challenges';
+import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
 
 /**
  * Administrative actions: user management (roles, verification, profile upsert),
@@ -326,17 +327,26 @@ const teamsAdminRouter = {
 				.from(teamMembers)
 				.where(eq(teamMembers.teamId, input.teamId));
 
-			if (members.length >= 7) {
-				throw new ORPCError('BAD_REQUEST', { message: 'Team is full (7/7 members)' });
+			if (members.length >= TEAM_MAX_SIZE) {
+				throw new ORPCError('BAD_REQUEST', {
+					message: `Team is full (${TEAM_MAX_SIZE}/${TEAM_MAX_SIZE} members)`
+				});
 			}
 			if (
 				input.role === 'programming' &&
-				members.filter((m) => m.role === 'programming').length >= 5
+				members.filter((m) => m.role === 'programming').length >= PROGRAMMERS_MAX
 			) {
-				throw new ORPCError('BAD_REQUEST', { message: 'Too many programmers (5/5)' });
+				throw new ORPCError('BAD_REQUEST', {
+					message: `Too many programmers (${PROGRAMMERS_MAX}/${PROGRAMMERS_MAX})`
+				});
 			}
-			if (input.role === 'business' && members.filter((m) => m.role === 'business').length >= 2) {
-				throw new ORPCError('BAD_REQUEST', { message: 'Too many business members (2/2)' });
+			if (
+				input.role === 'business' &&
+				members.filter((m) => m.role === 'business').length >= BUSINESS_MAX
+			) {
+				throw new ORPCError('BAD_REQUEST', {
+					message: `Too many business members (${BUSINESS_MAX}/${BUSINESS_MAX})`
+				});
 			}
 
 			await context.db.client.insert(teamMembers).values({
@@ -397,15 +407,19 @@ const teamsAdminRouter = {
 				const otherMembers = members.filter((m) => m.userId !== input.userId);
 				if (
 					input.role === 'programming' &&
-					otherMembers.filter((m) => m.role === 'programming').length >= 5
+					otherMembers.filter((m) => m.role === 'programming').length >= PROGRAMMERS_MAX
 				) {
-					throw new ORPCError('BAD_REQUEST', { message: 'Too many programmers (5/5)' });
+					throw new ORPCError('BAD_REQUEST', {
+						message: `Too many programmers (${PROGRAMMERS_MAX}/${PROGRAMMERS_MAX})`
+					});
 				}
 				if (
 					input.role === 'business' &&
-					otherMembers.filter((m) => m.role === 'business').length >= 2
+					otherMembers.filter((m) => m.role === 'business').length >= BUSINESS_MAX
 				) {
-					throw new ORPCError('BAD_REQUEST', { message: 'Too many business members (2/2)' });
+					throw new ORPCError('BAD_REQUEST', {
+						message: `Too many business members (${BUSINESS_MAX}/${BUSINESS_MAX})`
+					});
 				}
 			}
 

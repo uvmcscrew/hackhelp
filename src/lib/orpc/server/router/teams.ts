@@ -4,6 +4,7 @@ import { publicProcedure, protectedProcedure } from '../shared';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
+import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
 
 export const teamsRouter = {
 	byId: publicProcedure.input(z.object({ id: z.string() })).handler(async ({ context, input }) => {
@@ -134,15 +135,21 @@ export const teamsRouter = {
 			let joinAllowed = true;
 			let joinDenyReason = '';
 
-			if (members.length >= 7) {
+			if (members.length >= TEAM_MAX_SIZE) {
 				joinAllowed = false;
-				joinDenyReason = 'Too many people';
-			} else if (members.filter((m) => m.role === 'programming').length >= 5) {
+				joinDenyReason = 'Team is full';
+			} else if (
+				input.asRole === 'programming' &&
+				members.filter((m) => m.role === 'programming').length >= PROGRAMMERS_MAX
+			) {
 				joinAllowed = false;
 				joinDenyReason = 'Too many programmers';
-			} else if (members.filter((m) => m.role === 'business').length >= 2) {
+			} else if (
+				input.asRole === 'business' &&
+				members.filter((m) => m.role === 'business').length >= BUSINESS_MAX
+			) {
 				joinAllowed = false;
-				joinDenyReason = 'Too many businesspeople';
+				joinDenyReason = 'Too many business members';
 			}
 
 			if (!joinAllowed) throw new ORPCError('BAD_REQUEST', { message: joinDenyReason });

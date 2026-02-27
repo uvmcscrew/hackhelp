@@ -7,6 +7,12 @@
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import type { RouterOutputs } from '$lib/orpc/server';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
+	import {
+		PROGRAMMERS_MIN,
+		PROGRAMMERS_MAX,
+		BUSINESS_MIN,
+		BUSINESS_MAX
+	} from '$lib/config/team-rules';
 
 	type Props = {
 		members: NonNullable<RouterOutputs['teams']['myTeam']>['members'];
@@ -22,9 +28,13 @@
 	let confirmKickUserId = $state<string | null>(null);
 
 	const programmers = $derived(members.filter((m) => m.membership.role === 'programming').length);
-	const programmerCountCorrect = $derived(programmers >= 4 && programmers <= 5);
+	const programmerCountCorrect = $derived(
+		programmers >= PROGRAMMERS_MIN && programmers <= PROGRAMMERS_MAX
+	);
 	const businesspeople = $derived(members.filter((m) => m.membership.role === 'business').length);
-	const businessCountCorrect = $derived(businesspeople >= 1 && businesspeople <= 2);
+	const businessCountCorrect = $derived(
+		businesspeople >= BUSINESS_MIN && businesspeople <= BUSINESS_MAX
+	);
 
 	const kickMemberMut = createMutation(() =>
 		orpc.teams.kickMember.mutationOptions({
@@ -50,14 +60,26 @@
 				Hooray! Your team has the right number of business and programming members.
 			{:else}
 				{#if businessCountCorrect && !programmerCountCorrect}
-					Your team has an acceptable number of business people (up to 2), but you need at least {4 -
-						programmers} more programmers.
+					Your team has an acceptable number of business people ({BUSINESS_MIN}&ndash;{BUSINESS_MAX}),
+					but you need at least {PROGRAMMERS_MIN - programmers > 0
+						? PROGRAMMERS_MIN - programmers
+						: 0}
+					more programmer{PROGRAMMERS_MIN - programmers === 1 ? '' : 's'}.
 				{:else if !businessCountCorrect && programmerCountCorrect}
-					Your team has an acceptable number of programmers (up to 5), but you need at least {2 -
-						businesspeople} more businesspeople.
+					Your team has an acceptable number of programmers ({PROGRAMMERS_MIN}&ndash;{PROGRAMMERS_MAX}),
+					but you need at least {BUSINESS_MIN - businesspeople > 0
+						? BUSINESS_MIN - businesspeople
+						: 0}
+					more business member{BUSINESS_MIN - businesspeople === 1 ? '' : 's'}.
 				{:else}
-					Your team needs at least {4 - programmers} more programmers and at least {2 -
-						businesspeople} more businesspeople to be in good standing.
+					Your team needs at least {PROGRAMMERS_MIN - programmers > 0
+						? PROGRAMMERS_MIN - programmers
+						: 0}
+					more programmer{PROGRAMMERS_MIN - programmers === 1 ? '' : 's'} and at least {BUSINESS_MIN -
+						businesspeople >
+					0
+						? BUSINESS_MIN - businesspeople
+						: 0} more business member{BUSINESS_MIN - businesspeople === 1 ? '' : 's'} to be in good standing.
 				{/if}
 				If your team does not have the right number of people by friday night, the organizers will adjust
 				your team accordingly.

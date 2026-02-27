@@ -7,6 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import UserDropdown from '$lib/components/UserDropdown.svelte';
 	import type { LayoutProps } from './$types';
+	import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -57,7 +58,7 @@
 						<div>
 							<Card.Title class="text-xl">{team.name}</Card.Title>
 							<Card.Description>
-								{team.members.length}/7 members
+								{team.members.length}/{TEAM_MAX_SIZE} members
 							</Card.Description>
 						</div>
 						<div class="flex gap-1">
@@ -72,10 +73,10 @@
 				<Card.Content>
 					<div class="flex gap-4 text-sm">
 						<span class="text-muted-foreground">
-							Programming: {programmers.length}/5
+							Programming: {programmers.length}/{PROGRAMMERS_MAX}
 						</span>
 						<span class="text-muted-foreground">
-							Business: {business.length}/2
+							Business: {business.length}/{BUSINESS_MAX}
 						</span>
 					</div>
 				</Card.Content>
