@@ -83,24 +83,18 @@ class Configuration {
 	}
 
 	async getEventTiming() {
-		const data = await eventTimingConfigSchema.parseAsync(
-			await this.getKeyValue<EventTimingConfig>(this.EVENT_TIMING_KEY)
-		);
-		return data;
+		const result = await this.getKeyValue<EventTimingConfig>(this.EVENT_TIMING_KEY);
+		return eventTimingConfigSchema.parseAsync(result?.data ?? {});
 	}
 
 	async getParticipantConfig() {
-		const data = await participantsConfigSchema.parseAsync(
-			await this.getKeyValue<ParticipantConfig>(this.PARTICIPANT_CONFIG_KEY)
-		);
-		return data;
+		const result = await this.getKeyValue<ParticipantConfig>(this.PARTICIPANT_CONFIG_KEY);
+		return participantsConfigSchema.parseAsync(result?.data ?? {});
 	}
 
 	async getChallengeConfig() {
-		const data = await challengeConfigSchema.parseAsync(
-			await this.getKeyValue<ChallengeConfig>(this.CHALLENGE_CONFIG_KEY)
-		);
-		return data;
+		const result = await this.getKeyValue<ChallengeConfig>(this.CHALLENGE_CONFIG_KEY);
+		return challengeConfigSchema.parseAsync(result?.data ?? {});
 	}
 
 	async setEventTiming(config: EventTimingConfig): Promise<void> {
