@@ -269,10 +269,17 @@ const userRouter = {
 						}
 
 						if (acct.providerId === 'mlh' && acct.accessToken) {
-							const tokenResult = await auth.api.getAccessToken({
-								body: { providerId: 'mlh', accountId: acct.id },
-								headers: context.req.headers
-							});
+							let tokenResult: Awaited<ReturnType<typeof auth.api.getAccessToken>>;
+							try {
+								tokenResult = await auth.api.getAccessToken({
+									body: { providerId: 'mlh', accountId: acct.id, userId: context.user.id }
+								});
+							} catch (e) {
+								return {
+									providerId: 'mlh',
+									error: `Could not get MLH access token: ${e}`
+								} as ProviderProfile;
+							}
 							const res = await fetch('https://api.mlh.com/v4/users/me?expand[]=education', {
 								headers: { Authorization: `Bearer ${tokenResult.accessToken}` }
 							});
@@ -287,7 +294,7 @@ const userRouter = {
 								providerId: 'mlh',
 								firstName: mlh.first_name,
 								lastName: mlh.last_name,
-								email: mlh.email ?? null,
+								email: mlh.email,
 								countryOfResidence: mlh.profile?.country_of_residence ?? null,
 								gender: mlh.profile?.gender ?? null,
 								age: mlh.profile?.age ?? null,
@@ -312,7 +319,7 @@ const userRouter = {
 					} catch (e) {
 						return {
 							providerId: acct.providerId,
-							error: e instanceof Error ? e.message : 'Failed to fetch profile'
+							error: `Failed to fetch profile: ${e instanceof Error ? e.message : ''}`
 						};
 					}
 				})
@@ -333,9 +340,9 @@ const userRouter = {
 
 			return {
 				user: foundUser,
-				profile: userProfile ?? null,
+				profile: userProfile,
 				accounts: providerProfiles,
-				team: membership?.team
+				team: membership.team
 					? {
 							...membership.team,
 							role: membership.membership.role,
