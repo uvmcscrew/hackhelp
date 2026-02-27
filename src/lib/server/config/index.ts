@@ -60,7 +60,6 @@ class Configuration {
 
 		const value = result[0].value;
 		return {
-			// @ts-expect-error Value is unknown just bc
 			data: superjson.deserialize<T>(value),
 			lastUpdated: result[0].lastUpdated
 		};
@@ -106,6 +105,14 @@ class Configuration {
 
 	async setEventTiming(config: EventTimingConfig): Promise<void> {
 		await this.setKeyValue<EventTimingConfig>(this.EVENT_TIMING_KEY, config);
+	}
+
+	async setChallengeConfig(config: ChallengeConfig): Promise<void> {
+		await this.setKeyValue<ChallengeConfig>(this.CHALLENGE_CONFIG_KEY, config);
+	}
+
+	async setParticipantConfig(config: ParticipantConfig): Promise<void> {
+		await this.setKeyValue<ParticipantConfig>(this.PARTICIPANT_CONFIG_KEY, config);
 	}
 
 	async getEventStartTime(): Promise<Date> {

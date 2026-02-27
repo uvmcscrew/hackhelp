@@ -1,6 +1,10 @@
 import { dev } from '$app/environment';
 import { checkRolePermission } from '$lib/auth/permissions';
-import { eventTimingConfigSchema } from '$lib/server/config/schemas';
+import {
+	eventTimingConfigSchema,
+	challengeConfigSchema,
+	participantsConfigSchema
+} from '$lib/server/config/schemas';
 import { o, protectedProcedure, publicProcedure } from '../shared';
 import { ORPCError } from '@orpc/server';
 
@@ -68,7 +72,7 @@ export const configRouter = {
 		}),
 		hasEventStarted: publicProcedure.handler(async ({ context }) => {
 			const eventStartTime = await context.config.getEventStartTime();
-			return eventStartTime;
+			return new Date() >= eventStartTime;
 		}),
 		allowAccessToEventPages: protectedProcedure.handler(async ({ context }) => {
 			// Always allow access in dev mode
@@ -114,6 +118,16 @@ export const configRouter = {
 			.input(eventTimingConfigSchema)
 			.handler(async ({ context, input }) => {
 				await context.config.setEventTiming(input);
+			}),
+		challenges: configEditProcedure
+			.input(challengeConfigSchema)
+			.handler(async ({ context, input }) => {
+				await context.config.setChallengeConfig(input);
+			}),
+		participants: configEditProcedure
+			.input(participantsConfigSchema)
+			.handler(async ({ context, input }) => {
+				await context.config.setParticipantConfig(input);
 			})
 	}
 };

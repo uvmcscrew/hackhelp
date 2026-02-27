@@ -12,6 +12,7 @@ export const headerNavLinks: HeaderNavConfig = {
 		{ text: 'Dashboard', href: '/admin' },
 		{ text: 'Users', href: '/admin/users' },
 		{ text: 'Teams', href: '/admin/teams' },
+		{ text: 'Config', href: '/admin/config' },
 		{ text: 'Tickets', href: '/mentor/tickets' }
 	],
 	'/mentor': [
