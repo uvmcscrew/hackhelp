@@ -272,7 +272,8 @@ const userRouter = {
 							let tokenResult: Awaited<ReturnType<typeof auth.api.getAccessToken>>;
 							try {
 								tokenResult = await auth.api.getAccessToken({
-									body: { providerId: 'mlh', accountId: acct.id, userId: context.user.id }
+									body: { providerId: 'mlh', accountId: acct.id, userId: input.userId },
+									headers: context.req.headers
 								});
 							} catch (e) {
 								return {
