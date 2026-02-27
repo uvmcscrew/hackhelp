@@ -343,7 +343,8 @@ const userRouter = {
 				user: foundUser,
 				profile: userProfile,
 				accounts: providerProfiles,
-				team: membership.team
+				// Opt chaining is required since the DB can return an undefined value
+				team: membership?.team
 					? {
 							...membership.team,
 							role: membership.membership.role,
