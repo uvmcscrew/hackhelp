@@ -645,7 +645,7 @@ export const teamsRouter = {
 					team_slug: myTeam.githubSlug,
 					owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
 					repo: ghRepo.name,
-					permission: 'maintain'
+					permission: 'admin'
 				});
 
 				return {
