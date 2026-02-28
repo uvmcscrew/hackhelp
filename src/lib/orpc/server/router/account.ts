@@ -14,6 +14,7 @@ import { deserialize, serialize } from 'superjson';
 import { personProfileRole, profileDataSchema, type ProfileData } from '$lib/schemas';
 import { WHITELISTED_EMAIL_DOMAINS } from '$lib/utils';
 import type { Account } from 'better-auth';
+import { syncUserTeamAfterAccountChange } from '$lib/server/github-sync';
 
 // #############################################
 // #              ACCOUNT ROUTER               #
@@ -506,6 +507,10 @@ export const accountRouter = {
 			}
 		}
 
+		// Sync GitHub team membership BEFORE deleting the account row
+		// (so the sync function can still look up the GitHub username)
+		await syncUserTeamAfterAccountChange(context.githubApp, context.user.id, 'unlinked');
+
 		// Delete the provider account in the database
 		await context.db.client
 			.delete(context.db.schema.account)
@@ -543,6 +548,9 @@ export const accountRouter = {
 			}
 		}
 
+		// Sync GitHub team membership BEFORE deleting the account row
+		await syncUserTeamAfterAccountChange(context.githubApp, context.user.id, 'unlinked');
+
 		// Delete the provider account in the database
 		await context.db.client
 			.delete(context.db.schema.account)
@@ -564,6 +572,14 @@ export const accountRouter = {
 		return {
 			avatarUrl: user.avatar_url
 		};
+	}),
+
+	/**
+	 * Sync the current user's GitHub team membership after linking a GitHub account.
+	 * Call this from the client after a successful GitHub account link.
+	 */
+	syncGithubTeamAfterLink: protectedProcedure.handler(async ({ context }) => {
+		await syncUserTeamAfterAccountChange(context.githubApp, context.user.id, 'linked');
 	}),
 
 	getMlhProfile: protectedProcedure.handler(async ({ context }) => {

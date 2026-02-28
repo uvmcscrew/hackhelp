@@ -11,6 +11,14 @@ import { WORK_ROOMS } from '$lib/utils';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { Octokit } from 'octokit';
 import { auth, type MLHUserProfile } from '$lib/auth/server.server';
+import {
+	ensureGithubTeam,
+	deleteGithubTeam,
+	syncTeamMember,
+	removeTeamMember,
+	syncEntireTeam,
+	fullReconciliation
+} from '$lib/server/github-sync';
 
 /**
  * Administrative actions: user management (roles, verification, profile upsert),
@@ -413,6 +421,17 @@ const teamsAdminRouter = {
 		.handler(async ({ context, input }) => {
 			const { team, teamMembers } = context.db.schema;
 
+			// Load the team first (need slug for GitHub cleanup)
+			const [teamToDelete] = await context.db.client
+				.select()
+				.from(team)
+				.where(eq(team.id, input.teamId));
+
+			// Delete GitHub team first (best-effort, don't fail the operation)
+			if (teamToDelete) {
+				await deleteGithubTeam(context.githubApp, teamToDelete);
+			}
+
 			// Delete memberships first
 			await context.db.client.delete(teamMembers).where(eq(teamMembers.teamId, input.teamId));
 			// Delete team
@@ -493,6 +512,19 @@ const teamsAdminRouter = {
 				role: input.captainRole,
 				isCaptain: true
 			});
+
+			// Fire-and-forget: create GitHub team and sync captain
+			ensureGithubTeam(context.githubApp, newTeam)
+				.then((ghTeam) => {
+					if (ghTeam) {
+						syncTeamMember(
+							context.githubApp,
+							{ ...newTeam, githubSlug: ghTeam.githubSlug },
+							input.captainUserId
+						).catch(() => {});
+					}
+				})
+				.catch(() => {});
 
 			return newTeam;
 		}),
@@ -609,6 +641,16 @@ const teamsAdminRouter = {
 				role: input.role,
 				isCaptain: false
 			});
+
+			// Fire-and-forget: add user to GitHub team
+			const [addedToTeam] = await context.db.client
+				.select()
+				.from(context.db.schema.team)
+				.where(eq(context.db.schema.team.id, input.teamId));
+
+			if (addedToTeam) {
+				syncTeamMember(context.githubApp, addedToTeam, input.userId).catch(() => {});
+			}
 		}),
 
 	/**
@@ -626,6 +668,16 @@ const teamsAdminRouter = {
 
 			if (deleted.length === 0) {
 				throw new ORPCError('NOT_FOUND', { message: 'Member not found on this team' });
+			}
+
+			// Fire-and-forget: remove user from GitHub team
+			const [removedFromTeam] = await context.db.client
+				.select()
+				.from(context.db.schema.team)
+				.where(eq(context.db.schema.team.id, input.teamId));
+
+			if (removedFromTeam) {
+				removeTeamMember(context.githubApp, removedFromTeam, input.userId).catch(() => {});
 			}
 		}),
 
@@ -732,7 +784,24 @@ const teamsAdminRouter = {
 
 			if (!updated) throw new ORPCError('NOT_FOUND', { message: 'Team not found' });
 			return updated;
-		})
+		}),
+
+	/**
+	 * Sync a single team to GitHub: ensure the GitHub team exists,
+	 * add missing members, remove stale members.
+	 */
+	syncTeamToGithub: adminProcedure
+		.input(z.object({ teamId: z.string().nonempty() }))
+		.handler(async ({ context, input }) => {
+			return await syncEntireTeam(context.githubApp, input.teamId);
+		}),
+
+	/**
+	 * Full reconciliation: sync ALL teams to GitHub.
+	 */
+	syncAllToGithub: adminProcedure.handler(async ({ context }) => {
+		return await fullReconciliation(context.githubApp);
+	})
 };
 
 // #############################################

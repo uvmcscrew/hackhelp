@@ -5,6 +5,12 @@ import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
 import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
+import {
+	ensureGithubTeam,
+	syncTeamMember,
+	removeTeamMember,
+	deleteGithubTeam
+} from '$lib/server/github-sync';
 
 export const teamsRouter = {
 	byId: publicProcedure.input(z.object({ id: z.string() })).handler(async ({ context, input }) => {
@@ -158,6 +164,9 @@ export const teamsRouter = {
 			await context.db.client
 				.insert(context.db.schema.teamMembers)
 				.values({ teamId: team.id, userId: context.user.id, role: input.asRole });
+
+			// Fire-and-forget: add user to GitHub team
+			syncTeamMember(context.githubApp, team, context.user.id).catch(() => {});
 		}),
 
 	create: protectedProcedure
@@ -185,6 +194,19 @@ export const teamsRouter = {
 				role: input.asRole,
 				isCaptain: true
 			});
+
+			// Fire-and-forget: create GitHub team and sync captain
+			ensureGithubTeam(context.githubApp, newTeam)
+				.then((ghTeam) => {
+					if (ghTeam) {
+						syncTeamMember(
+							context.githubApp,
+							{ ...newTeam, githubSlug: ghTeam.githubSlug },
+							context.user.id
+						).catch(() => {});
+					}
+				})
+				.catch(() => {});
 
 			return newTeam;
 		}),
@@ -324,6 +346,16 @@ export const teamsRouter = {
 						eq(context.db.schema.teamMembers.teamId, callerMembership[0].teamId)
 					)
 				);
+
+			// Fire-and-forget: remove user from GitHub team
+			const [kickedTeam] = await context.db.client
+				.select()
+				.from(context.db.schema.team)
+				.where(eq(context.db.schema.team.id, callerMembership[0].teamId));
+
+			if (kickedTeam) {
+				removeTeamMember(context.githubApp, kickedTeam, input.userId).catch(() => {});
+			}
 		}),
 
 	transferCaptain: protectedProcedure
@@ -437,6 +469,12 @@ export const teamsRouter = {
 				});
 			}
 
+			// Load team before deleting (need slug for GitHub cleanup)
+			const [teamToDelete] = await context.db.client
+				.select()
+				.from(context.db.schema.team)
+				.where(eq(context.db.schema.team.id, myMembership.teamId));
+
 			// Captain is the only member — delete the team entirely
 			await context.db.client
 				.delete(context.db.schema.teamMembers)
@@ -445,6 +483,11 @@ export const teamsRouter = {
 			await context.db.client
 				.delete(context.db.schema.team)
 				.where(eq(context.db.schema.team.id, myMembership.teamId));
+
+			// Fire-and-forget: delete the GitHub team
+			if (teamToDelete) {
+				deleteGithubTeam(context.githubApp, teamToDelete).catch(() => {});
+			}
 
 			return { deleted: true };
 		}
@@ -458,6 +501,16 @@ export const teamsRouter = {
 					eq(context.db.schema.teamMembers.teamId, myMembership.teamId)
 				)
 			);
+
+		// Fire-and-forget: remove user from GitHub team
+		const [leftTeam] = await context.db.client
+			.select()
+			.from(context.db.schema.team)
+			.where(eq(context.db.schema.team.id, myMembership.teamId));
+
+		if (leftTeam) {
+			removeTeamMember(context.githubApp, leftTeam, context.user.id).catch(() => {});
+		}
 
 		return { deleted: false };
 	})

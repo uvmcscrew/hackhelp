@@ -12,6 +12,7 @@
 	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import Pencil from 'lucide-svelte/icons/pencil';
 	import MapPin from 'lucide-svelte/icons/map-pin';
+	import RefreshCw from 'lucide-svelte/icons/refresh-cw';
 	import type { PageProps } from './$types';
 	import UserWoTeamSearch from '../_components/user-wo-team-search.svelte';
 	import {
@@ -149,6 +150,13 @@
 			(removeMemberMut.isPending && removeMemberMut.variables.userId === userId)
 		);
 	}
+
+	// ── GitHub Sync ──
+	const syncTeamMut = createMutation(() =>
+		orpc.admin.teams.syncTeamToGithub.mutationOptions({
+			onSuccess: invalidateTeam
+		})
+	);
 </script>
 
 <svelte:head>
@@ -294,6 +302,88 @@
 					{/if}
 				</div>
 			</Card.Content>
+		</Card.Root>
+
+		<!-- GitHub Sync Card -->
+		<Card.Root class="mb-6">
+			<Card.Header>
+				<div class="flex items-center justify-between">
+					<div>
+						<Card.Title class="flex items-center gap-2 text-base">
+							<RefreshCw class="h-4 w-4" />
+							GitHub Sync
+						</Card.Title>
+						<Card.Description>
+							Sync this team to the GitHub organization.
+							{#if team.githubSlug}
+								GitHub team: <code class="bg-muted rounded px-1 py-0.5 text-xs"
+									>{team.githubSlug}</code
+								>
+							{:else}
+								No GitHub team linked yet.
+							{/if}
+						</Card.Description>
+					</div>
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={() => syncTeamMut.mutate({ teamId: data.teamId })}
+						disabled={syncTeamMut.isPending}
+					>
+						<RefreshCw class="mr-2 h-3 w-3 {syncTeamMut.isPending ? 'animate-spin' : ''}" />
+						{syncTeamMut.isPending ? 'Syncing...' : 'Sync to GitHub'}
+					</Button>
+				</div>
+			</Card.Header>
+			{#if syncTeamMut.isSuccess}
+				{@const report = syncTeamMut.data}
+				<Card.Content>
+					<div class="mb-2 flex flex-wrap gap-2">
+						{#if report.teamsCreated.length > 0}
+							<Badge variant="green">Team created</Badge>
+						{/if}
+						{#if report.membersAdded.length > 0}
+							<Badge variant="green">Added: {report.membersAdded.length}</Badge>
+						{/if}
+						{#if report.membersRemoved.length > 0}
+							<Badge variant="secondary">Removed: {report.membersRemoved.length}</Badge>
+						{/if}
+						{#if report.errors.length > 0}
+							<Badge variant="destructive">Errors: {report.errors.length}</Badge>
+						{/if}
+						{#if report.teamsCreated.length === 0 && report.membersAdded.length === 0 && report.membersRemoved.length === 0 && report.errors.length === 0}
+							<span class="text-muted-foreground text-sm">Everything is in sync.</span>
+						{/if}
+					</div>
+					{#if report.membersAdded.length > 0}
+						<p class="text-sm">
+							<span class="font-medium">Added:</span>
+							{report.membersAdded.join(', ')}
+						</p>
+					{/if}
+					{#if report.membersRemoved.length > 0}
+						<p class="text-sm">
+							<span class="font-medium">Removed:</span>
+							{report.membersRemoved.join(', ')}
+						</p>
+					{/if}
+					{#if report.errors.length > 0}
+						<div class="mt-2">
+							<p class="text-destructive text-sm font-medium">Errors:</p>
+							<ul class="text-destructive list-disc pl-5 text-sm">
+								{#each report.errors as error}
+									<li>{error}</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+				</Card.Content>
+			{/if}
+			{#if syncTeamMut.isError}
+				<Card.Content>
+					<p class="text-destructive text-sm">Sync failed: {syncTeamMut.error.message}</p>
+				</Card.Content>
+			{/if}
 		</Card.Root>
 
 		<!-- Members Table -->
