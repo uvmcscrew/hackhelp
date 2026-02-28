@@ -40,6 +40,13 @@ export const columns: ColumnDef<TeamRow>[] = [
 		enableColumnFilter: false
 	},
 	{
+		id: 'room',
+		accessorFn: (row) => row.team.room ?? '',
+		header: 'Room',
+		enableSorting: true,
+		enableColumnFilter: true
+	},
+	{
 		id: 'isPublic',
 		accessorFn: (row) => row.team.isPublic,
 		header: 'Public',

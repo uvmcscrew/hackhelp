@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import type { RouterOutputs } from '$lib/orpc/server';
 	import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
+	import MapPin from 'lucide-svelte/icons/map-pin';
 
 	type Props = {
 		team: RouterOutputs['teams']['listAll'][number];
@@ -36,6 +37,18 @@
 			<span class="text-muted-foreground">Programming: {programmers.length}/{PROGRAMMERS_MAX}</span>
 			<span class="text-muted-foreground">Business: {business.length}/{BUSINESS_MAX}</span>
 		</div>
+		{#if team.room || team.locationDescription}
+			<div class="flex items-center gap-1.5 text-sm">
+				<MapPin class="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+				<span class="text-muted-foreground">
+					{#if team.room}Room {team.room}{/if}
+					{#if team.room && team.locationDescription}
+						&middot;
+					{/if}
+					{#if team.locationDescription}{team.locationDescription}{/if}
+				</span>
+			</div>
+		{/if}
 		{#if team.members.length > 0}
 			<div class="flex flex-wrap gap-1">
 				{#each team.members as member (member.membership.userId)}

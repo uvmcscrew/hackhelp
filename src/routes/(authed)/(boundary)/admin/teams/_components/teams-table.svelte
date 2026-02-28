@@ -166,6 +166,12 @@
 									{:else}
 										<Badge variant="secondary" hoverEffects={false}>Closed</Badge>
 									{/if}
+								{:else if cell.column.id === 'room'}
+									{#if rowData.team.room}
+										<Badge variant="outline" hoverEffects={false}>{rowData.team.room}</Badge>
+									{:else}
+										<span class="text-muted-foreground text-sm">--</span>
+									{/if}
 								{:else if cell.column.id === 'isPublic'}
 									{#if rowData.team.isPublic}
 										<Badge variant="green" hoverEffects={false}>Yes</Badge>

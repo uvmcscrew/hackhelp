@@ -7,6 +7,7 @@ import { profileDataSchema } from '$lib/schemas';
 import { serialize } from 'superjson';
 import { challengesAdminRouter } from './challenges';
 import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
+import { WORK_ROOMS } from '$lib/utils';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { Octokit } from 'octokit';
 import { auth, type MLHUserProfile } from '$lib/auth/server.server';
@@ -709,6 +710,28 @@ const teamsAdminRouter = {
 				.update(teamMembers)
 				.set(updates)
 				.where(and(eq(teamMembers.teamId, input.teamId), eq(teamMembers.userId, input.userId)));
+		}),
+
+	/**
+	 * Update a team's location (room + description).
+	 */
+	updateLocation: adminProcedure
+		.input(
+			z.object({
+				teamId: z.string().nonempty(),
+				room: z.enum(WORK_ROOMS).nullable(),
+				locationDescription: z.string().max(280).nullable()
+			})
+		)
+		.handler(async ({ context, input }) => {
+			const [updated] = await context.db.client
+				.update(context.db.schema.team)
+				.set({ room: input.room, locationDescription: input.locationDescription })
+				.where(eq(context.db.schema.team.id, input.teamId))
+				.returning();
+
+			if (!updated) throw new ORPCError('NOT_FOUND', { message: 'Team not found' });
+			return updated;
 		})
 };
 

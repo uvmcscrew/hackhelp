@@ -57,6 +57,13 @@
       "when": 1771958674856,
       "tag": "0007_cynical_mandarin",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1772251441480,
+      "tag": "0008_bored_scrambler",
+      "breakpoints": true
     }
   ]
 }

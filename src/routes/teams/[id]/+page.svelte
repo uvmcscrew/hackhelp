@@ -6,6 +6,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
+	import MapPin from 'lucide-svelte/icons/map-pin';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -19,6 +20,24 @@
 
 {#if teamQuery.data}
 	{@const team = teamQuery.data}
+
+	<!-- Location Info -->
+	{#if team.room || team.locationDescription}
+		<Card.Root class="mb-4">
+			<Card.Content class="flex items-center gap-2 py-3">
+				<MapPin class="text-muted-foreground h-4 w-4 shrink-0" />
+				<span class="text-sm">
+					{#if team.room}<span class="font-medium">Room {team.room}</span>{/if}
+					{#if team.room && team.locationDescription}
+						&middot;
+					{/if}
+					{#if team.locationDescription}<span class="text-muted-foreground"
+							>{team.locationDescription}</span
+						>{/if}
+				</span>
+			</Card.Content>
+		</Card.Root>
+	{/if}
 
 	<!-- Members List -->
 	<Card.Root>

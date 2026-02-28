@@ -14,6 +14,7 @@
 		BUSINESS_MIN,
 		BUSINESS_MAX
 	} from '$lib/config/team-rules';
+	import MapPin from 'lucide-svelte/icons/map-pin';
 
 	type Props = {
 		team: NonNullable<RouterOutputs['teams']['myTeam']>;
@@ -129,6 +130,24 @@
 				Share this code with teammates so they can join.
 			</span>
 		</div>
+
+		<!-- Location -->
+		{#if team.room || team.locationDescription}
+			<div class="flex flex-col gap-1.5">
+				<span class="text-muted-foreground text-sm font-medium">Location</span>
+				<div class="flex items-center gap-2">
+					<MapPin class="text-muted-foreground h-4 w-4 shrink-0" />
+					<div class="flex flex-col">
+						{#if team.room}
+							<span class="text-sm font-medium">Room {team.room}</span>
+						{/if}
+						{#if team.locationDescription}
+							<span class="text-muted-foreground text-sm">{team.locationDescription}</span>
+						{/if}
+					</div>
+				</div>
+			</div>
+		{/if}
 
 		<!-- Status Badges -->
 		<div class="flex flex-wrap gap-2">

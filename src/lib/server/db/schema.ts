@@ -48,7 +48,9 @@ export const team = pgTable('team', {
 	joinCode: text('join_code').notNull().unique().$defaultFn(hexCode),
 	canJoin: boolean().default(true).notNull(),
 	isPublic: boolean().default(true).notNull(),
-	selectedChallengeId: text('selected_challenge_id').references(() => challenge.id)
+	selectedChallengeId: text('selected_challenge_id').references(() => challenge.id),
+	room: text('room').$type<WorkRooms>(),
+	locationDescription: text('location_description')
 });
 
 export const teamMembers = pgTable(

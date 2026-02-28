@@ -11,6 +11,7 @@
 	import * as Avatar from '$lib/components/ui/avatar';
 	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import Pencil from 'lucide-svelte/icons/pencil';
+	import MapPin from 'lucide-svelte/icons/map-pin';
 	import type { PageProps } from './$types';
 	import UserWoTeamSearch from '../_components/user-wo-team-search.svelte';
 	import {
@@ -20,6 +21,7 @@
 		BUSINESS_MIN,
 		BUSINESS_MAX
 	} from '$lib/config/team-rules';
+	import { WORK_ROOMS } from '$lib/utils';
 
 	let { data }: PageProps = $props();
 	const qc = useQueryClient();
@@ -105,6 +107,38 @@
 			teamId: data.teamId,
 			userId: addMemberUserId,
 			role: addMemberRole
+		});
+	}
+
+	// ── Location editing ──
+	const updateLocationMut = createMutation(() =>
+		orpc.admin.teams.updateLocation.mutationOptions({ onSuccess: invalidateAll })
+	);
+
+	let adminSelectedRoom = $state<string>('');
+	let adminLocationDesc = $state('');
+	let locationInitialized = $state(false);
+
+	// Sync local state when team data loads/changes
+	$effect(() => {
+		if (teamQuery.data && !locationInitialized) {
+			adminSelectedRoom = teamQuery.data.room ?? '';
+			adminLocationDesc = teamQuery.data.locationDescription ?? '';
+			locationInitialized = true;
+		}
+	});
+
+	const adminLocationDirty = $derived(
+		locationInitialized &&
+			(adminSelectedRoom !== (teamQuery.data?.room ?? '') ||
+				adminLocationDesc !== (teamQuery.data?.locationDescription ?? ''))
+	);
+
+	function saveAdminLocation() {
+		updateLocationMut.mutate({
+			teamId: data.teamId,
+			room: adminSelectedRoom || null,
+			locationDescription: adminLocationDesc.trim() || null
 		});
 	}
 
@@ -199,6 +233,68 @@
 		{#if updateNameMut.isError}
 			<p class="text-destructive mb-4 text-sm">{updateNameMut.error.message}</p>
 		{/if}
+
+		<!-- Location Card -->
+		<Card.Root class="mb-6">
+			<Card.Header>
+				<Card.Title class="flex items-center gap-2 text-base">
+					<MapPin class="h-4 w-4" />
+					Team Location
+				</Card.Title>
+				<Card.Description>Set the team's room and location during the hackathon.</Card.Description>
+			</Card.Header>
+			<Card.Content>
+				<div class="flex flex-col gap-3">
+					<div class="space-y-1.5">
+						<Label>Room</Label>
+						<Select.Root
+							type="single"
+							value={adminSelectedRoom}
+							onValueChange={(v) => {
+								if (v !== undefined) adminSelectedRoom = v;
+							}}
+						>
+							<Select.Trigger class="w-full">
+								{#if adminSelectedRoom}
+									Room {adminSelectedRoom}
+								{:else}
+									Select room...
+								{/if}
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Item value="">No room</Select.Item>
+								{#each WORK_ROOMS as room (room)}
+									<Select.Item value={room}>{room}</Select.Item>
+								{/each}
+							</Select.Content>
+						</Select.Root>
+					</div>
+					<div class="space-y-1.5">
+						<Label>Location Description</Label>
+						<Input
+							bind:value={adminLocationDesc}
+							placeholder="Location details (e.g. 'Near the window')"
+							maxlength={280}
+						/>
+					</div>
+					<div class="flex items-center gap-2">
+						<Button
+							size="sm"
+							onclick={saveAdminLocation}
+							disabled={!adminLocationDirty || updateLocationMut.isPending}
+						>
+							{updateLocationMut.isPending ? 'Saving...' : 'Save Location'}
+						</Button>
+						{#if adminLocationDirty}
+							<span class="text-muted-foreground text-xs">Unsaved changes</span>
+						{/if}
+					</div>
+					{#if updateLocationMut.isError}
+						<p class="text-destructive text-sm">{updateLocationMut.error.message}</p>
+					{/if}
+				</div>
+			</Card.Content>
+		</Card.Root>
 
 		<!-- Members Table -->
 		<Card.Root class="mb-6">
