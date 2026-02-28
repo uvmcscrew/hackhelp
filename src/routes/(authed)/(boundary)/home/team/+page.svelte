@@ -18,7 +18,7 @@
 		orpc.teams.leaveTeam.mutationOptions({
 			onSuccess: async (_) => {
 				await queryClient.cancelQueries({ queryKey: orpc.teams.myTeam.queryKey() });
-				await goto(resolve('/(authed)/home'));
+				await goto(resolve('/(authed)/(boundary)/home'));
 			}
 		})
 	);

@@ -56,8 +56,8 @@
 	<Card.Header>
 		<Card.Title>Members</Card.Title>
 		<Card.Description>
-			{#if businessCountCorrect && programmerCountCorrect}
-				Hooray! Your team has the right number of business and programming members.
+			{#if programmers + businesspeople >= 6 || (businessCountCorrect && programmerCountCorrect)}
+				Hooray! Your team is all set.
 			{:else}
 				{#if businessCountCorrect && !programmerCountCorrect}
 					Your team has an acceptable number of business people ({BUSINESS_MIN}&ndash;{BUSINESS_MAX}),
