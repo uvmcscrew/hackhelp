@@ -76,11 +76,20 @@
 		void tick().then(() => triggerRef?.focus());
 	}
 
+	$effect(() => {
+		if (ticketSheetOpen) {
+			queryClient.invalidateQueries({ queryKey: orpc.tickets.teamIssues.queryKey() });
+		}
+	});
+
 	const createTicketMutation = createMutation(() =>
 		orpc.tickets.create.mutationOptions({
 			onSuccess: async () => {
 				ticketSheetOpen = false;
-				await queryClient.invalidateQueries({ queryKey: ['tickets'] });
+				await Promise.all([
+					queryClient.invalidateQueries({ queryKey: orpc.tickets.myTeamTickets.queryKey() }),
+					queryClient.invalidateQueries({ queryKey: orpc.tickets.teamIssues.queryKey() })
+				]);
 			}
 		})
 	);
@@ -120,7 +129,10 @@
 		orpc.teams.repos.create.mutationOptions({
 			onSuccess: async () => {
 				repoSheetOpen = false;
-				await queryClient.invalidateQueries({ queryKey: ['teams', 'repos'] });
+				await Promise.all([
+					queryClient.invalidateQueries({ queryKey: orpc.teams.repos.list.queryKey() }),
+					queryClient.invalidateQueries({ queryKey: orpc.tickets.teamIssues.queryKey() })
+				]);
 			}
 		})
 	);
@@ -325,7 +337,6 @@
 						</Card.Description>
 					</div>
 					<div class="flex items-center gap-2">
-						<Button variant="outline" size="sm" href="/home/tickets">View All</Button>
 						<!-- Create Ticket Sheet -->
 						<Sheet.Root bind:open={ticketSheetOpen}>
 							<Sheet.Trigger

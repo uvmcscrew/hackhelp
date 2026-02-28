@@ -1,7 +1,6 @@
 <script lang="ts">
 	import * as DataTable from '$lib/components/ui/data-table';
 	import * as Table from '$lib/components/ui/table';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { createSvelteTable } from '$lib/components/ui/data-table';
@@ -18,7 +17,12 @@
 	import { columns, type TicketRow } from './columns';
 	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
-	import EllipsisVertical from 'lucide-svelte/icons/ellipsis-vertical';
+	import HandIcon from 'lucide-svelte/icons/hand';
+	import PlayIcon from 'lucide-svelte/icons/play';
+	import CheckCircleIcon from 'lucide-svelte/icons/check-circle';
+	import RotateCcwIcon from 'lucide-svelte/icons/rotate-ccw';
+	import ExternalLinkIcon from 'lucide-svelte/icons/external-link';
+	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import type { TicketResolutionStatus } from '$lib/server/db/schema';
 
 	type Props = {
@@ -29,8 +33,9 @@
 
 	const qc = useQueryClient();
 
-	function invalidateTickets() {
-		qc.invalidateQueries({ queryKey: ['tickets'] });
+	async function invalidateTickets() {
+		await qc.invalidateQueries({ queryKey: orpc.tickets.allTickets.queryKey() });
+		await qc.invalidateQueries({ queryKey: orpc.tickets.myAssignedTickets.queryKey() });
 	}
 
 	const claimMutation = createMutation(() =>
@@ -201,59 +206,66 @@
 									</span>
 								{:else if cell.column.id === 'actions'}
 									{@const pending = isMutating(rowData.id)}
-									<DropdownMenu.Root>
-										<DropdownMenu.Trigger>
-											{#snippet child({ props })}
-												<Button variant="ghost" size="icon" disabled={pending} {...props}>
-													<EllipsisVertical class="size-4" />
-												</Button>
-											{/snippet}
-										</DropdownMenu.Trigger>
-										<DropdownMenu.Content align="end">
+									<div class="flex items-center gap-0.5">
+										{#if pending}
+											<LoaderCircle class="size-4 animate-spin" />
+										{:else}
 											{#if rowData.resolutionStatus === 'open'}
-												<DropdownMenu.Item
+												<Button
+													variant="ghost"
+													size="icon"
+													class="size-7"
 													onclick={() => handleClaim(rowData.id)}
-													disabled={claimMutation.isPending}
+													aria-label="Claim ticket"
 												>
-													Claim Ticket
-												</DropdownMenu.Item>
+													<HandIcon class="size-4" />
+												</Button>
 											{/if}
 											{#if rowData.resolutionStatus === 'claimed'}
-												<DropdownMenu.Item
+												<Button
+													variant="ghost"
+													size="icon"
+													class="size-7"
 													onclick={() => handleStatusChange(rowData.id, 'inProgress')}
-													disabled={updateStatusMutation.isPending}
+													aria-label="Mark in progress"
 												>
-													Mark In Progress
-												</DropdownMenu.Item>
+													<PlayIcon class="size-4" />
+												</Button>
 											{/if}
 											{#if rowData.resolutionStatus === 'inProgress'}
-												<DropdownMenu.Item
+												<Button
+													variant="ghost"
+													size="icon"
+													class="size-7"
 													onclick={() => handleStatusChange(rowData.id, 'resolved')}
-													disabled={updateStatusMutation.isPending}
+													aria-label="Mark resolved"
 												>
-													Mark Resolved
-												</DropdownMenu.Item>
+													<CheckCircleIcon class="size-4" />
+												</Button>
 											{/if}
 											{#if rowData.resolutionStatus !== 'open'}
-												<DropdownMenu.Item
+												<Button
+													variant="ghost"
+													size="icon"
+													class="size-7"
 													onclick={() => handleStatusChange(rowData.id, 'open')}
-													disabled={updateStatusMutation.isPending}
+													aria-label="Reopen ticket"
 												>
-													Reopen Ticket
-												</DropdownMenu.Item>
+													<RotateCcwIcon class="size-4" />
+												</Button>
 											{/if}
-											<DropdownMenu.Separator />
-											<DropdownMenu.Item>
-												<a
-													href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${rowData.repository}/issues/${rowData.issueNumber}`}
-													target="_blank"
-													class="w-full"
-												>
-													View Issue on GitHub
-												</a>
-											</DropdownMenu.Item>
-										</DropdownMenu.Content>
-									</DropdownMenu.Root>
+											<Button
+												variant="ghost"
+												size="icon"
+												class="size-7"
+												href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${rowData.repository}/issues/${rowData.issueNumber}`}
+												target="_blank"
+												aria-label="View issue on GitHub"
+											>
+												<ExternalLinkIcon class="size-4" />
+											</Button>
+										{/if}
+									</div>
 								{:else}
 									<DataTable.FlexRender
 										content={cell.column.columnDef.cell}
