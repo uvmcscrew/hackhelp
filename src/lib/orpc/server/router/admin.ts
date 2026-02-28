@@ -808,7 +808,54 @@ const teamsAdminRouter = {
 // #               ADMIN ROUTER                #
 // #############################################
 
+// #############################################
+// #              STATS ENDPOINT               #
+// #############################################
+
+const statsEndpoint = adminProcedure.handler(async ({ context }) => {
+	const { user, team, teamMembers, ticket, challenge, profile } = context.db.schema;
+
+	const [[userCount], [teamCount], [challengeCount], ticketStatusCounts, [mentorCount]] =
+		await Promise.all([
+			context.db.client.select({ count: count() }).from(user),
+			context.db.client.select({ count: count() }).from(team),
+			context.db.client.select({ count: count() }).from(challenge),
+			context.db.client
+				.select({
+					status: ticket.resolutionStatus,
+					count: count()
+				})
+				.from(ticket)
+				.groupBy(ticket.resolutionStatus),
+			context.db.client
+				.select({ count: count() })
+				.from(profile)
+				.where(eq(profile.primaryRole, 'mentor'))
+		]);
+
+	const ticketsByStatus = Object.fromEntries(
+		ticketStatusCounts.map((r) => [r.status, r.count])
+	) as Record<string, number>;
+
+	const totalTickets = ticketStatusCounts.reduce((sum, r) => sum + r.count, 0);
+
+	return {
+		users: userCount.count,
+		teams: teamCount.count,
+		challenges: challengeCount.count,
+		mentors: mentorCount.count,
+		tickets: {
+			total: totalTickets,
+			open: ticketsByStatus['open'] ?? 0,
+			claimed: ticketsByStatus['claimed'] ?? 0,
+			inProgress: ticketsByStatus['inProgress'] ?? 0,
+			resolved: ticketsByStatus['resolved'] ?? 0
+		}
+	};
+});
+
 export const adminRouter = {
+	stats: statsEndpoint,
 	users: userRouter,
 	teams: teamsAdminRouter,
 	challenges: challengesAdminRouter
