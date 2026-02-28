@@ -70,25 +70,23 @@ export const teamMembers = pgTable(
 
 export type TeamMembership = typeof teamMembers.$inferSelect;
 
-export const TICKET_RESOLUTION_STATUS = ['open', 'assigned', 'inProgress', 'closed'] as const;
+export const TICKET_RESOLUTION_STATUS = ['open', 'claimed', 'inProgress', 'resolved'] as const;
 export type TicketResolutionStatus = (typeof TICKET_RESOLUTION_STATUS)[number];
 
-// export const ticket = pgTable('ticket', {
-// 	id: text('id').primaryKey().$defaultFn(cuid2),
-// 	teamId: text('team_id').references(() => team.id),
-// 	challengeId: text('challenge_id').references(() => challenge.id),
-// 	createdAt: timestamp('created_at').notNull(),
-// 	issueNumber: integer('issue_number').notNull(),
-// 	repository: text('repository').notNull(),
-// 	title: text('title').notNull(),
-// 	location: text('location').notNull().$type<WorkRooms>(),
-// 	locationDescription: text('location_description'),
-// 	assignedMentor: text('assigned_mentor').references(() => user.id),
-// 	resolutionStatus: text('resolution_status')
-// 		.default('open')
-// 		.notNull()
-// 		.$type<TicketResolutionStatus>()
-// });
+export const ticket = pgTable('ticket', {
+	id: text('id').primaryKey().$defaultFn(cuid2),
+	teamId: text('team_id').references(() => team.id),
+	createdById: text('created_by_id').references(() => user.id),
+	createdAt: timestamp('created_at').notNull().defaultNow(),
+	issueNumber: integer('issue_number').notNull(),
+	repository: text('repository').notNull(),
+	title: text('title').notNull(),
+	assignedMentorId: text('assigned_mentor_id').references(() => user.id),
+	resolutionStatus: text('resolution_status')
+		.default('open')
+		.notNull()
+		.$type<TicketResolutionStatus>()
+});
 
 export const challenge = pgTable('challenge', {
 	id: text('id').primaryKey().$defaultFn(cuid2),

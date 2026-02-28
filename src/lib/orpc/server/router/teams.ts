@@ -11,6 +11,9 @@ import {
 	removeTeamMember,
 	deleteGithubTeam
 } from '$lib/server/github-sync';
+import { serverEnv } from '$lib/env/server';
+
+const MAX_REPOS_PER_TEAM = 3;
 
 export const teamsRouter = {
 	byId: publicProcedure.input(z.object({ id: z.string() })).handler(async ({ context, input }) => {
@@ -513,5 +516,146 @@ export const teamsRouter = {
 		}
 
 		return { deleted: false };
-	})
+	}),
+
+	repos: {
+		/**
+		 * List all repos for the caller's team (filtered: no prompt* repos).
+		 */
+		list: protectedProcedure.handler(async ({ context }) => {
+			const { teamMembers, team } = context.db.schema;
+
+			const [membership] = await context.db.client
+				.select()
+				.from(teamMembers)
+				.where(eq(teamMembers.userId, context.user.id));
+
+			if (!membership) throw new ORPCError('BAD_REQUEST', { message: 'You are not on a team' });
+
+			const [myTeam] = await context.db.client
+				.select()
+				.from(team)
+				.where(eq(team.id, membership.teamId));
+
+			if (!myTeam?.githubSlug) {
+				return { repos: [] };
+			}
+
+			const { data: repos } = await context.githubApp.rest.teams.listReposInOrg({
+				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				team_slug: myTeam.githubSlug
+			});
+
+			return {
+				repos: repos
+					.filter((r) => !r.name.startsWith('prompt'))
+					.map((r) => ({
+						id: r.id,
+						name: r.name,
+						fullName: r.full_name,
+						description: r.description,
+						private: r.private,
+						htmlUrl: r.html_url,
+						language: r.language
+					}))
+			};
+		}),
+
+		/**
+		 * Check if a repo name is already taken in the org.
+		 */
+		checkName: protectedProcedure
+			.input(z.object({ repoName: z.string().nonempty() }))
+			.handler(async ({ context, input }) => {
+				try {
+					await context.githubApp.rest.repos.get({
+						owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+						repo: input.repoName
+					});
+					return { repoExists: true };
+				} catch (e: unknown) {
+					if (
+						typeof e === 'object' &&
+						e !== null &&
+						'status' in e &&
+						(e as { status: number }).status === 404
+					) {
+						return { repoExists: false };
+					}
+					throw e;
+				}
+			}),
+
+		/**
+		 * Create a new repo for the team. Max 3 repos, maintain permission.
+		 */
+		create: protectedProcedure
+			.input(
+				z.object({
+					repoName: z.string().nonempty(),
+					description: z.string().default('')
+				})
+			)
+			.handler(async ({ context, input }) => {
+				const { teamMembers, team } = context.db.schema;
+
+				const [membership] = await context.db.client
+					.select()
+					.from(teamMembers)
+					.where(eq(teamMembers.userId, context.user.id));
+
+				if (!membership) throw new ORPCError('BAD_REQUEST', { message: 'You are not on a team' });
+
+				const [myTeam] = await context.db.client
+					.select()
+					.from(team)
+					.where(eq(team.id, membership.teamId));
+
+				if (!myTeam?.githubSlug) {
+					throw new ORPCError('BAD_REQUEST', {
+						message: 'Your team does not have a GitHub team yet'
+					});
+				}
+
+				// Check repo count
+				const { data: existingRepos } = await context.githubApp.rest.teams.listReposInOrg({
+					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					team_slug: myTeam.githubSlug
+				});
+
+				const teamRepos = existingRepos.filter((r) => !r.name.startsWith('prompt'));
+
+				if (teamRepos.length >= MAX_REPOS_PER_TEAM) {
+					throw new ORPCError('BAD_REQUEST', {
+						message: `Maximum of ${MAX_REPOS_PER_TEAM} repositories per team`
+					});
+				}
+
+				// Create the repo
+				const { data: ghRepo } = await context.githubApp.rest.repos.createInOrg({
+					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					name: input.repoName,
+					description: input.description,
+					private: true
+				});
+
+				// Grant team maintain permission
+				await context.githubApp.rest.teams.addOrUpdateRepoPermissionsInOrg({
+					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					team_slug: myTeam.githubSlug,
+					owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					repo: ghRepo.name,
+					permission: 'maintain'
+				});
+
+				return {
+					repo: {
+						id: ghRepo.id,
+						name: ghRepo.name,
+						fullName: ghRepo.full_name,
+						htmlUrl: ghRepo.html_url
+					}
+				};
+			})
+	}
 };

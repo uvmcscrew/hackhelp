@@ -1,4 +1,3 @@
-import { WORK_ROOMS } from '$lib/utils';
 import { mapValues } from 'es-toolkit/object';
 import { z } from 'zod';
 
@@ -9,8 +8,6 @@ export const createTeamSchema = z.object({
 
 export const createTicketSchema = z.object({
 	title: z.string().nonempty().max(100),
-	location: z.enum(WORK_ROOMS),
-	locationDescription: z.string().max(280),
 	repository: z.string().nonempty(),
 	issueNumber: z.coerce.number().int().positive()
 });

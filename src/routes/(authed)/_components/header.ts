@@ -6,7 +6,8 @@ export const headerNavLinks: HeaderNavConfig = {
 	'/home': [
 		{ text: 'Dashboard', href: '/home' },
 		{ text: 'Team', href: '/home/team' },
-		{ text: 'Challenges', href: '/home/challenges' }
+		{ text: 'Challenges', href: '/home/challenges' },
+		{ text: 'Tickets', href: '/home/tickets' }
 	],
 	'/admin': [
 		{ text: 'Dashboard', href: '/admin' },

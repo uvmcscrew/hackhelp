@@ -64,6 +64,13 @@
       "when": 1772251441480,
       "tag": "0008_bored_scrambler",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1772260005561,
+      "tag": "0009_watery_bug",
+      "breakpoints": true
     }
   ]
 }
