@@ -38,34 +38,12 @@ export const WHITELISTED_EMAIL_DOMAINS = [
 export const MAX_TEAMS_PER_CHALLENGE = 6;
 
 export const WORK_ROOMS = [
-	// 'Kalkin 225',
-	// 'Kalkin 110',
-	// 'Ifshin 107 (Keller Room)',
-
-	'337A',
-	'337B',
-	'337C',
-	// 'Ifshin 337',
-	'358',
-
-	'238A',
-	'238B',
-	'238C',
-	'238E',
-	'238F',
-	'238G',
-
-	' 235',
-	' 237',
-	'Fac.Lnge - 200',
-
-	'240 - Mentor Room',
-
-	'236A',
-	'236B',
-	'236C',
-	'236D',
-	'236E'
+	'Innovation E102',
+	'Innovation E100',
+	'Innovation E105',
+	'Innovation E204',
+	'Innovation E210 South',
+	'Innovation E210 North'
 ] as const;
 
 export type WorkRooms = (typeof WORK_ROOMS)[number];
