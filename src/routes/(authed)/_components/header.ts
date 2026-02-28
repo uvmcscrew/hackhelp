@@ -15,12 +15,11 @@ export const headerNavLinks: HeaderNavConfig = {
 		{ text: 'Teams', href: '/admin/teams' },
 		{ text: 'Challenges', href: '/admin/challenges' },
 		{ text: 'Config', href: '/admin/config' },
-		{ text: 'Tickets', href: '/mentor/tickets' }
+		{ text: 'Tickets', href: '/mentor' }
 	],
 	'/mentor': [
-		{ text: 'Dashboard', href: '/mentor' },
-		{ text: 'Teams', href: '/admin/teams' },
-		{ text: 'Tickets', href: '/mentor/tickets' }
+		{ text: 'Tickets', href: '/mentor' },
+		{ text: 'Teams', href: '/admin/teams' }
 	],
 	'/judging': [
 		{ text: 'Dashboard', href: '/judging' },

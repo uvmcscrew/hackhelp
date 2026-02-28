@@ -84,7 +84,7 @@
 		<!-- Ticket Stats -->
 		<div class="mb-4 flex items-center justify-between">
 			<h2 class="text-lg font-semibold">Tickets</h2>
-			<Button variant="outline" size="sm" href="/mentor/tickets">View All Tickets</Button>
+			<Button variant="outline" size="sm" href="/mentor">View All Tickets</Button>
 		</div>
 		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
 			<Card.Root>
