@@ -11,13 +11,17 @@ import { WORK_ROOMS } from '$lib/utils';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { Octokit } from 'octokit';
 import { auth, type MLHUserProfile } from '$lib/auth/server.server';
+import { serverEnv } from '$lib/env/server';
 import {
 	ensureGithubTeam,
 	deleteGithubTeam,
 	syncTeamMember,
 	removeTeamMember,
 	syncEntireTeam,
-	fullReconciliation
+	fullReconciliation,
+	assignMentorOrgRole,
+	removeMentorOrgRole,
+	reconcileMentorOrgRoles
 } from '$lib/server/github-sync';
 
 /**
@@ -101,6 +105,11 @@ const userRouter = {
 					target: context.db.schema.profile.id,
 					set: { primaryRole: input.role }
 				});
+
+			// Fire-and-forget: assign GitHub org role for mentors
+			if (input.role === 'mentor') {
+				assignMentorOrgRole(context.githubApp, input.userId).catch(() => {});
+			}
 		}),
 
 	removeRole: adminProcedure
@@ -135,6 +144,11 @@ const userRouter = {
 				.update(context.db.schema.profile)
 				.set({ primaryRole })
 				.where(eq(context.db.schema.profile.id, input.userId));
+
+			// Fire-and-forget: remove GitHub org role when removing mentor
+			if (input.role === 'mentor') {
+				removeMentorOrgRole(context.githubApp, input.userId).catch(() => {});
+			}
 		}),
 
 	/**
@@ -858,5 +872,40 @@ export const adminRouter = {
 	stats: statsEndpoint,
 	users: userRouter,
 	teams: teamsAdminRouter,
-	challenges: challengesAdminRouter
+	challenges: challengesAdminRouter,
+
+	/**
+	 * Sync all GitHub permissions: team memberships AND mentor org roles.
+	 * Returns a merged SyncReport.
+	 */
+	syncAllGithubPermissions: adminProcedure.handler(async ({ context }) => {
+		const [teamReport, mentorReport] = await Promise.all([
+			fullReconciliation(context.githubApp),
+			reconcileMentorOrgRoles(context.githubApp)
+		]);
+
+		return {
+			teamsCreated: teamReport.teamsCreated,
+			teamsDeleted: teamReport.teamsDeleted,
+			membersAdded: teamReport.membersAdded,
+			membersRemoved: teamReport.membersRemoved,
+			mentorRolesAssigned: mentorReport.mentorRolesAssigned,
+			mentorRolesRemoved: mentorReport.mentorRolesRemoved,
+			errors: [...teamReport.errors, ...mentorReport.errors]
+		};
+	}),
+
+	/**
+	 * List all available GitHub Organization Roles from the org.
+	 * Used by the admin config page to let admins choose which role mentors get.
+	 */
+	listGithubOrgRoles: adminProcedure.handler(async ({ context }) => {
+		const { data } = await context.githubApp.request('GET /orgs/{org}/organization-roles', {
+			org: serverEnv.PUBLIC_GITHUB_ORGNAME
+		});
+		const roles = (
+			data as { roles: Array<{ id: number; name: string; description: string | null }> }
+		).roles;
+		return roles.map((r) => ({ id: r.id, name: r.name, description: r.description }));
+	})
 };

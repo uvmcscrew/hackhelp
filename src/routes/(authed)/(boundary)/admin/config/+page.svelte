@@ -5,7 +5,9 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Card from '$lib/components/ui/card';
+	import * as Select from '$lib/components/ui/select';
 	import { Separator } from '$lib/components/ui/separator';
+	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 
 	const qc = useQueryClient();
 
@@ -120,6 +122,43 @@
 			maxParticipants: pcMaxParticipants,
 			teamSizeMin: pcTeamSizeMin,
 			teamSizeMax: pcTeamSizeMax
+		});
+	}
+
+	// ── GitHub Config ──
+	const githubConfigQuery = createQuery(() => orpc.config.view.github.queryOptions());
+	const githubOrgRolesQuery = createQuery(() => ({
+		...orpc.admin.listGithubOrgRoles.queryOptions(),
+		enabled: ghEditing
+	}));
+
+	let ghEditing = $state(false);
+	let ghSelectedRoleId = $state<string>('none');
+
+	function startEditGithubConfig() {
+		const d = githubConfigQuery.data;
+		ghSelectedRoleId = d?.mentorOrgRoleId != null ? String(d.mentorOrgRoleId) : 'none';
+		ghEditing = true;
+	}
+
+	const updateGithubConfigMut = createMutation(() =>
+		orpc.config.update.github.mutationOptions({
+			onSuccess: () => {
+				ghEditing = false;
+				qc.invalidateQueries({ queryKey: orpc.config.view.github.queryKey() });
+			}
+		})
+	);
+
+	function saveGithubConfig() {
+		const roleId = ghSelectedRoleId === 'none' ? null : Number(ghSelectedRoleId);
+		const roleName =
+			roleId != null
+				? (githubOrgRolesQuery.data?.find((r) => r.id === roleId)?.name ?? null)
+				: null;
+		updateGithubConfigMut.mutate({
+			mentorOrgRoleId: roleId,
+			mentorOrgRoleName: roleName
 		});
 	}
 
@@ -325,7 +364,7 @@
 	</Card.Root>
 
 	<!-- Participants Config -->
-	<Card.Root>
+	<Card.Root class="mb-6">
 		<Card.Header>
 			<div class="flex items-center justify-between">
 				<Card.Title>Participants</Card.Title>
@@ -390,6 +429,103 @@
 					<div class="flex justify-between">
 						<span class="text-muted-foreground">Max Team Size</span>
 						<span class="font-medium">{d.teamSizeMax}</span>
+					</div>
+				</div>
+			{/if}
+		</Card.Content>
+	</Card.Root>
+
+	<!-- GitHub Config -->
+	<Card.Root>
+		<Card.Header>
+			<div class="flex items-center justify-between">
+				<Card.Title>GitHub Integration</Card.Title>
+				{#if !ghEditing}
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={startEditGithubConfig}
+						disabled={githubConfigQuery.isLoading}
+					>
+						Edit
+					</Button>
+				{/if}
+			</div>
+			<Card.Description>
+				Configure which GitHub Organization Role is assigned to mentors.
+			</Card.Description>
+		</Card.Header>
+		<Card.Content>
+			{#if githubConfigQuery.isLoading}
+				<p class="text-muted-foreground text-sm">Loading...</p>
+			{:else if githubConfigQuery.isError}
+				<p class="text-destructive text-sm">Failed to load GitHub config.</p>
+			{:else if ghEditing}
+				<div class="flex flex-col gap-4">
+					<div class="space-y-1.5">
+						<Label>Mentor Organization Role</Label>
+						{#if githubOrgRolesQuery.isLoading}
+							<div class="text-muted-foreground flex items-center gap-2 text-sm">
+								<LoaderCircle class="h-4 w-4 animate-spin" />
+								Loading roles from GitHub...
+							</div>
+						{:else if githubOrgRolesQuery.isError}
+							<p class="text-destructive text-sm">
+								Failed to fetch org roles: {githubOrgRolesQuery.error.message}
+							</p>
+						{:else if githubOrgRolesQuery.data}
+							<Select.Root type="single" bind:value={ghSelectedRoleId}>
+								<Select.Trigger class="w-full">
+									{#if ghSelectedRoleId === 'none'}
+										None (disabled)
+									{:else}
+										{githubOrgRolesQuery.data.find((r) => String(r.id) === ghSelectedRoleId)
+											?.name ?? 'Unknown role'}
+									{/if}
+								</Select.Trigger>
+								<Select.Content>
+									<Select.Item value="none">None (disabled)</Select.Item>
+									{#each githubOrgRolesQuery.data as role}
+										<Select.Item value={String(role.id)}>
+											{role.name}
+											{#if role.description}
+												<span class="text-muted-foreground ml-1 text-xs">— {role.description}</span>
+											{/if}
+										</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+							<p class="text-muted-foreground text-xs">
+								When a user is granted the mentor role, they will automatically be assigned this
+								GitHub Organization Role. Set to "None" to disable.
+							</p>
+						{/if}
+					</div>
+					<div class="flex gap-2">
+						<Button
+							onclick={saveGithubConfig}
+							disabled={$updateGithubConfigMut.isPending || githubOrgRolesQuery.isLoading}
+						>
+							{$updateGithubConfigMut.isPending ? 'Saving...' : 'Save'}
+						</Button>
+						<Button variant="ghost" onclick={() => (ghEditing = false)}>Cancel</Button>
+					</div>
+					{#if $updateGithubConfigMut.isError}
+						<p class="text-destructive text-sm">{$updateGithubConfigMut.error.message}</p>
+					{/if}
+				</div>
+			{:else if githubConfigQuery.data}
+				{@const d = githubConfigQuery.data}
+				<div class="flex flex-col gap-3 text-sm">
+					<div class="flex justify-between">
+						<span class="text-muted-foreground">Mentor Org Role</span>
+						<span class="font-medium">
+							{#if d.mentorOrgRoleName}
+								{d.mentorOrgRoleName}
+							{:else}
+								<span class="text-muted-foreground italic">Not configured</span>
+							{/if}
+						</span>
 					</div>
 				</div>
 			{/if}

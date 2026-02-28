@@ -3,7 +3,8 @@ import { checkRolePermission } from '$lib/auth/permissions';
 import {
 	eventTimingConfigSchema,
 	challengeConfigSchema,
-	participantsConfigSchema
+	participantsConfigSchema,
+	githubConfigSchema
 } from '$lib/server/config/schemas';
 import { o, protectedProcedure, publicProcedure } from '../shared';
 import { ORPCError } from '@orpc/server';
@@ -111,6 +112,10 @@ export const configRouter = {
 		challenges: configViewProcedure.handler(async ({ context }) => {
 			const challengeConfig = await context.config.getChallengeConfig();
 			return challengeConfig;
+		}),
+		github: configViewProcedure.handler(async ({ context }) => {
+			const githubConfig = await context.config.getGithubConfig();
+			return githubConfig;
 		})
 	},
 	update: {
@@ -128,6 +133,9 @@ export const configRouter = {
 			.input(participantsConfigSchema)
 			.handler(async ({ context, input }) => {
 				await context.config.setParticipantConfig(input);
-			})
+			}),
+		github: configEditProcedure.input(githubConfigSchema).handler(async ({ context, input }) => {
+			await context.config.setGithubConfig(input);
+		})
 	}
 };

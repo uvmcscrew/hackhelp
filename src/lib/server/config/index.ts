@@ -5,9 +5,11 @@ import {
 	eventTimingConfigSchema,
 	participantsConfigSchema,
 	challengeConfigSchema,
+	githubConfigSchema,
 	type EventTimingConfig,
 	type ParticipantConfig,
-	type ChallengeConfig
+	type ChallengeConfig,
+	type GithubConfig
 } from './schemas';
 import { building } from '$app/environment';
 
@@ -17,6 +19,7 @@ class Configuration {
 	private EVENT_TIMING_KEY = 'eventTiming';
 	private PARTICIPANT_CONFIG_KEY = 'participants';
 	private CHALLENGE_CONFIG_KEY = 'challenges';
+	private GITHUB_CONFIG_KEY = 'github';
 
 	constructor(dbInstance: typeof db) {
 		this.db = dbInstance;
@@ -44,6 +47,11 @@ class Configuration {
 		const challengeConfig = await this.getKeyValue(this.CHALLENGE_CONFIG_KEY);
 		if (!challengeConfig) {
 			await this.setKeyValue(this.CHALLENGE_CONFIG_KEY, await challengeConfigSchema.parseAsync({}));
+		}
+
+		const githubConfig = await this.getKeyValue(this.GITHUB_CONFIG_KEY);
+		if (!githubConfig) {
+			await this.setKeyValue(this.GITHUB_CONFIG_KEY, await githubConfigSchema.parseAsync({}));
 		}
 	}
 
@@ -107,6 +115,20 @@ class Configuration {
 
 	async setParticipantConfig(config: ParticipantConfig): Promise<void> {
 		await this.setKeyValue<ParticipantConfig>(this.PARTICIPANT_CONFIG_KEY, config);
+	}
+
+	async getGithubConfig() {
+		const result = await this.getKeyValue<GithubConfig>(this.GITHUB_CONFIG_KEY);
+		return githubConfigSchema.parseAsync(result?.data ?? {});
+	}
+
+	async setGithubConfig(config: GithubConfig): Promise<void> {
+		await this.setKeyValue<GithubConfig>(this.GITHUB_CONFIG_KEY, config);
+	}
+
+	async getMentorOrgRoleId(): Promise<number | null> {
+		const config = await this.getGithubConfig();
+		return config.mentorOrgRoleId;
 	}
 
 	async getEventStartTime(): Promise<Date> {

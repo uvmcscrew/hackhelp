@@ -6,10 +6,11 @@
  * rather than propagating, so they never break the primary DB operation.
  */
 
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { serverEnv } from '$lib/env/server';
 import type { getGithubAppInstallationClient } from '$lib/github';
 import db from '$lib/server/db';
+import { configurationService } from '$lib/server/config';
 
 type GithubApp = Awaited<ReturnType<typeof getGithubAppInstallationClient>>;
 type Team = typeof db.schema.team.$inferSelect;
@@ -241,6 +242,8 @@ export type SyncReport = {
 	teamsDeleted: string[];
 	membersAdded: string[];
 	membersRemoved: string[];
+	mentorRolesAssigned: string[];
+	mentorRolesRemoved: string[];
 	errors: string[];
 };
 
@@ -254,6 +257,8 @@ export async function syncEntireTeam(githubApp: GithubApp, teamId: string): Prom
 		teamsDeleted: [],
 		membersAdded: [],
 		membersRemoved: [],
+		mentorRolesAssigned: [],
+		mentorRolesRemoved: [],
 		errors: []
 	};
 
@@ -359,6 +364,8 @@ export async function fullReconciliation(githubApp: GithubApp): Promise<SyncRepo
 		teamsDeleted: [],
 		membersAdded: [],
 		membersRemoved: [],
+		mentorRolesAssigned: [],
+		mentorRolesRemoved: [],
 		errors: []
 	};
 
@@ -420,6 +427,211 @@ export async function syncUserTeamAfterAccountChange(
 	} catch (e) {
 		console.error(`[github-sync] Failed to sync user ${userId} after account ${action}:`, e);
 	}
+}
+
+// ─── Mentor Organization Role Sync ─────────────────────────────────────
+
+/**
+ * Read the configured mentor org role ID from the configuration table.
+ * Returns null if no role has been configured yet.
+ */
+async function getConfiguredMentorRoleId(): Promise<number | null> {
+	return configurationService.getMentorOrgRoleId();
+}
+
+/**
+ * Assign the configured mentor org role to a user (by hackhelp userId).
+ * Requires the user to have a linked GitHub account.
+ * No-op if no mentor org role is configured.
+ */
+export async function assignMentorOrgRole(githubApp: GithubApp, userId: string): Promise<boolean> {
+	try {
+		const roleId = await getConfiguredMentorRoleId();
+		if (!roleId) {
+			console.log('[github-sync] No mentor org role configured, skipping assign');
+			return false;
+		}
+
+		const ghAccount = await getGithubAccountForUser(userId);
+		if (!ghAccount) {
+			console.log(`[github-sync] User ${userId} has no GitHub account, skipping org role assign`);
+			return false;
+		}
+
+		const username = await getGithubUsername(githubApp, ghAccount.accountId);
+		if (!username) {
+			console.warn(`[github-sync] Could not resolve GitHub username for user ${userId}`);
+			return false;
+		}
+
+		await githubApp.request('PUT /orgs/{org}/organization-roles/users/{username}/{role_id}', {
+			org: org(),
+			username,
+			role_id: roleId
+		});
+
+		console.log(`[github-sync] Assigned mentor org role (id=${roleId}) to '${username}'`);
+		return true;
+	} catch (e) {
+		console.error(`[github-sync] Failed to assign org role to user ${userId}:`, e);
+		return false;
+	}
+}
+
+/**
+ * Remove the configured mentor org role from a user (by hackhelp userId).
+ * No-op if no mentor org role is configured.
+ */
+export async function removeMentorOrgRole(githubApp: GithubApp, userId: string): Promise<boolean> {
+	try {
+		const roleId = await getConfiguredMentorRoleId();
+		if (!roleId) {
+			console.log('[github-sync] No mentor org role configured, skipping remove');
+			return false;
+		}
+
+		const ghAccount = await getGithubAccountForUser(userId);
+		if (!ghAccount) return false;
+
+		const username = await getGithubUsername(githubApp, ghAccount.accountId);
+		if (!username) return false;
+
+		await githubApp.request('DELETE /orgs/{org}/organization-roles/users/{username}/{role_id}', {
+			org: org(),
+			username,
+			role_id: roleId
+		});
+
+		console.log(`[github-sync] Removed mentor org role (id=${roleId}) from '${username}'`);
+		return true;
+	} catch (e) {
+		if (isNotFoundError(e)) {
+			// Already doesn't have the role — fine
+			return true;
+		}
+		console.error(`[github-sync] Failed to remove org role from user ${userId}:`, e);
+		return false;
+	}
+}
+
+/**
+ * Full reconciliation of mentor org roles:
+ * - Find all hackhelp users with 'mentor' in their role column that have a linked GitHub account
+ * - Find all GitHub users currently assigned the org role
+ * - Add the role to mentors who are missing it
+ * - Remove the role from non-mentors who still have it
+ */
+export async function reconcileMentorOrgRoles(githubApp: GithubApp): Promise<SyncReport> {
+	const report: SyncReport = {
+		teamsCreated: [],
+		teamsDeleted: [],
+		membersAdded: [],
+		membersRemoved: [],
+		mentorRolesAssigned: [],
+		mentorRolesRemoved: [],
+		errors: []
+	};
+
+	try {
+		const roleId = await getConfiguredMentorRoleId();
+		if (!roleId) {
+			report.errors.push('No mentor org role configured — skip org role reconciliation');
+			return report;
+		}
+
+		// 1. Get all users with mentor role + GitHub accounts
+		const mentorUsers = await db.client
+			.select({
+				userId: db.schema.user.id,
+				userRole: db.schema.user.role,
+				accountId: db.schema.account.accountId
+			})
+			.from(db.schema.user)
+			.innerJoin(
+				db.schema.account,
+				and(
+					eq(db.schema.account.userId, db.schema.user.id),
+					eq(db.schema.account.providerId, 'github')
+				)
+			)
+			.where(sql`${db.schema.user.role} LIKE '%mentor%'`);
+
+		// Build a map of GitHub username -> userId for expected mentors
+		const expectedMentorUsernames = new Map<string, string>(); // lowercase username -> userId
+		for (const mu of mentorUsers) {
+			const username = await getGithubUsername(githubApp, mu.accountId);
+			if (username) {
+				expectedMentorUsernames.set(username.toLowerCase(), mu.userId);
+			}
+		}
+
+		// 2. Get all users currently assigned this org role on GitHub
+		let currentRoleUsers: Array<{ login: string }> = [];
+		try {
+			// Paginate through all users with this role
+			let page = 1;
+			const perPage = 100;
+			while (true) {
+				const { data } = await githubApp.request(
+					'GET /orgs/{org}/organization-roles/{role_id}/users',
+					{
+						org: org(),
+						role_id: roleId,
+						per_page: perPage,
+						page
+					}
+				);
+				const users = data as Array<{ login: string }>;
+				currentRoleUsers.push(...users);
+				if (users.length < perPage) break;
+				page++;
+			}
+		} catch (e) {
+			report.errors.push(`Failed to list users with org role: ${e}`);
+			return report;
+		}
+
+		const currentRoleUsernames = new Set(currentRoleUsers.map((u) => u.login.toLowerCase()));
+
+		// 3. Add role to mentors who are missing it
+		for (const [username] of expectedMentorUsernames) {
+			if (!currentRoleUsernames.has(username)) {
+				try {
+					await githubApp.request('PUT /orgs/{org}/organization-roles/users/{username}/{role_id}', {
+						org: org(),
+						username,
+						role_id: roleId
+					});
+					report.mentorRolesAssigned.push(username);
+				} catch (e) {
+					report.errors.push(`Failed to assign org role to '${username}': ${e}`);
+				}
+			}
+		}
+
+		// 4. Remove role from non-mentors who still have it
+		for (const ghUser of currentRoleUsers) {
+			if (!expectedMentorUsernames.has(ghUser.login.toLowerCase())) {
+				try {
+					await githubApp.request(
+						'DELETE /orgs/{org}/organization-roles/users/{username}/{role_id}',
+						{
+							org: org(),
+							username: ghUser.login,
+							role_id: roleId
+						}
+					);
+					report.mentorRolesRemoved.push(ghUser.login);
+				} catch (e) {
+					report.errors.push(`Failed to remove org role from '${ghUser.login}': ${e}`);
+				}
+			}
+		}
+	} catch (e) {
+		report.errors.push(`Unexpected error during mentor org role reconciliation: ${e}`);
+	}
+
+	return report;
 }
 
 // ─── Utilities ─────────────────────────────────────────────────────────

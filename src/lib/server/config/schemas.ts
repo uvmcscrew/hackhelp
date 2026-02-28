@@ -27,3 +27,10 @@ export const challengeConfigSchema = z.object({
 });
 
 export type ChallengeConfig = z.infer<typeof challengeConfigSchema>;
+
+export const githubConfigSchema = z.object({
+	mentorOrgRoleId: z.number().nullable().default(null),
+	mentorOrgRoleName: z.string().nullable().default(null)
+});
+
+export type GithubConfig = z.infer<typeof githubConfigSchema>;
