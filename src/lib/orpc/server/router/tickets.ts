@@ -1,5 +1,5 @@
 import { protectedProcedure, adminProcedure } from '../shared';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
 import { createTicketSchema } from '$lib/schemas';

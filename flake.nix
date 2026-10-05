@@ -1,7 +1,7 @@
 {
   description = "A Nix-flake-based Bun development environment";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-25.11";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-26.05";
 
   outputs =
     { self, ... }@inputs:
