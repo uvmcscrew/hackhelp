@@ -117,5 +117,8 @@
 	},
 	"trustedDependencies": [
 		"core-js"
-	]
+	],
+	"imports": {
+		"$lib/*": "./src/lib/*"
+	}
 }
