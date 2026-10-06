@@ -11,7 +11,7 @@
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import ChallengeSelectorSheet from './challenge-selector-sheet.svelte';
-	import { clientEnv } from '$lib/env/client';
+	import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let repos = createQuery(orpc.competitor.repositories.getAll.queryOptions);
@@ -50,7 +50,7 @@
 
 						<Card.Footer class="justify-start px-2">
 							<Button
-								href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${team.data?.challenge.linkedRepo}`}
+								href={`https://github.com/${PUBLIC_GITHUB_ORGNAME}/${team.data?.challenge.linkedRepo}`}
 								variant="link"
 							>
 								<GithubIcon class="fill-primary size-5!" />

@@ -11,7 +11,7 @@ import {
 	removeTeamMember,
 	deleteGithubTeam
 } from '$lib/server/github-sync';
-import { serverEnv } from '$lib/env/server';
+import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 
 const MAX_REPOS_PER_TEAM = 3;
 
@@ -542,7 +542,7 @@ export const teamsRouter = {
 			}
 
 			const { data: repos } = await context.githubApp.rest.teams.listReposInOrg({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				org: PUBLIC_GITHUB_ORGNAME,
 				team_slug: myTeam.githubSlug
 			});
 
@@ -569,7 +569,7 @@ export const teamsRouter = {
 			.handler(async ({ context, input }) => {
 				try {
 					await context.githubApp.rest.repos.get({
-						owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+						owner: PUBLIC_GITHUB_ORGNAME,
 						repo: input.repoName
 					});
 					return { repoExists: true };
@@ -619,7 +619,7 @@ export const teamsRouter = {
 
 				// Check repo count
 				const { data: existingRepos } = await context.githubApp.rest.teams.listReposInOrg({
-					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					org: PUBLIC_GITHUB_ORGNAME,
 					team_slug: myTeam.githubSlug
 				});
 
@@ -633,7 +633,7 @@ export const teamsRouter = {
 
 				// Create the repo
 				const { data: ghRepo } = await context.githubApp.rest.repos.createInOrg({
-					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					org: PUBLIC_GITHUB_ORGNAME,
 					name: input.repoName,
 					description: input.description,
 					private: true
@@ -641,9 +641,9 @@ export const teamsRouter = {
 
 				// Grant team maintain permission
 				await context.githubApp.rest.teams.addOrUpdateRepoPermissionsInOrg({
-					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					org: PUBLIC_GITHUB_ORGNAME,
 					team_slug: myTeam.githubSlug,
-					owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					owner: PUBLIC_GITHUB_ORGNAME,
 					repo: ghRepo.name,
 					permission: 'admin'
 				});

@@ -11,7 +11,7 @@ import { WORK_ROOMS } from '$lib/utils';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { Octokit } from 'octokit';
 import { auth, type MLHUserProfile } from '$lib/auth/server.server';
-import { serverEnv } from '$lib/env/server';
+import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 import {
 	ensureGithubTeam,
 	deleteGithubTeam,
@@ -901,7 +901,7 @@ export const adminRouter = {
 	 */
 	listGithubOrgRoles: adminProcedure.handler(async ({ context }) => {
 		const { data } = await context.githubApp.request('GET /orgs/{org}/organization-roles', {
-			org: serverEnv.PUBLIC_GITHUB_ORGNAME
+			org: PUBLIC_GITHUB_ORGNAME
 		});
 		const roles = (
 			data as { roles: Array<{ id: number; name: string; description: string | null }> }

@@ -1,9 +1,10 @@
 import { App, Octokit } from 'octokit';
-import { serverEnv } from './env/server';
+import { GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY } from '$env/static/private';
+import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 
 export const githubApi = new App({
-	appId: serverEnv.GITHUB_APP_ID,
-	privateKey: serverEnv.GITHUB_APP_PRIVATE_KEY
+	appId: Number(GITHUB_APP_ID),
+	privateKey: GITHUB_APP_PRIVATE_KEY
 });
 
 export async function getGithubAppInstallationClient() {
@@ -12,7 +13,7 @@ export async function getGithubAppInstallationClient() {
 			installation: { id: appInstallId }
 		}
 	] = (await Array.fromAsync(githubApi.eachInstallation.iterator())).filter(
-		(i) => i.installation.account?.login === serverEnv.PUBLIC_GITHUB_ORGNAME
+		(i) => i.installation.account?.login === PUBLIC_GITHUB_ORGNAME
 	);
 
 	return await githubApi.getInstallationOctokit(appInstallId);

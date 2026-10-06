@@ -13,7 +13,7 @@
 	} from '@tanstack/table-core';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
-	import { clientEnv } from '$lib/env/client';
+	import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 	import { columns, type TicketRow } from './columns';
 	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
@@ -172,7 +172,7 @@
 									<span>{rowData.title}</span>
 								{:else if cell.column.id === 'issue'}
 									<a
-										href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${rowData.repository}/issues/${rowData.issueNumber}`}
+										href={`https://github.com/${PUBLIC_GITHUB_ORGNAME}/${rowData.repository}/issues/${rowData.issueNumber}`}
 										target="_blank"
 										class={buttonVariants({
 											variant: 'link',
@@ -258,7 +258,7 @@
 												variant="ghost"
 												size="icon"
 												class="size-7"
-												href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${rowData.repository}/issues/${rowData.issueNumber}`}
+												href={`https://github.com/${PUBLIC_GITHUB_ORGNAME}/${rowData.repository}/issues/${rowData.issueNumber}`}
 												target="_blank"
 												aria-label="View issue on GitHub"
 											>

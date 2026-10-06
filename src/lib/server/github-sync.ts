@@ -7,7 +7,7 @@
  */
 
 import { eq, and, sql } from 'drizzle-orm';
-import { serverEnv } from '$lib/env/server';
+import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 import type { getGithubAppInstallationClient } from '$lib/github';
 import db from '$lib/server/db';
 import { configurationService } from '$lib/server/config';
@@ -15,7 +15,7 @@ import { configurationService } from '$lib/server/config';
 type GithubApp = Awaited<ReturnType<typeof getGithubAppInstallationClient>>;
 type Team = typeof db.schema.team.$inferSelect;
 
-const org = () => serverEnv.PUBLIC_GITHUB_ORGNAME;
+const org = () => PUBLIC_GITHUB_ORGNAME;
 
 // ─── Helpers ───────────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 import { protectedProcedure, o } from '../shared';
 import { desc, eq, and } from 'drizzle-orm';
 import { z } from 'zod';
-import { serverEnv } from '$lib/env/server';
+import { PUBLIC_GITHUB_ORGNAME, PUBLIC_SHOW_CHALLENGES } from '$env/static/public';
 import { createTeamSchema, createTicketSchema } from '$lib/schemas';
 import type { GithubAppClient } from '$lib/github';
 import { MAX_TEAMS_PER_CHALLENGE } from '$lib/utils';
@@ -80,7 +80,7 @@ const teamRouter = {
 		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			const ghUpdate = await context.githubApp.rest.teams.updateInOrg({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				org: PUBLIC_GITHUB_ORGNAME,
 				team_slug: context.team.githubSlug,
 				name: input.name,
 				description: input.description
@@ -121,7 +121,7 @@ const teamRouter = {
 		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
 			const ghTeam = await context.githubApp.rest.teams.create({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				org: PUBLIC_GITHUB_ORGNAME,
 				name: input.name,
 				description: input.description
 			});
@@ -141,7 +141,7 @@ const teamRouter = {
 				.where(eq(context.dbSchema.user.id, context.user.id));
 
 			await context.githubApp.rest.teams.addOrUpdateMembershipForUserInOrg({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				org: PUBLIC_GITHUB_ORGNAME,
 				team_slug: team.githubSlug,
 				username: context.user.username
 			});
@@ -175,7 +175,7 @@ const teamRouter = {
 				.where(eq(context.dbSchema.user.id, context.user.id));
 
 			await context.githubApp.rest.teams.addOrUpdateMembershipForUserInOrg({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				org: PUBLIC_GITHUB_ORGNAME,
 				team_slug: team.githubSlug,
 				username: context.user.username
 			});
@@ -189,7 +189,7 @@ const teamRouter = {
 			.where(eq(context.dbSchema.user.id, context.user.id));
 
 		await context.githubApp.rest.teams.removeMembershipForUserInOrg({
-			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+			org: PUBLIC_GITHUB_ORGNAME,
 			team_slug: context.team.githubSlug,
 			username: context.user.username
 		});
@@ -198,7 +198,7 @@ const teamRouter = {
 	}),
 	getChallenges: teamProcedure.handler(async ({ context }) => {
 		// If challenges are not enabled, return nothing
-		if (!serverEnv.PUBLIC_SHOW_CHALLENGES) {
+		if (!PUBLIC_SHOW_CHALLENGES) {
 			return { challenges: [] };
 		}
 
@@ -221,7 +221,7 @@ const teamRouter = {
 		.input(z.object({ challengeId: z.string() }))
 		.route({ method: 'POST' })
 		.handler(async ({ context, input }) => {
-			if (!serverEnv.PUBLIC_SHOW_CHALLENGES) {
+			if (!PUBLIC_SHOW_CHALLENGES) {
 				throw new ORPCError('FORBIDDEN', { message: 'Challenges are not enabled' });
 			}
 
@@ -259,9 +259,9 @@ const teamRouter = {
 
 			// Permit them to see the challenge repository
 			await context.githubApp.rest.teams.addOrUpdateRepoPermissionsInOrg({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				org: PUBLIC_GITHUB_ORGNAME,
 				team_slug: team.githubSlug,
-				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				owner: PUBLIC_GITHUB_ORGNAME,
 				repo: challenge.linkedRepo,
 				permission: 'pull'
 			});
@@ -277,7 +277,7 @@ const teamRouter = {
 async function getAllTeamRepositories(githubApp: GithubAppClient, teamSlug: string) {
 	return (
 		await githubApp.rest.teams.listReposInOrg({
-			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+			org: PUBLIC_GITHUB_ORGNAME,
 			team_slug: teamSlug
 		})
 	).data.filter((repo) => !repo.name.startsWith('prompt'));
@@ -305,7 +305,7 @@ const repositoryRouter = {
 		.input(z.object({ repoName: z.string().nonempty() }))
 		.handler(async ({ context, input }) => {
 			const repos = await context.githubApp.rest.repos.listForOrg({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME
+				org: PUBLIC_GITHUB_ORGNAME
 			});
 			return { repoExists: repos.data.some((repo) => repo.name === input.repoName) };
 		}),
@@ -319,7 +319,7 @@ const repositoryRouter = {
 		.handler(async ({ context, input }) => {
 			// Create the repository
 			const ghRepo = await context.githubApp.rest.repos.createInOrg({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				org: PUBLIC_GITHUB_ORGNAME,
 				name: input.repoName,
 				description: input.description,
 				private: true
@@ -327,9 +327,9 @@ const repositoryRouter = {
 
 			// Update the permissions
 			await context.githubApp.rest.teams.addOrUpdateRepoPermissionsInOrg({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				org: PUBLIC_GITHUB_ORGNAME,
 				team_slug: context.team.githubSlug,
-				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				owner: PUBLIC_GITHUB_ORGNAME,
 				repo: ghRepo.data.name,
 				permission: 'admin'
 			});
@@ -353,7 +353,7 @@ const ticketRouter = {
 		const issuesRaw = await Promise.all(
 			repos.map(async (repo) => {
 				return await context.githubApp.rest.issues.listForRepo({
-					owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					owner: PUBLIC_GITHUB_ORGNAME,
 					repo: repo.name,
 					state: 'open'
 				});
@@ -434,7 +434,7 @@ const ticketRouter = {
 
 			// Add a comment to the issue
 			await context.githubApp.rest.issues.createComment({
-				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				owner: PUBLIC_GITHUB_ORGNAME,
 				repo: input.repository,
 				issue_number: input.issueNumber,
 				body: `This issue has been linked to a ticket.`

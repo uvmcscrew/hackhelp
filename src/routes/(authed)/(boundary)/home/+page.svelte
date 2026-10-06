@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
-	import { clientEnv } from '$lib/env/client';
+	import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import * as Sheet from '$lib/components/ui/sheet';
@@ -457,7 +457,7 @@
 										<Table.Cell class="font-medium">{ticket.title}</Table.Cell>
 										<Table.Cell>
 											<a
-												href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
+												href={`https://github.com/${PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
 												target="_blank"
 												class={buttonVariants({
 													variant: 'link',

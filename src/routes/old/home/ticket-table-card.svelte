@@ -3,7 +3,7 @@
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
-	import { clientEnv } from '$lib/env/client';
+	import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import TicketCreateSheet from './ticket-create-sheet.svelte';
@@ -35,7 +35,7 @@
 							<Table.Cell>{ticket.title}</Table.Cell>
 							<Table.Cell class="">
 								<a
-									href={`https://github.com/${clientEnv.PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
+									href={`https://github.com/${PUBLIC_GITHUB_ORGNAME}/${ticket.repository}/issues/${ticket.issueNumber}`}
 									target="_blank"
 									class={buttonVariants({
 										variant: 'link',

@@ -1,6 +1,7 @@
 import { protectedProcedure } from '../shared';
 import { and, eq } from 'drizzle-orm';
-import { serverEnv } from '$lib/env/server';
+import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
+import { GITHUB_APP_CLIENT_ID, GITHUB_APP_CLIENT_SECRET } from '$env/static/private';
 import type { AuthedContext } from '../context';
 import { octokit } from '$lib/github';
 import { RequestError as OctokitRequestError } from 'octokit';
@@ -22,7 +23,7 @@ import { syncUserTeamAfterAccountChange } from '$lib/server/github-sync';
 
 async function hasPendingInvite(ctx: AuthedContext, githubUsername: string) {
 	const invites = await ctx.githubApp.rest.orgs.listPendingInvitations({
-		org: serverEnv.PUBLIC_GITHUB_ORGNAME
+		org: PUBLIC_GITHUB_ORGNAME
 	});
 
 	// If the username is present in the list of pending invites, return true
@@ -131,8 +132,8 @@ async function refreshGithubAccessToken(
 	// Form API call to refresh the access token
 	// https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/refreshing-user-access-tokens
 	const refreshURL = new URL('https://github.com/login/oauth/access_token');
-	refreshURL.searchParams.set('client_id', serverEnv.GITHUB_APP_CLIENT_ID);
-	refreshURL.searchParams.set('client_secret', serverEnv.GITHUB_APP_CLIENT_SECRET);
+	refreshURL.searchParams.set('client_id', GITHUB_APP_CLIENT_ID);
+	refreshURL.searchParams.set('client_secret', GITHUB_APP_CLIENT_SECRET);
 	refreshURL.searchParams.set('grant_type', 'refresh_token');
 	refreshURL.searchParams.set('refresh_token', providerAccount.refreshToken);
 
@@ -378,7 +379,7 @@ export const accountRouter = {
 				throw err;
 			}
 
-			const orgStatus = orgs.some((org) => org.login === serverEnv.PUBLIC_GITHUB_ORGNAME)
+			const orgStatus = orgs.some((org) => org.login === PUBLIC_GITHUB_ORGNAME)
 				? 'joined'
 				: (await hasPendingInvite(context, user.login))
 					? 'invited'
@@ -429,7 +430,7 @@ export const accountRouter = {
 			throw err;
 		}
 
-		if (orgs.some((org) => org.login === serverEnv.PUBLIC_GITHUB_ORGNAME))
+		if (orgs.some((org) => org.login === PUBLIC_GITHUB_ORGNAME))
 			throw new ORPCError('UNAUTHORIZED', {
 				message: 'You are already a member of the organization'
 			});
@@ -437,7 +438,7 @@ export const accountRouter = {
 		// If the user does not have an existing invite to the org, create one
 		if (!(await hasPendingInvite(context, user.login))) {
 			await context.githubApp.rest.orgs.createInvitation({
-				org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				org: PUBLIC_GITHUB_ORGNAME,
 				invitee_id: user.id,
 				role: 'direct_member'
 			});
@@ -450,7 +451,7 @@ export const accountRouter = {
 					headers: {
 						Authorization: `Bearer ${githubAccount.accessToken}`
 					},
-					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					org: PUBLIC_GITHUB_ORGNAME,
 					state: 'active'
 				})
 			).data;
@@ -470,7 +471,7 @@ export const accountRouter = {
 		}
 
 		if (!err) {
-			const orgStatus = orgs.some((org) => org.login === serverEnv.PUBLIC_GITHUB_ORGNAME)
+			const orgStatus = orgs.some((org) => org.login === PUBLIC_GITHUB_ORGNAME)
 				? 'joined'
 				: (await hasPendingInvite(context, user.login))
 					? 'invited'
@@ -481,14 +482,14 @@ export const accountRouter = {
 				const userIsAdmin =
 					(
 						await context.githubApp.rest.orgs.getMembershipForUser({
-							org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+							org: PUBLIC_GITHUB_ORGNAME,
 							username: user.login
 						})
 					).data.role === 'admin';
 
 				if (!userIsAdmin) {
 					await context.githubApp.rest.orgs.removeMember({
-						org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+						org: PUBLIC_GITHUB_ORGNAME,
 						username: user.login
 					});
 				}
@@ -496,12 +497,12 @@ export const accountRouter = {
 				// Cancel pending invitations
 				const invite = (
 					await context.githubApp.rest.orgs.listPendingInvitations({
-						org: serverEnv.PUBLIC_GITHUB_ORGNAME
+						org: PUBLIC_GITHUB_ORGNAME
 					})
 				).data.filter((i) => i.login === user.login)[0];
 
 				await context.githubApp.rest.orgs.cancelInvitation({
-					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					org: PUBLIC_GITHUB_ORGNAME,
 					invitation_id: invite.id
 				});
 			}
@@ -525,7 +526,7 @@ export const accountRouter = {
 		const providerAccount = providerAccounts[0];
 
 		const orgMembers = await context.githubApp.rest.orgs.listMembers({
-			org: serverEnv.PUBLIC_GITHUB_ORGNAME
+			org: PUBLIC_GITHUB_ORGNAME
 		});
 
 		const orgJoined = orgMembers.data.some((m) => `${m.id}` === providerAccount.accountId);
@@ -535,14 +536,14 @@ export const accountRouter = {
 			const userIsAdmin =
 				(
 					await context.githubApp.rest.orgs.getMembershipForUser({
-						org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+						org: PUBLIC_GITHUB_ORGNAME,
 						username: user.login
 					})
 				).data.role === 'admin';
 
 			if (!userIsAdmin) {
 				await context.githubApp.rest.orgs.removeMember({
-					org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					org: PUBLIC_GITHUB_ORGNAME,
 					username: user.login
 				});
 			}

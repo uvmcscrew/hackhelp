@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
 import { createTicketSchema } from '$lib/schemas';
 import { checkRolePermission } from '$lib/auth/permissions';
-import { serverEnv } from '$lib/env/server';
+import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
 import { TICKET_RESOLUTION_STATUS } from '$lib/server/db/schema';
 
 // ─── Competitor Endpoints ──────────────────────────────────────────────
@@ -36,7 +36,7 @@ const competitorTickets = {
 
 		// Get team repos (filter out prompt* repos)
 		const { data: repos } = await context.githubApp.rest.teams.listReposInOrg({
-			org: serverEnv.PUBLIC_GITHUB_ORGNAME,
+			org: PUBLIC_GITHUB_ORGNAME,
 			team_slug: myTeam.githubSlug
 		});
 
@@ -46,7 +46,7 @@ const competitorTickets = {
 		const issuesRaw = await Promise.all(
 			filteredRepos.map(async (repo) => {
 				const { data } = await context.githubApp.rest.issues.listForRepo({
-					owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+					owner: PUBLIC_GITHUB_ORGNAME,
 					repo: repo.name,
 					state: 'open'
 				});
@@ -148,7 +148,7 @@ const competitorTickets = {
 		// Fire-and-forget: post a comment on the GitHub issue
 		context.githubApp.rest.issues
 			.createComment({
-				owner: serverEnv.PUBLIC_GITHUB_ORGNAME,
+				owner: PUBLIC_GITHUB_ORGNAME,
 				repo: input.repository,
 				issue_number: input.issueNumber,
 				body: `This issue has been linked to a help ticket.`

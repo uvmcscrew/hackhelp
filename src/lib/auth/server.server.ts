@@ -1,4 +1,14 @@
-import { serverEnv } from '$lib/env/server';
+import {
+	AUTH_SECRET,
+	BASE_URL,
+	GITHUB_APP_CLIENT_ID,
+	GITHUB_APP_CLIENT_SECRET,
+	UVM_NETID_OIDC_CLIENT_ID,
+	UVM_NETID_OIDC_CLIENT_SECRET,
+	UVM_NETID_OIDC_DISCOVERY_URL,
+	MLH_OAUTH_CLIENT_ID,
+	MLH_OAUTH_CLIENT_SECRET
+} from '$env/static/private';
 import { db } from '$lib/server/db';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
@@ -48,8 +58,8 @@ export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: 'pg'
 	}),
-	secret: serverEnv.AUTH_SECRET,
-	baseURL: serverEnv.BASE_URL,
+	secret: AUTH_SECRET,
+	baseURL: BASE_URL,
 	account: {
 		accountLinking: {
 			enabled: true,
@@ -59,8 +69,8 @@ export const auth = betterAuth({
 	},
 	socialProviders: {
 		github: {
-			clientId: serverEnv.GITHUB_APP_CLIENT_ID,
-			clientSecret: serverEnv.GITHUB_APP_CLIENT_SECRET,
+			clientId: GITHUB_APP_CLIENT_ID,
+			clientSecret: GITHUB_APP_CLIENT_SECRET,
 			disableImplicitSignUp: true,
 			disableSignUp: true
 		}
@@ -86,9 +96,9 @@ export const auth = betterAuth({
 			config: [
 				{
 					providerId: 'uvm-netid',
-					clientId: serverEnv.UVM_NETID_OIDC_CLIENT_ID,
-					clientSecret: serverEnv.UVM_NETID_OIDC_CLIENT_SECRET,
-					discoveryUrl: serverEnv.UVM_NETID_OIDC_DISCOVERY_URL,
+					clientId: UVM_NETID_OIDC_CLIENT_ID,
+					clientSecret: UVM_NETID_OIDC_CLIENT_SECRET,
+					discoveryUrl: UVM_NETID_OIDC_DISCOVERY_URL,
 					overrideUserInfo: true,
 					mapProfileToUser: (profile) => {
 						const uvmProfile = profile as UVMEntraProfile;
@@ -101,8 +111,8 @@ export const auth = betterAuth({
 				},
 				{
 					providerId: 'mlh',
-					clientId: serverEnv.MLH_OAUTH_CLIENT_ID,
-					clientSecret: serverEnv.MLH_OAUTH_CLIENT_SECRET,
+					clientId: MLH_OAUTH_CLIENT_ID,
+					clientSecret: MLH_OAUTH_CLIENT_SECRET,
 					authorizationUrl: 'https://my.mlh.io/oauth/authorize',
 					tokenUrl: 'https://my.mlh.io/oauth/token',
 					userInfoUrl: 'https://api.mlh.com/v4/users/me?expand[]=education',

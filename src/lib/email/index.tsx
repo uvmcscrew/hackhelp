@@ -1,10 +1,11 @@
 import { render } from '@react-email/components';
 import nodemailer from 'nodemailer';
 import { MagicLinkEmail, type MagicLinkEmailProps } from './emails/magic-link';
-import { serverEnv } from '$lib/env/server';
+import { SMTP_URL } from '$env/static/private';
+import { PUBLIC_SMTP_FROM } from '$env/static/public';
 import { OTPEmail, type OTPEmailProps } from './emails/email-otp';
 
-const transporter = nodemailer.createTransport(serverEnv.SMTP_URL, {
+const transporter = nodemailer.createTransport(SMTP_URL, {
 	logger: true
 });
 
@@ -22,7 +23,7 @@ export async function testSMTPConnection() {
 export async function sendMagicLinkEmail(to: string, emailProps: MagicLinkEmailProps) {
 	console.log('Sending Magic Link email to', to);
 	const mail = await transporter.sendMail({
-		from: serverEnv.PUBLIC_SMTP_FROM,
+		from: PUBLIC_SMTP_FROM,
 		to,
 		subject: 'Your HackHelp Login Link',
 		html: await render(<MagicLinkEmail {...emailProps} />)
@@ -39,7 +40,7 @@ export async function sendEmailOtp(to: string, emailProps: OTPEmailProps) {
 				: 'Password Reset Code';
 	console.log('Sending OTP email to', to);
 	const mail = await transporter.sendMail({
-		from: serverEnv.PUBLIC_SMTP_FROM,
+		from: PUBLIC_SMTP_FROM,
 		to,
 		subject: `${title} | HackHelp`,
 		html: await render(<OTPEmail {...emailProps} />)

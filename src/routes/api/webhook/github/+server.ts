@@ -1,4 +1,4 @@
-import { serverEnv } from '$lib/env/server';
+import { GITHUB_WEBHOOK_SECRET } from '$env/static/private';
 import { logger } from '$lib/logger';
 import { nanoid } from 'nanoid';
 import type { RequestEvent } from './$types';
@@ -13,7 +13,7 @@ let apiLogger = logger.child({
 });
 
 const webhooks = new Webhooks({
-	secret: serverEnv.GITHUB_WEBHOOK_SECRET,
+	secret: GITHUB_WEBHOOK_SECRET,
 	log: apiLogger
 });
 
