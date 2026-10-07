@@ -27,7 +27,7 @@
 
 	let uvmNetIdAccount = $derived.by(() => {
 		let providerAccounts = accountQuery.data
-			? accountQuery.data.filter((acc) => acc.providerId === 'uvm-netid')
+			? accountQuery.data.filter((acc: { providerId: string }) => acc.providerId === 'uvm-netid')
 			: [];
 		return providerAccounts.length === 0 ? null : providerAccounts[0];
 	});

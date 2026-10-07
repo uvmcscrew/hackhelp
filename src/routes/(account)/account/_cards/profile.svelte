@@ -47,7 +47,7 @@
 	}));
 
 	const hasMlhAccount = $derived(
-		accountQuery.data?.some((acc) => acc.providerId === 'mlh') ?? false
+		accountQuery.data?.some((acc: { providerId: string }) => acc.providerId === 'mlh') ?? false
 	);
 
 	const mlhLinkMutation = createMutation(() => ({

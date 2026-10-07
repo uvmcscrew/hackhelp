@@ -12,7 +12,7 @@
 
 	let passkeyQuery = createQuery(() => ({
 		queryKey: ['auth', 'passkeys'],
-		queryFn: () => authClient.passkey.listUserPasskeys().then((r) => r.data)
+		queryFn: () => authClient.passkey.listUserPasskeys().then((r: Awaited<ReturnType<typeof authClient.passkey.listUserPasskeys>>) => r.data)
 	}));
 
 	// Mutation code for adding a new passkey

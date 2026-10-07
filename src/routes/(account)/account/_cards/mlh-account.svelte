@@ -24,7 +24,7 @@
 
 	let mlhAccount = $derived.by(() => {
 		let providerAccounts = accountQuery.data
-			? accountQuery.data.filter((acc) => acc.providerId === 'mlh')
+			? accountQuery.data.filter((acc: { providerId: string }) => acc.providerId === 'mlh')
 			: [];
 		return providerAccounts.length === 0 ? null : providerAccounts[0];
 	});

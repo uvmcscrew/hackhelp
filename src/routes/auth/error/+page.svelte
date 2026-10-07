@@ -17,7 +17,8 @@
 	let errorTitle = $derived.by(() => {
 		if (errorParam !== '') {
 			if (Object.keys(authClient.$ERROR_CODES).includes(errorParam.toUpperCase())) {
-				return authClient.$ERROR_CODES[errorParam as keyof typeof authClient.$ERROR_CODES];
+				const e = authClient.$ERROR_CODES[errorParam as keyof typeof authClient.$ERROR_CODES] as unknown as { message: string };
+				return typeof e === 'string' ? e : e.message;
 			}
 			return capitalize(words(errorParam).join(' '));
 		}

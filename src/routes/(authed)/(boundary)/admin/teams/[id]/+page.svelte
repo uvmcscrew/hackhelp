@@ -138,7 +138,7 @@
 	function saveAdminLocation() {
 		updateLocationMut.mutate({
 			teamId: data.teamId,
-			room: adminSelectedRoom || null,
+			room: (adminSelectedRoom || null) as import('#lib/utils').WorkRooms | null,
 			locationDescription: adminLocationDesc.trim() || null
 		});
 	}

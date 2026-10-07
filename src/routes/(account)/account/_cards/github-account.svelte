@@ -30,7 +30,7 @@
 
 	let githubAccount = $derived.by(() => {
 		let providerAccounts = accountQuery.data
-			? accountQuery.data.filter((acc) => acc.providerId === 'github')
+			? accountQuery.data.filter((acc: { providerId: string }) => acc.providerId === 'github')
 			: [];
 		return providerAccounts.length === 0 ? null : providerAccounts[0];
 	});

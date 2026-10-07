@@ -29,7 +29,7 @@ export const authClient = createAuthClient({
 
 export const sessionQueryOptions = queryOptions({
 	queryKey: ['auth', 'user'],
-	queryFn: () => authClient.getSession().then((r) => r.data)
+	queryFn: () => authClient.getSession().then((r: Awaited<ReturnType<typeof authClient.getSession>>) => r.data)
 });
 
 export async function signOutAndClearCache(qc: QueryClient) {
