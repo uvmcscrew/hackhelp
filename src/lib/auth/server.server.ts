@@ -60,6 +60,16 @@ export const auth = betterAuth({
 	}),
 	secret: AUTH_SECRET,
 	baseURL: BASE_URL,
+	user: {
+		additionalFields: {
+			teamId: {
+				type: 'string',
+				required: false,
+				defaultValue: null,
+				input: false
+			}
+		}
+	},
 	account: {
 		accountLinking: {
 			enabled: true,
