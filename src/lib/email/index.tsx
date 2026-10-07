@@ -5,9 +5,7 @@ import { SMTP_URL } from '$app/env/private';
 import { PUBLIC_SMTP_FROM } from '$app/env/public';
 import { OTPEmail, type OTPEmailProps } from './emails/email-otp';
 
-const transporter = nodemailer.createTransport(SMTP_URL, {
-	logger: true
-});
+const transporter = nodemailer.createTransport(SMTP_URL);
 
 export async function testSMTPConnection() {
 	try {

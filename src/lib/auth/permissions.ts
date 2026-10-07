@@ -1,6 +1,5 @@
-import { createAccessControl, type AuthorizeResponse } from 'better-auth/plugins/access';
+import { createAccessControl } from 'better-auth/plugins/access';
 import { defaultStatements, adminAc } from 'better-auth/plugins/admin/access';
-import type { RmOptions } from 'fs';
 
 const statements = {
 	configuration: ['view', 'update', 'delete'], // System configuration; key value table in postgres
@@ -31,7 +30,6 @@ const statements = {
 
 export const ac = createAccessControl({ ...defaultStatements, ...statements });
 
-// @ts-expect-error This just keeps the admin role synced to have all permissions
 const admin = ac.newRole({
 	...adminAc.statements,
 	...ac.statements
@@ -79,10 +77,9 @@ export function checkRolePermission(options: PermissionsCheckInput) {
 	if (_roles.includes('admin')) return true;
 
 	for (const role of _roles) {
-		const _role = roles[role];
-		// @ts-expect-error It's weird
-		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-		const result = _role?.authorize(options.permissions) as AuthorizeResponse;
+    const _role = roles[role];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+		const result = _role?.authorize(options.permissions);
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (result?.success) {
 			return true;

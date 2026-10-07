@@ -13,7 +13,6 @@
 	import CheckCircle from 'lucide-svelte/icons/check-circle';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import GithubIcon from '#lib/components/GithubIcon.svelte';
-	import GithubAccount from '../../../(account)/account/_cards/github-account.svelte';
 
 	const statsQuery = createQuery(() => orpc.admin.stats.queryOptions());
 
