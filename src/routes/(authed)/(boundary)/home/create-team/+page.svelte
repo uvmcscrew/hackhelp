@@ -16,7 +16,7 @@
 	const createMut = createMutation(() =>
 		orpc.teams.create.mutationOptions({
 			onSuccess: async () => {
-				await goto(resolve('/(authed)/home/team'));
+				await goto(resolve('/(authed)/(boundary)/home/team'));
 			},
 			onError: (err) => {
 				errorMessage = err.message || 'Failed to create team';
