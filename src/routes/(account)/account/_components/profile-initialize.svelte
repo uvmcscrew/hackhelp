@@ -28,8 +28,8 @@
 	const mlhLinkMutation = createMutation(() => ({
 		mutationKey: ['auth', 'accounts', 'mlh', 'link'],
 		mutationFn: () =>
-			authClient.oauth2.link({
-				providerId: 'mlh',
+			authClient.linkSocial({
+				provider: 'mlh',
 				callbackURL: '/account',
 				errorCallbackURL: '/auth/error?provider=mlh'
 			})

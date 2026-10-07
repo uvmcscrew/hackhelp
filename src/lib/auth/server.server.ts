@@ -101,7 +101,7 @@ export const auth = betterAuth({
 					discoveryUrl: UVM_NETID_OIDC_DISCOVERY_URL,
 					overrideUserInfo: true,
 					mapProfileToUser: (profile) => {
-						const uvmProfile = profile as UVMEntraProfile;
+						const uvmProfile = profile as unknown as UVMEntraProfile;
 						return {
 							name: uvmProfile.name,
 							username: uvmProfile.preferred_username.split('@')[0],
@@ -125,7 +125,7 @@ export const auth = betterAuth({
 						'user:read:event_preferences'
 					],
 					mapProfileToUser: (profile) => {
-						const mlhProfile = profile as MLHUserProfile;
+						const mlhProfile = profile as unknown as MLHUserProfile;
 						return {
 							name: `${mlhProfile.first_name} ${mlhProfile.last_name}`
 						};
@@ -138,11 +138,15 @@ export const auth = betterAuth({
 			roles
 		}),
 		lastLoginMethod()
-	],
-	experimental: { joins: true }
+	]
 });
 
 export type AuthData = typeof auth.$Infer.Session;
-export type User = AuthData['user'];
+export type User = AuthData['user'] & {
+	role?: string | null;
+	teamId?: string | null;
+	username?: string | null;
+	displayUsername?: string | null;
+};
 export type Session = AuthData['session'];
 export type UserAccounts = Awaited<ReturnType<typeof auth.api.listUserAccounts>>;

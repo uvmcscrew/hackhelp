@@ -38,8 +38,8 @@
 	let linkMutation = createMutation(() => ({
 		mutationKey: ['auth', 'accounts', 'mlh'],
 		mutationFn: () =>
-			authClient.oauth2.link({
-				providerId: 'mlh',
+			authClient.linkSocial({
+				provider: 'mlh',
 				callbackURL: '/account?tab=mlh',
 				errorCallbackURL: '/auth/error?provider=mlh'
 			}),

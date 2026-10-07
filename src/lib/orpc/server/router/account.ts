@@ -596,7 +596,7 @@ export const accountRouter = {
 		let accessToken: string;
 		try {
 			const tokenResult = await auth.api.getAccessToken({
-				body: { providerId: 'mlh', accountId: mlhAccount.id },
+				body: { accountId: mlhAccount.id },
 				headers: context.req.headers
 			});
 			accessToken = tokenResult.accessToken;
@@ -712,7 +712,7 @@ export const accountRouter = {
 			let accessToken: string;
 			try {
 				const tokenResult = await auth.api.getAccessToken({
-					body: { providerId: 'mlh', accountId: mlhAccounts[0].id },
+					body: { accountId: mlhAccounts[0].id },
 					headers: context.req.headers
 				});
 				accessToken = tokenResult.accessToken;
@@ -783,7 +783,7 @@ export const accountRouter = {
 			let accessToken: string;
 			try {
 				const tokenResult = await auth.api.getAccessToken({
-					body: { providerId: 'mlh', accountId: mlhAccounts[0].id },
+					body: { accountId: mlhAccounts[0].id },
 					headers: context.req.headers
 				});
 				accessToken = tokenResult.accessToken;

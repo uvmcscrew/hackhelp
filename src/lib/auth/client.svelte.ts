@@ -5,7 +5,6 @@ import {
 	adminClient,
 	emailOTPClient,
 	magicLinkClient,
-	genericOAuthClient,
 	lastLoginMethodClient,
 	usernameClient
 } from 'better-auth/client/plugins';
@@ -20,7 +19,6 @@ export const authClient = createAuthClient({
 		passkeyClient(),
 		emailOTPClient(),
 		magicLinkClient(),
-		genericOAuthClient(),
 		lastLoginMethodClient(),
 		adminClient({
 			ac,

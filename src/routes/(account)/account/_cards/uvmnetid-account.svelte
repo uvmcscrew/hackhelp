@@ -41,8 +41,8 @@
 	let linkMutation = createMutation(() => ({
 		mutationKey: ['auth', 'accounts', 'uvm-netid'],
 		mutationFn: () =>
-			authClient.oauth2.link({
-				providerId: 'uvm-netid',
+			authClient.linkSocial({
+				provider: 'uvm-netid',
 				callbackURL: '/account?tab=netid',
 				errorCallbackURL: '/auth/error?provider=uvm-netid',
 				scopes: ['openid', 'email', 'profile']

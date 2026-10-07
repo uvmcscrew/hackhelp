@@ -14,7 +14,7 @@ import {
 } from '@react-email/components';
 
 export type OTPEmailProps = {
-	type: 'email-verification' | 'sign-in' | 'forget-password';
+	type: 'email-verification' | 'sign-in' | 'forget-password' | 'change-email';
 	username?: string;
 	otp: string;
 	fromIp?: string;

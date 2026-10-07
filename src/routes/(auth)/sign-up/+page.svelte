@@ -15,8 +15,8 @@
 
 	let uvmNetIdSignUpMutation = createMutation(() => ({
 		mutationFn: async () => {
-			await authClient.signIn.oauth2({
-				providerId: 'uvm-netid',
+			await authClient.signIn.social({
+				provider: 'uvm-netid',
 				callbackURL: '/account',
 				errorCallbackURL: '/auth/error',
 				newUserCallbackURL: '/account',
@@ -32,8 +32,8 @@
 
 	let mlhSignUpMutation = createMutation(() => ({
 		mutationFn: async () => {
-			await authClient.signIn.oauth2({
-				providerId: 'mlh',
+			await authClient.signIn.social({
+				provider: 'mlh',
 				callbackURL: '/account',
 				errorCallbackURL: '/auth/error?provider=mlh',
 				newUserCallbackURL: '/account',
