@@ -226,7 +226,7 @@
 							<div>
 								<span class="font-medium text-red-600">Errors:</span>
 								<ul class="text-destructive mt-1 list-inside list-disc">
-									{#each syncReport.errors as error}
+									{#each syncReport.errors as error (error)}
 										<li>{error}</li>
 									{/each}
 								</ul>
