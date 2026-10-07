@@ -8,7 +8,7 @@ SvelteKit has it's own magic for environment variables, but it doesn't work with
 2. Comment out these imports at the top of the file:
 
 ```ts
-import { building } from '$app/environment';
+import { building } from '$app/env';
 import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 ```
@@ -16,7 +16,7 @@ import { env as publicEnv } from '$env/dynamic/public';
 so that it becomes
 
 ```ts
-// import { building } from '$app/environment';
+// import { building } from '$app/env';
 // import { env as privateEnv } from '$env/dynamic/private';
 // import { env as publicEnv } from '$env/dynamic/public';
 ```

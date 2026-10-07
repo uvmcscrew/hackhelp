@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import posthog, { type PostHog } from 'posthog-js';
-import { browser, building, dev } from '$app/environment';
+import { browser, building, dev } from '$app/env';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

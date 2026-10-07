@@ -3,7 +3,7 @@ import { createORPCClient, onError } from '@orpc/client';
 import { RPCLink } from '@orpc/client/fetch';
 import type { RouterClient } from '@orpc/server';
 import type { AppRouter } from '../server';
-import { browser, dev } from '$app/environment';
+import { browser, dev } from '$app/env';
 
 const ORPC_PATH = '/api/rpc' as const;
 

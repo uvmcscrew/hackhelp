@@ -4,7 +4,7 @@
 	import ColorModeButton from '#lib/components/ColorModeButton.svelte';
 	import Logo from '#lib/components/Logo.svelte';
 	import WidthWarning from '#lib/components/WidthWarning.svelte';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import type { AuthData } from '#lib/auth/server.server';
 
 	type Props = {

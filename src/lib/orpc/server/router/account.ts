@@ -7,7 +7,7 @@ import { octokit } from '#lib/github';
 import { RequestError as OctokitRequestError } from 'octokit';
 import { ORPCError, type } from '@orpc/server';
 import { addRole, checkRolePermission } from '#lib/auth/permissions';
-import { dev } from '$app/environment';
+import { dev } from '$app/env';
 import { addSeconds, isPast } from 'date-fns';
 import { auth, type MLHUserProfile } from '#lib/auth/server.server';
 import z from 'zod';

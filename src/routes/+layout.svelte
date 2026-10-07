@@ -2,7 +2,7 @@
 	import '../app.css';
 
 	import { ModeWatcher } from 'mode-watcher';
-	import { browser, dev } from '$app/environment';
+	import { browser, dev } from '$app/env';
 	import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 	import { Toaster } from '#lib/components/ui/sonner';
 	import { PersistQueryClientProvider } from '@tanstack/svelte-query-persist-client';

@@ -1,5 +1,5 @@
 import posthog from 'posthog-js';
-import { browser, dev } from '$app/environment';
+import { browser, dev } from '$app/env';
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/svelte-query';
 import { toast } from 'svelte-sonner';
 

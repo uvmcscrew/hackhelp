@@ -1,7 +1,7 @@
 <script lang="ts">
 	import HeartIcon from 'lucide-svelte/icons/heart';
 	import SvelteLogo from './SvelteLogo.svelte';
-	import { dev } from '$app/environment';
+	import { dev } from '$app/env';
 </script>
 
 {#snippet devModeIndicator()}

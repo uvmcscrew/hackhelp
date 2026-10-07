@@ -11,7 +11,7 @@ import {
 	type ChallengeConfig,
 	type GithubConfig
 } from './schemas';
-import { building } from '$app/environment';
+import { building } from '$app/env';
 
 class Configuration {
 	private db: typeof db;
