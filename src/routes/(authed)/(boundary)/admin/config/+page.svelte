@@ -504,14 +504,14 @@
 					<div class="flex gap-2">
 						<Button
 							onclick={saveGithubConfig}
-							disabled={$updateGithubConfigMut.isPending || githubOrgRolesQuery.isLoading}
+							disabled={updateGithubConfigMut.isPending || githubOrgRolesQuery.isLoading}
 						>
-							{$updateGithubConfigMut.isPending ? 'Saving...' : 'Save'}
+							{updateGithubConfigMut.isPending ? 'Saving...' : 'Save'}
 						</Button>
 						<Button variant="ghost" onclick={() => (ghEditing = false)}>Cancel</Button>
 					</div>
-					{#if $updateGithubConfigMut.isError}
-						<p class="text-destructive text-sm">{$updateGithubConfigMut.error.message}</p>
+					{#if updateGithubConfigMut.isError}
+						<p class="text-destructive text-sm">{updateGithubConfigMut.error.message}</p>
 					{/if}
 				</div>
 			{:else if githubConfigQuery.data}
