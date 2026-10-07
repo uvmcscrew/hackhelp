@@ -51,13 +51,13 @@ const teamRouter = {
 			.select({
 				id: context.db.schema.user.id,
 				username: context.db.schema.user.username,
-				fullName: context.db.schema.user.fullName
+				fullName: context.db.schema.user.name
 			})
 			.from(context.db.schema.user)
 			.where(eq(context.db.schema.user.teamId, context.team.id))
 			.leftJoin(
 				context.db.schema.profile,
-				eq(context.db.schema.user.id, context.db.schema.profile.linkedUserId)
+				eq(context.db.schema.user.id, context.db.schema.profile.id)
 			);
 
 		if (context.team.selectedChallengeId === null) {
@@ -398,7 +398,7 @@ const ticketRouter = {
 			.select({
 				id: context.db.schema.ticket.id,
 				title: context.db.schema.ticket.title,
-				assignedMentorName: context.db.schema.user.fullName,
+				assignedMentorName: context.db.schema.user.name,
 				createdAt: context.db.schema.ticket.createdAt,
 				resolutionStatus: context.db.schema.ticket.resolutionStatus,
 				repository: context.db.schema.ticket.repository,
@@ -408,7 +408,7 @@ const ticketRouter = {
 			.where(eq(context.db.schema.ticket.teamId, context.team.id))
 			.leftJoin(
 				context.db.schema.user,
-				eq(context.db.schema.ticket.assignedMentor, context.db.schema.user.id)
+				eq(context.db.schema.ticket.assignedMentorId, context.db.schema.user.id)
 			)
 			.orderBy(desc(context.db.schema.ticket.createdAt));
 		return { tickets };
@@ -422,13 +422,11 @@ const ticketRouter = {
 				.insert(context.db.schema.ticket)
 				.values({
 					teamId: context.team.id,
-					challengeId: context.team.selectedChallengeId,
+					createdById: context.user.id,
 					createdAt: new Date(),
 					issueNumber: input.issueNumber,
 					repository: input.repository,
-					title: input.title,
-					location: input.location,
-					locationDescription: input.locationDescription
+					title: input.title
 				})
 				.returning();
 
