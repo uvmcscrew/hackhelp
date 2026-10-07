@@ -3,7 +3,7 @@
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
-	import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
+	import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import TicketCreateSheet from './ticket-create-sheet.svelte';

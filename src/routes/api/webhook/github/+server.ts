@@ -1,4 +1,4 @@
-import { GITHUB_WEBHOOK_SECRET } from '$env/static/private';
+import { GITHUB_WEBHOOK_SECRET } from '$app/env/private';
 import { logger } from '$lib/logger';
 import { nanoid } from 'nanoid';
 import type { RequestEvent } from './$types';

@@ -1,7 +1,7 @@
 import { protectedProcedure } from '../shared';
 import { and, eq } from 'drizzle-orm';
-import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
-import { GITHUB_APP_CLIENT_ID, GITHUB_APP_CLIENT_SECRET } from '$env/static/private';
+import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
+import { GITHUB_APP_CLIENT_ID, GITHUB_APP_CLIENT_SECRET } from '$app/env/private';
 import type { AuthedContext } from '../context';
 import { octokit } from '$lib/github';
 import { RequestError as OctokitRequestError } from 'octokit';

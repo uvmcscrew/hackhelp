@@ -1,8 +1,8 @@
 import { render } from '@react-email/components';
 import nodemailer from 'nodemailer';
 import { MagicLinkEmail, type MagicLinkEmailProps } from './emails/magic-link';
-import { SMTP_URL } from '$env/static/private';
-import { PUBLIC_SMTP_FROM } from '$env/static/public';
+import { SMTP_URL } from '$app/env/private';
+import { PUBLIC_SMTP_FROM } from '$app/env/public';
 import { OTPEmail, type OTPEmailProps } from './emails/email-otp';
 
 const transporter = nodemailer.createTransport(SMTP_URL, {

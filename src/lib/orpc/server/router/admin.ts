@@ -11,7 +11,7 @@ import { WORK_ROOMS } from '$lib/utils';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { Octokit } from 'octokit';
 import { auth, type MLHUserProfile } from '$lib/auth/server.server';
-import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
+import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 import {
 	ensureGithubTeam,
 	deleteGithubTeam,

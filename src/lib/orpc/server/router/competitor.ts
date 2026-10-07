@@ -1,7 +1,7 @@
 import { protectedProcedure, o } from '../shared';
 import { desc, eq, and } from 'drizzle-orm';
 import { z } from 'zod';
-import { PUBLIC_GITHUB_ORGNAME, PUBLIC_SHOW_CHALLENGES } from '$env/static/public';
+import { PUBLIC_GITHUB_ORGNAME, PUBLIC_SHOW_CHALLENGES } from '$app/env/public';
 import { createTeamSchema, createTicketSchema } from '$lib/schemas';
 import type { GithubAppClient } from '$lib/github';
 import { MAX_TEAMS_PER_CHALLENGE } from '$lib/utils';

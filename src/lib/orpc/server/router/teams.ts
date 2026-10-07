@@ -11,7 +11,7 @@ import {
 	removeTeamMember,
 	deleteGithubTeam
 } from '$lib/server/github-sync';
-import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
+import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 
 const MAX_REPOS_PER_TEAM = 3;
 

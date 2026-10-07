@@ -11,7 +11,7 @@
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import ChallengeSelectorSheet from './challenge-selector-sheet.svelte';
-	import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
+	import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 	import { orpc } from '$lib/orpc/client/index.svelte';
 
 	let repos = createQuery(orpc.competitor.repositories.getAll.queryOptions);

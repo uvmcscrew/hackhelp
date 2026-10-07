@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
-	import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
+	import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import * as Sheet from '$lib/components/ui/sheet';

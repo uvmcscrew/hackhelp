@@ -13,7 +13,7 @@
 	} from '@tanstack/table-core';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import { orpc } from '$lib/orpc/client/index.svelte';
-	import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
+	import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 	import { columns, type TicketRow } from './columns';
 	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';

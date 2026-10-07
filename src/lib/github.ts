@@ -1,6 +1,6 @@
 import { App, Octokit } from 'octokit';
-import { GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY } from '$env/static/private';
-import { PUBLIC_GITHUB_ORGNAME } from '$env/static/public';
+import { GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY } from '$app/env/private';
+import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 
 export const githubApi = new App({
 	appId: Number(GITHUB_APP_ID),

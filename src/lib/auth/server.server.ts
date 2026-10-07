@@ -8,7 +8,7 @@ import {
 	UVM_NETID_OIDC_DISCOVERY_URL,
 	MLH_OAUTH_CLIENT_ID,
 	MLH_OAUTH_CLIENT_SECRET
-} from '$env/static/private';
+} from '$app/env/private';
 import { db } from '$lib/server/db';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
