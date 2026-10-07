@@ -19,6 +19,8 @@ export async function getGithubAppInstallationClient() {
 	return await githubApi.getInstallationOctokit(appInstallId);
 }
 
+export type GithubAppClient = Awaited<ReturnType<typeof getGithubAppInstallationClient>>;
+
 export const octokit = new Octokit({
 	request: {
 		fetch
