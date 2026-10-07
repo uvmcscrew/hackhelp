@@ -1,7 +1,7 @@
 <script lang="ts">
-	import MadeWith from '$lib/components/MadeWith.svelte';
-	import { Card } from '$lib/components/ui/card';
-	import { posthogHandler } from '$lib/utils';
+	import MadeWith from '#lib/components/MadeWith.svelte';
+	import { Card } from '#lib/components/ui/card';
+	import { posthogHandler } from '#lib/utils';
 
 	let { children } = $props();
 

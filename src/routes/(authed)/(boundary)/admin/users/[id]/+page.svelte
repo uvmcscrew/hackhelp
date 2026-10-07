@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { createQuery } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
-	import * as Card from '$lib/components/ui/card';
-	import * as Avatar from '$lib/components/ui/avatar';
-	import { Separator } from '$lib/components/ui/separator';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import { Button } from '#lib/components/ui/button';
+	import { Badge } from '#lib/components/ui/badge';
+	import * as Card from '#lib/components/ui/card';
+	import * as Avatar from '#lib/components/ui/avatar';
+	import { Separator } from '#lib/components/ui/separator';
 	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import Github from 'lucide-svelte/icons/github';
 	import Mail from 'lucide-svelte/icons/mail';
@@ -15,7 +15,7 @@
 	import GraduationCap from 'lucide-svelte/icons/graduation-cap';
 	import type { PageProps } from './$types';
 	import { deserialize } from 'superjson';
-	import { shirtSizes, dietaryRestrictions, type ProfileData } from '$lib/schemas';
+	import { shirtSizes, dietaryRestrictions, type ProfileData } from '#lib/schemas';
 
 	let { data }: PageProps = $props();
 

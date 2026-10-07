@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { createQuery } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import * as Tabs from '$lib/components/ui/tabs';
-	import * as Select from '$lib/components/ui/select';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import * as Tabs from '#lib/components/ui/tabs';
+	import * as Select from '#lib/components/ui/select';
 	import TicketsTable from './_components/tickets-table.svelte';
-	import type { TicketResolutionStatus } from '$lib/server/db/schema';
+	import type { TicketResolutionStatus } from '#lib/server/db/schema';
 
 	// ─── Filter State ────────────────────────────────────────────────────
 	let statusFilter = $state<TicketResolutionStatus | 'all'>('all');

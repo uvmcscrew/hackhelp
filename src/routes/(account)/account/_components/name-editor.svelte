@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { sessionQueryOptions } from '$lib/auth/client.svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import { Input } from '$lib/components/ui/input';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { sessionQueryOptions } from '#lib/auth/client.svelte';
+	import Button from '#lib/components/ui/button/button.svelte';
+	import { Input } from '#lib/components/ui/input';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import PencilLine from 'lucide-svelte/icons/pencil-line';
 

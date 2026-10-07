@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { createQuery, createMutation } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import * as Card from '$lib/components/ui/card';
-	import { Button } from '$lib/components/ui/button';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import * as Card from '#lib/components/ui/card';
+	import { Button } from '#lib/components/ui/button';
 	import Users from 'lucide-svelte/icons/users';
 	import Group from 'lucide-svelte/icons/users-round';
 	import Trophy from 'lucide-svelte/icons/trophy';

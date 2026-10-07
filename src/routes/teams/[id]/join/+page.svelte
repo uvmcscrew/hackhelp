@@ -1,11 +1,11 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
-	import * as Select from '$lib/components/ui/select';
-	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
+	import * as Card from '#lib/components/ui/card';
+	import * as Select from '#lib/components/ui/select';
+	import { Button } from '#lib/components/ui/button';
+	import { Input } from '#lib/components/ui/input';
+	import { Label } from '#lib/components/ui/label';
 	import { createQuery, createMutation } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { goto } from '$app/navigation';
 	import type { PageProps } from './$types';
 

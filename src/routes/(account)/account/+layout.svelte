@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SignoutWatcher from '$lib/components/signout-watcher.svelte';
+	import SignoutWatcher from '#lib/components/signout-watcher.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();

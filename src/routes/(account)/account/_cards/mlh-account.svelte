@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { authClient } from '$lib/auth/client.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
+	import { authClient } from '#lib/auth/client.svelte';
+	import { Button } from '#lib/components/ui/button';
+	import * as Card from '#lib/components/ui/card';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import { accountsQueryOptions } from './accounts';
-	import type { UserAccounts } from '$lib/auth/server.server';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import WarningAlert from '$lib/components/warning-alert.svelte';
+	import type { UserAccounts } from '#lib/auth/server.server';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import WarningAlert from '#lib/components/warning-alert.svelte';
 
 	type Props = {
 		initialData: {

@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/table-core';
-import type { RouterOutputs } from '$lib/orpc/server';
+import type { RouterOutputs } from '#lib/orpc/server';
 
 export type TicketRow = RouterOutputs['tickets']['allTickets']['tickets'][number];
 

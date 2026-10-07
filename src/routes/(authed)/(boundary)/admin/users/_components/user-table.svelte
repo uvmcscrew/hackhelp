@@ -1,11 +1,11 @@
 <script lang="ts">
-	import * as DataTable from '$lib/components/ui/data-table';
-	import * as Table from '$lib/components/ui/table';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Input } from '$lib/components/ui/input';
-	import { Button } from '$lib/components/ui/button';
-	import { createSvelteTable } from '$lib/components/ui/data-table';
+	import * as DataTable from '#lib/components/ui/data-table';
+	import * as Table from '#lib/components/ui/table';
+	import * as DropdownMenu from '#lib/components/ui/dropdown-menu';
+	import { Badge } from '#lib/components/ui/badge';
+	import { Input } from '#lib/components/ui/input';
+	import { Button } from '#lib/components/ui/button';
+	import { createSvelteTable } from '#lib/components/ui/data-table';
 	import {
 		getCoreRowModel,
 		getFilteredRowModel,
@@ -14,7 +14,7 @@
 		type SortingState
 	} from '@tanstack/table-core';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { columns, type UserRow } from './columns';
 	import { capitalize } from 'es-toolkit/string';
 	import Upload from 'lucide-svelte/icons/upload';

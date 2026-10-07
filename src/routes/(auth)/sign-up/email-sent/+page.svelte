@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CardContent } from '$lib/components/ui/card';
+	import { CardContent } from '#lib/components/ui/card';
 	import { PUBLIC_SMTP_FROM } from '$app/env/public';
 
 	import BadgeCheck from 'lucide-svelte/icons/badge-check';

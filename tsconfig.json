@@ -10,7 +10,10 @@
 		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "bundler",
-		"jsx": "react-jsx"
+		"jsx": "react-jsx",
+		"paths": {
+			"#lib/*": ["./src/lib/*"]
+		}
 	},
 	"include": [
     "src",

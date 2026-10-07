@@ -2,10 +2,10 @@ import { protectedProcedure, adminProcedure } from '../shared';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
-import { createTicketSchema } from '$lib/schemas';
-import { checkRolePermission } from '$lib/auth/permissions';
+import { createTicketSchema } from '#lib/schemas';
+import { checkRolePermission } from '#lib/auth/permissions';
 import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
-import { TICKET_RESOLUTION_STATUS } from '$lib/server/db/schema';
+import { TICKET_RESOLUTION_STATUS } from '#lib/server/db/schema';
 
 // ─── Competitor Endpoints ──────────────────────────────────────────────
 

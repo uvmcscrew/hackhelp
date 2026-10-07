@@ -2,15 +2,15 @@ import { adminProcedure } from '../shared';
 import { eq, sql, count, notInArray, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
-import { addRole, removeRole } from '$lib/auth/permissions';
-import { profileDataSchema } from '$lib/schemas';
+import { addRole, removeRole } from '#lib/auth/permissions';
+import { profileDataSchema } from '#lib/schemas';
 import { serialize } from 'superjson';
 import { challengesAdminRouter } from './challenges';
-import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
-import { WORK_ROOMS } from '$lib/utils';
+import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '#lib/config/team-rules';
+import { WORK_ROOMS } from '#lib/utils';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { Octokit } from 'octokit';
-import { auth, type MLHUserProfile } from '$lib/auth/server.server';
+import { auth, type MLHUserProfile } from '#lib/auth/server.server';
 import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 import {
 	ensureGithubTeam,
@@ -22,7 +22,7 @@ import {
 	assignMentorOrgRole,
 	removeMentorOrgRole,
 	reconcileMentorOrgRoles
-} from '$lib/server/github-sync';
+} from '#lib/server/github-sync';
 
 /**
  * Administrative actions: user management (roles, verification, profile upsert),

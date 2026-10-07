@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { authClient } from '$lib/auth/client.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import { CardDescription, CardFooter } from '$lib/components/ui/card';
-	import CardContent from '$lib/components/ui/card/card-content.svelte';
-	import Input from '$lib/components/ui/input/input.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
+	import { authClient } from '#lib/auth/client.svelte';
+	import Badge from '#lib/components/ui/badge/badge.svelte';
+	import Button from '#lib/components/ui/button/button.svelte';
+	import { CardDescription, CardFooter } from '#lib/components/ui/card';
+	import CardContent from '#lib/components/ui/card/card-content.svelte';
+	import Input from '#lib/components/ui/input/input.svelte';
+	import Label from '#lib/components/ui/label/label.svelte';
 	import ArrowRight from 'lucide-svelte/icons/arrow-right';
 	import { createMutation } from '@tanstack/svelte-query';
-	import ErrorAlert from '$lib/components/error-alert.svelte';
+	import ErrorAlert from '#lib/components/error-alert.svelte';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import { BetterFetchError } from '@better-fetch/fetch';
 

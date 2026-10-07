@@ -1,22 +1,22 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { CardContent, CardFooter } from '$lib/components/ui/card';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { Button } from '#lib/components/ui/button';
+	import { CardContent, CardFooter } from '#lib/components/ui/card';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import XIcon from 'lucide-svelte/icons/x';
-	import * as Field from '$lib/components/ui/field';
-	import { dietaryRestrictions, shirtSizes } from '$lib/schemas';
+	import * as Field from '#lib/components/ui/field';
+	import { dietaryRestrictions, shirtSizes } from '#lib/schemas';
 	import ChevronsUpDownIcon from 'lucide-svelte/icons/chevrons-up-down';
 	import { pickBy } from 'es-toolkit/object';
-	import type { RouterOutputs } from '$lib/orpc/server';
-	import * as Popover from '$lib/components/ui/popover';
-	import * as Command from '$lib/components/ui/command';
-	import * as Select from '$lib/components/ui/select';
+	import type { RouterOutputs } from '#lib/orpc/server';
+	import * as Popover from '#lib/components/ui/popover';
+	import * as Command from '#lib/components/ui/command';
+	import * as Select from '#lib/components/ui/select';
 
 	import { tick } from 'svelte';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Input } from '$lib/components/ui/input';
+	import { Badge } from '#lib/components/ui/badge';
+	import { Input } from '#lib/components/ui/input';
 
 	type Props = {
 		initialProfile: NonNullable<RouterOutputs['account']['profile']['get']>;

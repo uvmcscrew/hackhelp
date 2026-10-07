@@ -1,16 +1,16 @@
-import type { TeamMembership } from '$lib/server/db/schema';
-import { createTeamSchema } from '$lib/schemas';
+import type { TeamMembership } from '#lib/server/db/schema';
+import { createTeamSchema } from '#lib/schemas';
 import { publicProcedure, protectedProcedure } from '../shared';
 import { and, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
-import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
+import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '#lib/config/team-rules';
 import {
 	ensureGithubTeam,
 	syncTeamMember,
 	removeTeamMember,
 	deleteGithubTeam
-} from '$lib/server/github-sync';
+} from '#lib/server/github-sync';
 import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 
 const MAX_REPOS_PER_TEAM = 3;

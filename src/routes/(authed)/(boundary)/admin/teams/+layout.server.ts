@@ -1,4 +1,4 @@
-import { checkRolePermission } from '$lib/auth/permissions';
+import { checkRolePermission } from '#lib/auth/permissions';
 import { error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 

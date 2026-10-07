@@ -2,10 +2,10 @@
 
 <script lang="ts">
 	import { createQuery, createMutation } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
-	import { Badge } from '$lib/components/ui/badge';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import { Button } from '#lib/components/ui/button';
+	import * as Card from '#lib/components/ui/card';
+	import { Badge } from '#lib/components/ui/badge';
 	import TeamsTable from './_components/teams-table.svelte';
 	import RefreshCw from 'lucide-svelte/icons/refresh-cw';
 

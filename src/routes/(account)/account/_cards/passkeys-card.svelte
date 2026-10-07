@@ -1,11 +1,11 @@
 <svelte:options runes={true} />
 
 <script lang="ts">
-	import { authClient } from '$lib/auth/client.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
-	import { Input } from '$lib/components/ui/input';
-	import * as Table from '$lib/components/ui/table';
+	import { authClient } from '#lib/auth/client.svelte';
+	import { Button } from '#lib/components/ui/button';
+	import * as Card from '#lib/components/ui/card';
+	import { Input } from '#lib/components/ui/input';
+	import * as Table from '#lib/components/ui/table';
 	import Trash from 'lucide-svelte/icons/trash';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import Confetti from 'svelte-confetti';

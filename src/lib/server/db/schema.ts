@@ -10,9 +10,9 @@ import {
 } from 'drizzle-orm/pg-core';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { customAlphabet } from 'nanoid';
-import type { WorkRooms } from '$lib/utils';
+import type { WorkRooms } from '#lib/utils';
 import { user } from './auth';
-import type { PersonProfileRole } from '$lib/schemas';
+import type { PersonProfileRole } from '#lib/schemas';
 import type { SuperJSONResult } from 'superjson';
 
 export const configuration = pgTable(

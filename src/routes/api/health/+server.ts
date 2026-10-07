@@ -1,5 +1,5 @@
-import { testSMTPConnection } from '$lib/email';
-import db from '$lib/server/db';
+import { testSMTPConnection } from '#lib/email';
+import db from '#lib/server/db';
 
 export const GET = async () => {
 	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call

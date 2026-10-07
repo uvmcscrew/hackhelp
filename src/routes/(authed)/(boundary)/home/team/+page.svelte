@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import * as Card from '$lib/components/ui/card';
-	import { Button } from '$lib/components/ui/button';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import * as Card from '#lib/components/ui/card';
+	import { Button } from '#lib/components/ui/button';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import NoTeamCard from './_cards/no-team-card.svelte';
 	import TeamInfo from './_cards/team-info.svelte';
 	import TeamMembers from './_cards/team-members.svelte';
 	import TeamCaptain from './_cards/team-captain.svelte';
-	import * as Tabs from '$lib/components/ui/tabs';
+	import * as Tabs from '#lib/components/ui/tabs';
 
 	const queryClient = useQueryClient();
 	const myTeamQuery = createQuery(() => orpc.teams.myTeam.queryOptions());

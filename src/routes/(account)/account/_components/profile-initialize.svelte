@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { authClient } from '$lib/auth/client.svelte';
-	import { sessionQueryOptions } from '$lib/auth/client.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import CardContent from '$lib/components/ui/card/card-content.svelte';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { authClient } from '#lib/auth/client.svelte';
+	import { sessionQueryOptions } from '#lib/auth/client.svelte';
+	import { Button } from '#lib/components/ui/button';
+	import CardContent from '#lib/components/ui/card/card-content.svelte';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { capitalize } from 'es-toolkit/string';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';

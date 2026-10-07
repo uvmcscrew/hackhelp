@@ -1,18 +1,18 @@
 <script lang="ts">
-	import * as Avatar from '$lib/components/ui/avatar';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
-	import { Separator } from '$lib/components/ui/separator';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import type { RouterOutputs } from '$lib/orpc/server';
+	import * as Avatar from '#lib/components/ui/avatar';
+	import { Badge } from '#lib/components/ui/badge';
+	import { Button } from '#lib/components/ui/button';
+	import * as Card from '#lib/components/ui/card';
+	import { Separator } from '#lib/components/ui/separator';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import type { RouterOutputs } from '#lib/orpc/server';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import {
 		PROGRAMMERS_MIN,
 		PROGRAMMERS_MAX,
 		BUSINESS_MIN,
 		BUSINESS_MAX
-	} from '$lib/config/team-rules';
+	} from '#lib/config/team-rules';
 
 	type Props = {
 		members: NonNullable<RouterOutputs['teams']['myTeam']>['members'];

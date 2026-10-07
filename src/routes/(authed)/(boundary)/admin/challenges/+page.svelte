@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
-	import * as Card from '$lib/components/ui/card';
-	import * as Table from '$lib/components/ui/table';
-	import * as Select from '$lib/components/ui/select';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import { Button } from '#lib/components/ui/button';
+	import { Input } from '#lib/components/ui/input';
+	import { Label } from '#lib/components/ui/label';
+	import * as Card from '#lib/components/ui/card';
+	import * as Table from '#lib/components/ui/table';
+	import * as Select from '#lib/components/ui/select';
 	import Pencil from 'lucide-svelte/icons/pencil';
 	import Trash2 from 'lucide-svelte/icons/trash-2';
 	import Plus from 'lucide-svelte/icons/plus';
-	import { Badge } from '$lib/components/ui/badge';
+	import { Badge } from '#lib/components/ui/badge';
 
 	const qc = useQueryClient();
 

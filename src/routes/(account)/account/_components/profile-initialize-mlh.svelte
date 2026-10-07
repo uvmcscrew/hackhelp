@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import { CardContent } from '$lib/components/ui/card';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { Button } from '#lib/components/ui/button';
+	import { CardContent } from '#lib/components/ui/card';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 

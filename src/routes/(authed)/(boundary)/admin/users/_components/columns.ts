@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/table-core';
-import type { RouterOutputs } from '$lib/orpc/server';
+import type { RouterOutputs } from '#lib/orpc/server';
 
 // The row type is the joined user + profile from our oRPC endpoint
 export type UserRow = RouterOutputs['admin']['users']['all']['users'][number];

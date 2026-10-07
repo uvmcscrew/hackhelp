@@ -1,9 +1,9 @@
 <script lang="ts">
-	import * as DataTable from '$lib/components/ui/data-table';
-	import * as Table from '$lib/components/ui/table';
-	import { Input } from '$lib/components/ui/input';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import { createSvelteTable } from '$lib/components/ui/data-table';
+	import * as DataTable from '#lib/components/ui/data-table';
+	import * as Table from '#lib/components/ui/table';
+	import { Input } from '#lib/components/ui/input';
+	import { Button, buttonVariants } from '#lib/components/ui/button';
+	import { createSvelteTable } from '#lib/components/ui/data-table';
 	import {
 		getCoreRowModel,
 		getFilteredRowModel,
@@ -12,10 +12,10 @@
 		type SortingState
 	} from '@tanstack/table-core';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 	import { columns, type TicketRow } from './columns';
-	import TicketStatusBadge from '$lib/components/ticket-status-badge.svelte';
+	import TicketStatusBadge from '#lib/components/ticket-status-badge.svelte';
 	import { MarkGithub24 as GithubIcon } from 'svelte-octicons';
 	import HandIcon from 'lucide-svelte/icons/hand';
 	import PlayIcon from 'lucide-svelte/icons/play';
@@ -23,7 +23,7 @@
 	import RotateCcwIcon from 'lucide-svelte/icons/rotate-ccw';
 	import ExternalLinkIcon from 'lucide-svelte/icons/external-link';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import type { TicketResolutionStatus } from '$lib/server/db/schema';
+	import type { TicketResolutionStatus } from '#lib/server/db/schema';
 
 	type Props = {
 		tickets: TicketRow[];

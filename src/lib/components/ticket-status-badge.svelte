@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { TicketResolutionStatus } from '$lib/server/db/schema';
+	import type { TicketResolutionStatus } from '#lib/server/db/schema';
 	import { Badge } from './ui/badge';
 
 	type Props = {

@@ -1,4 +1,4 @@
-import db from '$lib/server/db';
+import db from '#lib/server/db';
 import { eq } from 'drizzle-orm';
 import superjson from 'superjson';
 import {

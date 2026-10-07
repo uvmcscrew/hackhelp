@@ -1,13 +1,13 @@
 <script lang="ts">
-	import * as Popover from '$lib/components/ui/popover';
-	import * as Command from '$lib/components/ui/command';
+	import * as Popover from '#lib/components/ui/popover';
+	import * as Command from '#lib/components/ui/command';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import Fuse from 'fuse.js';
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '#lib/components/ui/button';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import Check from 'lucide-svelte/icons/check';
-	import { cn } from '$lib/utils';
+	import { cn } from '#lib/utils';
 
 	type Props = {
 		selectedUserId?: string;

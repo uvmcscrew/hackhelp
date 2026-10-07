@@ -1,4 +1,4 @@
-import { authClient } from '$lib/auth/client.svelte';
+import { authClient } from '#lib/auth/client.svelte';
 import { queryOptions } from '@tanstack/svelte-query';
 
 export const accountsQueryOptions = queryOptions({

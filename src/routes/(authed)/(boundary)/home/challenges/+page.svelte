@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import * as Card from '$lib/components/ui/card';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import * as Card from '#lib/components/ui/card';
+	import { Badge } from '#lib/components/ui/badge';
+	import { Button } from '#lib/components/ui/button';
 	import { onDestroy } from 'svelte';
-	import { cn } from '$lib/utils';
+	import { cn } from '#lib/utils';
 
 	const queryClient = useQueryClient();
 

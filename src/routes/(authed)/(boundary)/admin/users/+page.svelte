@@ -2,7 +2,7 @@
 
 <script lang="ts">
 	import { createQuery } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import UserTable from './_components/user-table.svelte';
 
 	const usersQuery = createQuery(() => orpc.admin.users.all.queryOptions());

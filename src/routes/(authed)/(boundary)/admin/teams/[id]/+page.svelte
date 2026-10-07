@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
-	import { Badge } from '$lib/components/ui/badge';
-	import * as Card from '$lib/components/ui/card';
-	import * as Table from '$lib/components/ui/table';
-	import * as Select from '$lib/components/ui/select';
-	import * as Avatar from '$lib/components/ui/avatar';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import { Button } from '#lib/components/ui/button';
+	import { Input } from '#lib/components/ui/input';
+	import { Label } from '#lib/components/ui/label';
+	import { Badge } from '#lib/components/ui/badge';
+	import * as Card from '#lib/components/ui/card';
+	import * as Table from '#lib/components/ui/table';
+	import * as Select from '#lib/components/ui/select';
+	import * as Avatar from '#lib/components/ui/avatar';
 	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import Pencil from 'lucide-svelte/icons/pencil';
 	import MapPin from 'lucide-svelte/icons/map-pin';
@@ -21,8 +21,8 @@
 		PROGRAMMERS_MAX,
 		BUSINESS_MIN,
 		BUSINESS_MAX
-	} from '$lib/config/team-rules';
-	import { WORK_ROOMS } from '$lib/utils';
+	} from '#lib/config/team-rules';
+	import { WORK_ROOMS } from '#lib/utils';
 
 	let { data }: PageProps = $props();
 	const qc = useQueryClient();

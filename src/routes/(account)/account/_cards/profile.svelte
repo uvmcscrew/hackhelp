@@ -1,19 +1,19 @@
 <svelte:options runes={true} />
 
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import * as Card from '#lib/components/ui/card';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
-	import WarningAlert from '$lib/components/warning-alert.svelte';
-	import type { RouterOutputs } from '$lib/orpc/server';
+	import WarningAlert from '#lib/components/warning-alert.svelte';
+	import type { RouterOutputs } from '#lib/orpc/server';
 	import ProfileInitialize from '../_components/profile-initialize.svelte';
 	import ProfileForm from '../_components/profile-form.svelte';
 	import ProfileInitializeMlh from '../_components/profile-initialize-mlh.svelte';
 	import ProfileMlhSync from '../_components/profile-mlh-sync.svelte';
 	import { accountsQueryOptions } from './accounts';
-	import type { UserAccounts } from '$lib/auth/server.server';
-	import { authClient, sessionQueryOptions } from '$lib/auth/client.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import type { UserAccounts } from '#lib/auth/server.server';
+	import { authClient, sessionQueryOptions } from '#lib/auth/client.svelte';
+	import { Button } from '#lib/components/ui/button';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 
 	type Props = {

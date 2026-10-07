@@ -1,11 +1,11 @@
 import { dev } from '$app/environment';
-import { checkRolePermission } from '$lib/auth/permissions';
+import { checkRolePermission } from '#lib/auth/permissions';
 import {
 	eventTimingConfigSchema,
 	challengeConfigSchema,
 	participantsConfigSchema,
 	githubConfigSchema
-} from '$lib/server/config/schemas';
+} from '#lib/server/config/schemas';
 import { o, protectedProcedure, publicProcedure } from '../shared';
 import { ORPCError } from '@orpc/server';
 

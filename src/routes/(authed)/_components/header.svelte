@@ -1,11 +1,11 @@
 <script lang="ts">
-	import UserDropdown from '$lib/components/UserDropdown.svelte';
+	import UserDropdown from '#lib/components/UserDropdown.svelte';
 	import { page } from '$app/state';
-	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
-	import Logo from '$lib/components/Logo.svelte';
-	import WidthWarning from '$lib/components/WidthWarning.svelte';
+	import ColorModeButton from '#lib/components/ColorModeButton.svelte';
+	import Logo from '#lib/components/Logo.svelte';
+	import WidthWarning from '#lib/components/WidthWarning.svelte';
 	import { browser } from '$app/environment';
-	import type { AuthData } from '$lib/auth/server.server';
+	import type { AuthData } from '#lib/auth/server.server';
 
 	type Props = {
 		authData: AuthData;

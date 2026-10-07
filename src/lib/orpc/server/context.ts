@@ -1,9 +1,9 @@
-import db from '$lib/server/db';
-import { getGithubAppInstallationClient } from '$lib/github';
+import db from '#lib/server/db';
+import { getGithubAppInstallationClient } from '#lib/github';
 import type { Cookies } from '@sveltejs/kit';
-import { logger } from '$lib/logger';
+import { logger } from '#lib/logger';
 import type { AuthLocals } from '../../../app';
-import { configurationService } from '$lib/server/config';
+import { configurationService } from '#lib/server/config';
 
 export type ContextGeneratorParams = {
 	request: Request;

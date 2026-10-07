@@ -118,6 +118,6 @@
 		"core-js"
 	],
 	"imports": {
-		"$lib/*": "./src/lib/*"
+		"#lib/*": "./src/lib/*"
 	}
 }

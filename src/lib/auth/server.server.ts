@@ -9,7 +9,7 @@ import {
 	MLH_OAUTH_CLIENT_ID,
 	MLH_OAUTH_CLIENT_SECRET
 } from '$app/env/private';
-import { db } from '$lib/server/db';
+import { db } from '#lib/server/db';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { passkey } from '@better-auth/passkey';
@@ -21,7 +21,7 @@ import {
 	lastLoginMethod,
 	username
 } from 'better-auth/plugins';
-import { sendEmailOtp, sendMagicLinkEmail } from '$lib/email';
+import { sendEmailOtp, sendMagicLinkEmail } from '#lib/email';
 import { ac, roles } from './permissions';
 
 type UVMEntraProfile = {

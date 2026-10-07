@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { createQuery } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import { sessionQueryOptions } from '$lib/auth/client.svelte';
-	import UserDropdown from '$lib/components/UserDropdown.svelte';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import { sessionQueryOptions } from '#lib/auth/client.svelte';
+	import UserDropdown from '#lib/components/UserDropdown.svelte';
 	import Teamcard from './_components/teamcard.svelte';
 
 	let teamsQuery = createQuery(() => orpc.teams.listAll.queryOptions());

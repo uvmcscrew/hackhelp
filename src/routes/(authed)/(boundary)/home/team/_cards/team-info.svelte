@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import * as Card from '$lib/components/ui/card';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import type { RouterOutputs } from '$lib/orpc/server';
+	import { Badge } from '#lib/components/ui/badge';
+	import { Button } from '#lib/components/ui/button';
+	import { Input } from '#lib/components/ui/input';
+	import * as Card from '#lib/components/ui/card';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import type { RouterOutputs } from '#lib/orpc/server';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 	import Pencil from 'lucide-svelte/icons/pencil';
 	import {
@@ -13,7 +13,7 @@
 		PROGRAMMERS_MAX,
 		BUSINESS_MIN,
 		BUSINESS_MAX
-	} from '$lib/config/team-rules';
+	} from '#lib/config/team-rules';
 	import MapPin from 'lucide-svelte/icons/map-pin';
 
 	type Props = {

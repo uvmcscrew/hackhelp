@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { CardContent, CardFooter, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import MadeWith from '$lib/components/MadeWith.svelte';
-	import { Card } from '$lib/components/ui/card';
-	import { authClient, sessionQueryOptions } from '$lib/auth/client.svelte';
+	import { CardContent, CardFooter, CardHeader, CardTitle } from '#lib/components/ui/card';
+	import MadeWith from '#lib/components/MadeWith.svelte';
+	import { Card } from '#lib/components/ui/card';
+	import { authClient, sessionQueryOptions } from '#lib/auth/client.svelte';
 	import { page } from '$app/state';
 	import { capitalize } from 'es-toolkit/string';
 	import { words } from 'es-toolkit/compat';
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '#lib/components/ui/button';
 	import { errorExplanations } from './errors';
 	import { createQuery } from '@tanstack/svelte-query';
-	import ErrorAlert from '$lib/components/error-alert.svelte';
+	import ErrorAlert from '#lib/components/error-alert.svelte';
 
 	let errorParam = $derived(page.url.searchParams.get('error') ?? '');
 	let providerParam = $derived(page.url.searchParams.get('provider') ?? '');

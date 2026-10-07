@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
-	import * as Select from '$lib/components/ui/select';
-	import { Separator } from '$lib/components/ui/separator';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import type { RouterOutputs } from '$lib/orpc/server';
+	import { Button } from '#lib/components/ui/button';
+	import * as Card from '#lib/components/ui/card';
+	import * as Select from '#lib/components/ui/select';
+	import { Separator } from '#lib/components/ui/separator';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import type { RouterOutputs } from '#lib/orpc/server';
 	import { createMutation, useQueryClient } from '@tanstack/svelte-query';
 
 	type Props = {

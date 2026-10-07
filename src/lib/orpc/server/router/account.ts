@@ -3,19 +3,19 @@ import { and, eq } from 'drizzle-orm';
 import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 import { GITHUB_APP_CLIENT_ID, GITHUB_APP_CLIENT_SECRET } from '$app/env/private';
 import type { AuthedContext } from '../context';
-import { octokit } from '$lib/github';
+import { octokit } from '#lib/github';
 import { RequestError as OctokitRequestError } from 'octokit';
 import { ORPCError, type } from '@orpc/server';
-import { addRole, checkRolePermission } from '$lib/auth/permissions';
+import { addRole, checkRolePermission } from '#lib/auth/permissions';
 import { dev } from '$app/environment';
 import { addSeconds, isPast } from 'date-fns';
-import { auth, type MLHUserProfile } from '$lib/auth/server.server';
+import { auth, type MLHUserProfile } from '#lib/auth/server.server';
 import z from 'zod';
 import { deserialize, serialize } from 'superjson';
-import { personProfileRole, profileDataSchema, type ProfileData } from '$lib/schemas';
-import { WHITELISTED_EMAIL_DOMAINS } from '$lib/utils';
+import { personProfileRole, profileDataSchema, type ProfileData } from '#lib/schemas';
+import { WHITELISTED_EMAIL_DOMAINS } from '#lib/utils';
 import type { Account } from 'better-auth';
-import { syncUserTeamAfterAccountChange } from '$lib/server/github-sync';
+import { syncUserTeamAfterAccountChange } from '#lib/server/github-sync';
 
 // #############################################
 // #              ACCOUNT ROUTER               #

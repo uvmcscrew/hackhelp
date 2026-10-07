@@ -5,10 +5,10 @@
 
 	import * as DropdownMenu from './ui/dropdown-menu';
 	import { goto } from '$app/navigation';
-	import { posthogHandler } from '$lib/utils';
+	import { posthogHandler } from '#lib/utils';
 	import { resolve } from '$app/paths';
-	import type { AuthData } from '$lib/auth/server.server';
-	import { sessionQueryOptions, signOutAndClearCache } from '$lib/auth/client.svelte';
+	import type { AuthData } from '#lib/auth/server.server';
+	import { sessionQueryOptions, signOutAndClearCache } from '#lib/auth/client.svelte';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	type Props = {

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
-	import type { RouterOutputs } from '$lib/orpc/server';
-	import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '$lib/config/team-rules';
+	import * as Card from '#lib/components/ui/card';
+	import { Badge } from '#lib/components/ui/badge';
+	import { Button } from '#lib/components/ui/button';
+	import type { RouterOutputs } from '#lib/orpc/server';
+	import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '#lib/config/team-rules';
 	import MapPin from 'lucide-svelte/icons/map-pin';
 
 	type Props = {

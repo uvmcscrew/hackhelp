@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { authClient } from '$lib/auth/client.svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import { CardDescription } from '$lib/components/ui/card';
-	import CardContent from '$lib/components/ui/card/card-content.svelte';
-	import CardFooter from '$lib/components/ui/card/card-footer.svelte';
-	import Input from '$lib/components/ui/input/input.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
+	import { authClient } from '#lib/auth/client.svelte';
+	import Button from '#lib/components/ui/button/button.svelte';
+	import { CardDescription } from '#lib/components/ui/card';
+	import CardContent from '#lib/components/ui/card/card-content.svelte';
+	import CardFooter from '#lib/components/ui/card/card-footer.svelte';
+	import Input from '#lib/components/ui/input/input.svelte';
+	import Label from '#lib/components/ui/label/label.svelte';
 	import ArrowRight from 'lucide-svelte/icons/arrow-right';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { createMutation } from '@tanstack/svelte-query';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import ErrorAlert from '$lib/components/error-alert.svelte';
+	import ErrorAlert from '#lib/components/error-alert.svelte';
 
 	let uvmNetIdSignUpMutation = createMutation(() => ({
 		mutationFn: async () => {

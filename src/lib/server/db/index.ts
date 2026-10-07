@@ -2,7 +2,7 @@ import { DATABASE_URL } from '$app/env/private';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
-import * as schema from '$lib/server/db/schema';
+import * as schema from '#lib/server/db/schema';
 
 // postgres.js has built in connection pooling
 const queryClient = postgres(DATABASE_URL, { max: 20 });

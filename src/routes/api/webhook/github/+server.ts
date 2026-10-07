@@ -1,11 +1,11 @@
 import { GITHUB_WEBHOOK_SECRET } from '$app/env/private';
-import { logger } from '$lib/logger';
+import { logger } from '#lib/logger';
 import { nanoid } from 'nanoid';
 import type { RequestEvent } from './$types';
 import { Webhooks } from '@octokit/webhooks';
-// import { updateInvitedUser } from '$lib/orpc/server/router';
-// import { db } from '$lib/server/db';
-// import { githubApp } from '$lib/github';
+// import { updateInvitedUser } from '#lib/orpc/server/router';
+// import { db } from '#lib/server/db';
+// import { githubApp } from '#lib/github';
 
 let apiLogger = logger.child({
 	route: '/api/webhook/github',

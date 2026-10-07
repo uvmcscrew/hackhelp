@@ -1,31 +1,31 @@
 <svelte:options runes={true} />
 
 <script lang="ts">
-	import * as Avatar from '$lib/components/ui/avatar';
-	import * as Card from '$lib/components/ui/card';
+	import * as Avatar from '#lib/components/ui/avatar';
+	import * as Card from '#lib/components/ui/card';
 	import CircleUser from 'lucide-svelte/icons/circle-user';
 	import DoorOpen from 'lucide-svelte/icons/door-open';
 
-	import { Button } from '$lib/components/ui/button';
+	import { Button } from '#lib/components/ui/button';
 
 	import { goto } from '$app/navigation';
-	import MadeWith from '$lib/components/MadeWith.svelte';
-	import { cn, posthogHandler } from '$lib/utils';
+	import MadeWith from '#lib/components/MadeWith.svelte';
+	import { cn, posthogHandler } from '#lib/utils';
 	import { resolve } from '$app/paths';
-	import { sessionQueryOptions, signOutAndClearCache } from '$lib/auth/client.svelte';
+	import { sessionQueryOptions, signOutAndClearCache } from '#lib/auth/client.svelte';
 	import type { PageProps } from './$types';
-	import * as Tabs from '$lib/components/ui/tabs';
+	import * as Tabs from '#lib/components/ui/tabs';
 	import PasskeysCard from './_cards/passkeys-card.svelte';
 	import ProfileParentCard from './_cards/profile.svelte';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import UVMNetIDAccountCard from './_cards/uvmnetid-account.svelte';
 	import GithubAccountCard from './_cards/github-account.svelte';
 	import MLHAccountCard from './_cards/mlh-account.svelte';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { page } from '$app/state';
-	import RoleBadge from '$lib/components/role-badge.svelte';
+	import RoleBadge from '#lib/components/role-badge.svelte';
 	import NameEditor from './_components/name-editor.svelte';
-	import ColorModeButton from '$lib/components/ColorModeButton.svelte';
+	import ColorModeButton from '#lib/components/ColorModeButton.svelte';
 
 	let { data }: PageProps = $props();
 	const queryClient = useQueryClient();

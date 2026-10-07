@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { sessionQueryOptions } from '$lib/auth/client.svelte';
-	import { orpc } from '$lib/orpc/client/index.svelte';
+	import { sessionQueryOptions } from '#lib/auth/client.svelte';
+	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { Badge } from './ui/badge';
 	import { twMerge } from 'tailwind-merge';

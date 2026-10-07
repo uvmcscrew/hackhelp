@@ -1,8 +1,8 @@
 import { RPCHandler } from '@orpc/server/fetch';
 import { onError } from '@orpc/server';
 import type { RequestHandler } from './$types';
-import { appRouter } from '$lib/orpc/server/router';
-import { createOrpcContext } from '$lib/orpc/server/context';
+import { appRouter } from '#lib/orpc/server/router';
+import { createOrpcContext } from '#lib/orpc/server/context';
 import { CompressionPlugin } from '@orpc/server/fetch';
 import { LoggingHandlerPlugin } from '@orpc/experimental-pino';
 import pino from 'pino';

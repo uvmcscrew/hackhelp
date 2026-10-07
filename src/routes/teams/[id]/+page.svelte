@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { createQuery } from '@tanstack/svelte-query';
-	import { orpc } from '$lib/orpc/client/index.svelte';
-	import * as Card from '$lib/components/ui/card';
-	import * as Avatar from '$lib/components/ui/avatar';
-	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
-	import { Separator } from '$lib/components/ui/separator';
+	import { orpc } from '#lib/orpc/client/index.svelte';
+	import * as Card from '#lib/components/ui/card';
+	import * as Avatar from '#lib/components/ui/avatar';
+	import { Badge } from '#lib/components/ui/badge';
+	import { Button } from '#lib/components/ui/button';
+	import { Separator } from '#lib/components/ui/separator';
 	import MapPin from 'lucide-svelte/icons/map-pin';
 	import type { PageProps } from './$types';
 

@@ -1,5 +1,5 @@
-import { createOrpcContext } from '$lib/orpc/server/context';
-import { appRouter } from '$lib/orpc/server/router';
+import { createOrpcContext } from '#lib/orpc/server/context';
+import { appRouter } from '#lib/orpc/server/router';
 import { error, redirect } from '@sveltejs/kit';
 import type { LayoutServerLoadEvent } from './$types';
 
