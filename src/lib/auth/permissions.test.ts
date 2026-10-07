@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { expect, test } from 'bun:test';
-import { ac, addRole, checkRolePermission, removeRole } from './permissions';
+import { ac, addRole, checkRolePermission, removeRole, type Role } from './permissions';
 
 test('admin permissions', () => {
 	expect(
 		checkRolePermission({
 			role: 'admin',
-			// @ts-expect-error Technically the types are not correct but this helps make sure stuff stays in sync
 			permissions: ac.statements
 		})
 	).toBe(true);
@@ -52,15 +53,13 @@ const removeRoleCases = [
 	['', 'admin', '']
 ];
 
-test.each(addRoleCases)('Add role %p + %p == %p', (oldRoles, toAdd, newRoles) => {
-	// @ts-expect-error Cannot narrow properly
+test.each(addRoleCases)('Add role %p + %p == %p', (oldRoles: string, toAdd: Role, newRoles: string) => {
 	const r = addRole(oldRoles, toAdd).join(',');
 	expect(r).toBe(newRoles);
 	expect(r).toContain(toAdd);
 });
 
-test.each(removeRoleCases)('Add role %p + %p == %p', (oldRoles, toRm, newRoles) => {
-	// @ts-expect-error Cannot narrow properly
+test.each(removeRoleCases)('Add role %p + %p == %p', (oldRoles: string, toRm: Role, newRoles: string) => {
 	const r = removeRole(oldRoles, toRm).join(',');
 	expect(r).toBe(newRoles);
 	expect(r).not.toContain(toRm);

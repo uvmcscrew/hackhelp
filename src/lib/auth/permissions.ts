@@ -1,5 +1,6 @@
 import { createAccessControl, type AuthorizeResponse } from 'better-auth/plugins/access';
 import { defaultStatements, adminAc } from 'better-auth/plugins/admin/access';
+import type { RmOptions } from 'fs';
 
 const statements = {
 	configuration: ['view', 'update', 'delete'], // System configuration; key value table in postgres
@@ -60,7 +61,8 @@ export const roles = {
 	judge
 } as const;
 
-type Role = keyof typeof roles;
+export type Role = keyof typeof roles | (string & {});
+export type RoleList = Role[];
 
 type PermissionsCheckInput = {
 	// permissions: { [key in keyof TStatements]: SubArray<TStatements[key]> };
@@ -89,14 +91,14 @@ export function checkRolePermission(options: PermissionsCheckInput) {
 	return false;
 }
 
-export function addRole(existingRole: string, roleToAdd: keyof typeof roles) {
+export function addRole(existingRole: string, roleToAdd: Role) {
 	const _roles = (existingRole.length === 0 ? [] : existingRole.split(',')) as Role[];
 	if (_roles.includes(roleToAdd)) return _roles;
 	_roles.push(roleToAdd);
 	return _roles;
 }
 
-export function removeRole(existingRole: string, roleToRemove: keyof typeof roles) {
+export function removeRole(existingRole: string, roleToRemove: Role) {
 	let _roles = (existingRole.length === 0 ? [] : existingRole.split(',')) as Role[];
 	if (_roles.includes(roleToRemove)) {
 		_roles = _roles.filter((r) => r !== roleToRemove);
