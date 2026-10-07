@@ -7,7 +7,6 @@
 	import * as Avatar from '#lib/components/ui/avatar';
 	import { Separator } from '#lib/components/ui/separator';
 	import CircleUser from 'lucide-svelte/icons/circle-user';
-	import Github from 'lucide-svelte/icons/github';
 	import Mail from 'lucide-svelte/icons/mail';
 	import Shield from 'lucide-svelte/icons/shield';
 	import Users from 'lucide-svelte/icons/users';
@@ -16,6 +15,7 @@
 	import type { PageProps } from './$types';
 	import { deserialize } from 'superjson';
 	import { shirtSizes, dietaryRestrictions, type ProfileData } from '#lib/schemas';
+	import GithubIcon from '#lib/components/GithubIcon.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -229,7 +229,7 @@
 											<Avatar.Image src={acct.avatarUrl} alt={acct.login} />
 											<Avatar.Fallback>
 												<!-- eslint-disable-next-line @typescript-eslint/no-deprecated -->
-												<Github class="h-5 w-5" />
+												<GithubIcon class="h-5 w-5" />
 											</Avatar.Fallback>
 										</Avatar.Root>
 										<div class="min-w-0 flex-1">

@@ -12,7 +12,8 @@
 	import Loader from 'lucide-svelte/icons/loader';
 	import CheckCircle from 'lucide-svelte/icons/check-circle';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
-	import Github from 'lucide-svelte/icons/github';
+	import GithubIcon from '#lib/components/GithubIcon.svelte';
+	import GithubAccount from '../../../(account)/account/_cards/github-account.svelte';
 
 	const statsQuery = createQuery(() => orpc.admin.stats.queryOptions());
 
@@ -179,7 +180,7 @@
 						<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
 						Syncing...
 					{:else}
-						<Github class="mr-2 h-4 w-4" />
+						<GithubIcon class="mr-2 h-4 w-4" />
 						Sync All GitHub Permissions
 					{/if}
 				</Button>
