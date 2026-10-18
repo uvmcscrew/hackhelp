@@ -1,0 +1,31 @@
+{
+	"name": "@hackhelp/db",
+	"version": "0.0.1",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./schema": "./src/schema.ts",
+		"./types": "./src/types.ts"
+	},
+	"scripts": {
+		"db:push": "drizzle-kit push",
+		"db:migrate": "drizzle-kit migrate",
+		"db:studio": "drizzle-kit studio",
+		"db:generate": "drizzle-kit generate",
+		"db:drop": "drizzle-kit drop"
+	},
+	"dependencies": {
+		"@paralleldrive/cuid2": "^3.3.0",
+		"dotenv": "18.0.8",
+		"drizzle-orm": "^0.39.3",
+		"nanoid": "^6.0.2",
+		"postgres": "^3.4.9",
+		"superjson": "^2.2.6",
+		"zod": "^4.6.5"
+	},
+	"devDependencies": {
+		"@types/bun": "^1.4.2",
+		"drizzle-kit": "^0.30.6",
+		"typescript": "^6.0.3"
+	}
+}

@@ -1,0 +1,26 @@
+{
+	"name": "@hackhelp/emails",
+	"version": "0.0.1",
+	"type": "module",
+	"exports": {
+		".": "./src/index.tsx",
+		"./emails/*": "./src/emails/*.tsx"
+	},
+	"scripts": {
+		"email:build": "email build -d src/emails",
+		"email:dev": "email dev -d src/emails",
+		"email:export": "email export -d src/emails"
+	},
+	"dependencies": {
+		"@react-email/components": "^1.0.12",
+		"nodemailer": "^10.0.15",
+		"react": "^19.3.0"
+	},
+	"devDependencies": {
+		"@types/node": "^26.6.4",
+		"@types/nodemailer": "^8.0.2",
+		"@types/react": "^19.3.0",
+		"react-email": "^5.2.11",
+		"typescript": "^6.0.3"
+	}
+}

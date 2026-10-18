@@ -71,6 +71,13 @@
       "when": 1772260005561,
       "tag": "0009_watery_bug",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792361077098,
+      "tag": "0010_rapid_starbolt",
+      "breakpoints": true
     }
   ]
 }

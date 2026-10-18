@@ -1,0 +1,24 @@
+{
+	"name": "@hackhelp/auth",
+	"version": "0.0.1",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./permissions": "./src/permissions.ts"
+	},
+	"scripts": {
+		"auth:generate": "bunx @better-auth/cli generate --config src/cli.ts --output ../db/src/auth.ts -y"
+	},
+	"dependencies": {
+		"@better-auth/passkey": "^1.7.7",
+		"@hackhelp/db": "workspace:*",
+		"@hackhelp/emails": "workspace:*",
+		"better-auth": "^1.7.7",
+		"dotenv": "^17.2.4",
+		"dotenv": "18.0.8"
+	},
+	"devDependencies": {
+		"@types/bun": "^1.4.2",
+		"typescript": "^6.0.3"
+	}
+}

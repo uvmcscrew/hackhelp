@@ -20,8 +20,8 @@ export type OTPEmailProps = {
 	fromIp?: string;
 };
 
-export const OTPEmail = ({ username, type = 'email-verification', otp, fromIp }: OTPEmailProps) => {
-	let title =
+export const OTPEmail = ({ type, otp }: OTPEmailProps) => {
+	const title =
 		type === 'email-verification'
 			? 'Email Verification Code'
 			: type === 'sign-in'

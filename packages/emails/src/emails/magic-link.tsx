@@ -20,7 +20,7 @@ export type MagicLinkEmailProps = {
 	fromIp?: string;
 };
 
-export const MagicLinkEmail = ({ username, magicLink, fromIp }: MagicLinkEmailProps) => {
+export const MagicLinkEmail = ({ magicLink }: MagicLinkEmailProps) => {
 	const previewText = `HackHelp Login Link`;
 
 	return (
