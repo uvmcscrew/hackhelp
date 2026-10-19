@@ -57,7 +57,7 @@ export default defineConfig(
 		}
 	},
 	{
-		files: ['**/*.ts'],
+		files: ['**/*.ts', '**/*.tsx'],
 
 		languageOptions: {
 			parserOptions: {
