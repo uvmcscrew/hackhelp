@@ -4,6 +4,26 @@ HackHelp is a portal created to simplify team management, GitHub permission hand
 
 **See more information on the repo wiki =>** https://github.com/uvmcscrew/hackhelp/wiki
 
+## Repository layout
+
+This is a bun workspace monorepo:
+
+- `apps/hackhelp` — the SvelteKit application
+- `packages/db` (`@hackhelp/db`) — drizzle schema, client, and migrations
+- `packages/auth` (`@hackhelp/auth`) — the better-auth server config and access control
+- `packages/emails` (`@hackhelp/emails`) — react-email templates and the SMTP sender
+
+Scripts are wrapped at the repo root (`bun dev`, `bun db:gen`, `bun email:dev`,
+`bun auth:generate`, ...) and delegate into the owning package. Environment
+variables live in the root `.env` (see `.env.example`). Run `bun install` at
+the repo root after cloning.
+
+## Auth database schema
+
+If you change the better-auth configuration (plugins, additional user fields,
+providers), regenerate the drizzle tables: see
+[packages/auth/README.md](./packages/auth/README.md#regenerating-the-auth-database-schema).
+
 ## Developers: Run it locally
 
 ### Prerequisites

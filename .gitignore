@@ -1,10 +1,20 @@
+# Package Managers
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lock
+
+# dependencies
 node_modules
+
+# codegen & build output
+.svelte-kit
+apps/*/build
+apps/*/.svelte-kit
 
 # Output
 .output
 .vercel
-/.svelte-kit
-/build
 
 # OS
 .DS_Store
