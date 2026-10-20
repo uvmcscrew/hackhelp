@@ -1,0 +1,24 @@
+{
+	"name": "hackbot",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "bun --watch index.ts",
+		"start": "bun index.ts",
+		"deploy-commands": "bun src/deploy-commands.ts",
+		"check": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"dependencies": {
+		"@hackhelp/db": "workspace:*",
+		"discord.js": "^14.27.0",
+		"drizzle-orm": "^0.39.3",
+		"zod": "^4.6.7"
+	},
+	"peerDependencies": {
+		"typescript": "^7"
+	}
+}
