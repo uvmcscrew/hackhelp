@@ -1,13 +1,13 @@
 import { configureQueue } from '@hackhelp/queue';
 import { createContext, redisConnection } from './src/context';
 import { createEmailWorker } from './src/processors/emails';
-import { shutdownTelemetry, startTelemetry } from './src/telemetry';
+import { createBullMqTelemetry, shutdownTelemetry, startTelemetry } from './src/telemetry';
 
 startTelemetry();
 
 const connection = redisConnection();
-// lets job handlers re-dispatch follow-up jobs if they ever need to
-configureQueue({ connection });
+// lets job handlers re-dispatch follow-up jobs, with trace context propagated
+configureQueue({ connection, telemetry: createBullMqTelemetry() });
 
 const context = createContext();
 const workers = [createEmailWorker(context, connection)];

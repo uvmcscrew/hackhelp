@@ -136,6 +136,36 @@ const worker = createQueueWorker(
 - `buildConnection(url)` / `QUEUE_PREFIX` (`hackhelp`) are shared so producers
   and workers can never drift in connection settings or key namespace.
 
+## Tracing (OpenTelemetry)
+
+Both sides accept a `telemetry` implementation (use `BullMQOtel` from
+`bullmq-otel`). Nesting across services is driven by context propagation, not
+by the backend:
+
+- **Producer** (`configureQueue({ connection, telemetry })`): each `dispatch()`
+  stamps the *currently active span context* into the job's metadata.
+- **Worker** (`createQueueWorker(..., { telemetry })`): restores that context
+  before running the handler, so the job span is a child of the dispatch span.
+
+End result on a shared backend (e.g. Railway): a web request that dispatches a
+job produces **one merged trace** — request span → dispatch span → job span →
+DB/SMTP child spans. If the producer has no telemetry or no active span, the
+worker span simply becomes a root span; it is still recorded.
+
+```ts
+// SvelteKit example: request → dispatch → job all in one trace
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { BullMQOtel } from 'bullmq-otel';
+import { REDIS_URL } from '$env/static/private';
+
+new NodeSDK({ traceExporter: new OTLPTraceExporter() }).start();
+configureQueue({
+	connection: buildConnection(REDIS_URL),
+	telemetry: new BullMQOtel({ tracerName: 'hackhelp-web' })
+});
+```
+
 ## Notes
 
 - **Do not import `@hackhelp/db` or `@hackhelp/emails` from this package.** It

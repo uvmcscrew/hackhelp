@@ -1,4 +1,10 @@
-import { Queue, type ConnectionOptions, type Job, type JobsOptions } from 'bullmq';
+import {
+	Queue,
+	type ConnectionOptions,
+	type Job,
+	type JobsOptions,
+	type Telemetry
+} from 'bullmq';
 import { defaultJobOptions, QUEUE_PREFIX } from './connection';
 import {
 	jobSchemas,
@@ -31,6 +37,9 @@ export type DispatchOptions = Pick<
 	| 'removeOnFail'
 >;
 
+let config: QueueConfig | null = null;
+const producerQueues = new Map<string, Queue>();
+
 export type QueueConfig = {
 	/**
 	 * Redis connection for producer queues. Build it with `buildConnection(url)`
@@ -40,10 +49,15 @@ export type QueueConfig = {
 	connection: ConnectionOptions;
 	/** Override the package-wide job defaults (attempts/backoff/removal). */
 	defaultJobOptions?: JobsOptions;
+	/**
+	 * BullMQ telemetry (e.g. `BullMQOtel` from `bullmq-otel`). When set, each
+	 * `dispatch()` stamps the currently active OpenTelemetry span context into
+	 * the job's metadata, so the worker's job span nests under the dispatching
+	 * request's trace. Requires a tracer provider registered in this process;
+	 * without one, no context is stamped and worker spans become root spans.
+	 */
+	telemetry?: Telemetry;
 };
-
-let config: QueueConfig | null = null;
-const producerQueues = new Map<string, Queue>();
 
 /**
  * Configure the producer side of the queue once at startup, before any
@@ -79,7 +93,8 @@ export function getQueue<Q extends QueueName>(
 		queue = new Queue(name, {
 			connection: config.connection,
 			prefix: QUEUE_PREFIX,
-			defaultJobOptions: config.defaultJobOptions ?? defaultJobOptions
+			defaultJobOptions: config.defaultJobOptions ?? defaultJobOptions,
+			telemetry: config.telemetry
 		});
 		producerQueues.set(name, queue);
 	}
