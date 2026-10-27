@@ -21,7 +21,6 @@
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import XIcon from 'lucide-svelte/icons/x';
-	import CheckIcon from 'lucide-svelte/icons/check';
 
 	const queryClient = useQueryClient();
 
@@ -298,7 +297,7 @@
 												{#if repoCheckQuery.data.repoExists}
 													<XIcon class="h-6 w-6 stroke-red-500" />
 												{:else}
-													<CheckIcon class="h-6 w-6 stroke-green-500" />
+													<Check class="h-6 w-6 stroke-green-500" />
 												{/if}
 											{:else if repoSlugDebounced.current.length > 1}
 												<XIcon class="h-6 w-6 stroke-red-500" />

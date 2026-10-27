@@ -2,7 +2,6 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { authClient } from '#lib/auth/client.svelte';
-	import Badge from '#lib/components/ui/badge/badge.svelte';
 	import Button from '#lib/components/ui/button/button.svelte';
 	import { CardDescription, CardFooter } from '#lib/components/ui/card';
 	import CardContent from '#lib/components/ui/card/card-content.svelte';
@@ -13,9 +12,6 @@
 	import ErrorAlert from '#lib/components/error-alert.svelte';
 	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
 	import { BetterFetchError } from '@better-fetch/fetch';
-
-	let lastUsedMethod = null;
-	// let lastUsedMethod = $derived(authClient.getLastUsedLoginMethod());
 
 	let passkeySignInMutation = createMutation(() => ({
 		mutationFn: async () => {
@@ -125,9 +121,6 @@
 			onclick={() => uvmNetIdSignInMutation.mutate()}
 			>{#if uvmNetIdSignInMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
 			{/if}Sign In with UVM NetID
-			{#if lastUsedMethod === 'uvm-netid'}
-				<Badge variant="yellow">Last Used</Badge>
-			{/if}
 		</Button>
 	</div>
 
@@ -180,11 +173,8 @@
 		aria-disabled={loading}
 		onclick={() => passkeySignInMutation.mutate()}
 		>{#if passkeySignInMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
-		{/if}Sign In with Passkey
-		{#if lastUsedMethod === 'passkey'}
-			<Badge variant="secondary">Last Used</Badge>
-		{/if}
-	</Button>
+			{/if}Sign In with Passkey
+		</Button>
 	{#if passkeySignInMutation.error}
 		<ErrorAlert title={passkeySignInMutation.error.message}>
 			{@const errorCauseMessage = passkeySignInMutation.error.cause

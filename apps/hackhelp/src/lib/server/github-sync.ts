@@ -237,7 +237,7 @@ async function removeGithubUserFromTeam(
 
 // ─── Reconciliation Functions ──────────────────────────────────────────
 
-export type SyncReport = {
+type SyncReport = {
 	teamsCreated: string[];
 	teamsDeleted: string[];
 	membersAdded: string[];

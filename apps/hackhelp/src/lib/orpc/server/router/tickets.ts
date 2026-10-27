@@ -1,4 +1,4 @@
-import { protectedProcedure, adminProcedure } from '../shared';
+import { protectedProcedure } from '../shared';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { ORPCError } from '@orpc/client';
@@ -342,82 +342,16 @@ const mentorTickets = {
 
 			return { ticket: updated };
 		}),
-
-	/**
-	 * Assign/reassign a mentor to a ticket.
-	 */
-	assignMentor: protectedProcedure
-		.input(
-			z.object({
-				ticketId: z.string(),
-				mentorId: z.string()
-			})
-		)
-		.handler(async ({ context, input }) => {
-			if (
-				!context.user.role ||
-				!checkRolePermission({
-					roles: context.user.role,
-					permissions: { anyTicket: ['update'] }
-				})
-			) {
-				throw new ORPCError('FORBIDDEN', {
-					message: 'You do not have permission to assign mentors'
-				});
-			}
-
-			const { ticket } = context.db.schema;
-
-			const [updated] = await context.db.client
-				.update(ticket)
-				.set({
-					assignedMentorId: input.mentorId,
-					resolutionStatus: 'claimed'
-				})
-				.where(eq(ticket.id, input.ticketId))
-				.returning();
-
-			if (!updated) throw new ORPCError('NOT_FOUND', { message: 'Ticket not found' });
-
-			return { ticket: updated };
-		})
-};
-
-// ─── Admin Endpoints ───────────────────────────────────────────────────
-
-const adminTickets = {
-	/**
-	 * Hard-delete a ticket.
-	 */
-	deleteTicket: adminProcedure
-		.input(z.object({ ticketId: z.string() }))
-		.handler(async ({ context, input }) => {
-			const { ticket } = context.db.schema;
-
-			const deleted = await context.db.client
-				.delete(ticket)
-				.where(eq(ticket.id, input.ticketId))
-				.returning();
-
-			if (deleted.length === 0) {
-				throw new ORPCError('NOT_FOUND', { message: 'Ticket not found' });
-			}
-		})
 };
 
 // ─── Combined Router ───────────────────────────────────────────────────
 
 export const ticketsRouter = {
-	// Competitor
 	teamIssues: competitorTickets.teamIssues,
 	myTeamTickets: competitorTickets.myTeamTickets,
 	create: competitorTickets.create,
-	// Mentor
 	allTickets: mentorTickets.allTickets,
 	myAssignedTickets: mentorTickets.myAssignedTickets,
 	claimTicket: mentorTickets.claimTicket,
-	updateStatus: mentorTickets.updateStatus,
-	assignMentor: mentorTickets.assignMentor,
-	// Admin
-	deleteTicket: adminTickets.deleteTicket
+	updateStatus: mentorTickets.updateStatus
 };

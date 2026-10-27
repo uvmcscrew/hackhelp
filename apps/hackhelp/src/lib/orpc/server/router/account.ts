@@ -299,25 +299,6 @@ export const accountRouter = {
 			return false;
 		}),
 
-	requestVerification: protectedProcedure.handler(async ({ context }) => {
-		const accounts = await context.db.client
-			.select()
-			.from(context.db.schema.account)
-			.where(eq(context.db.schema.account.userId, context.user.id));
-
-		for (const acc of accounts) {
-			if (acc.providerId === 'uvm-netid') {
-				await context.db.client
-					.update(context.db.schema.user)
-					.set({ role: addRole(context.user.role || '', 'verifiedUser').join(',') })
-					.where(eq(context.db.schema.user.id, context.user.id));
-
-				return true;
-			}
-		}
-		return false;
-	}),
-
 	getUvmProfile: protectedProcedure.handler(async ({ context }) => {
 		const accounts = await getProviderAccounts(context, 'uvm-netid');
 
@@ -573,14 +554,6 @@ export const accountRouter = {
 		return {
 			avatarUrl: user.avatar_url
 		};
-	}),
-
-	/**
-	 * Sync the current user's GitHub team membership after linking a GitHub account.
-	 * Call this from the client after a successful GitHub account link.
-	 */
-	syncGithubTeamAfterLink: protectedProcedure.handler(async ({ context }) => {
-		await syncUserTeamAfterAccountChange(context.githubApp, context.user.id, 'linked');
 	}),
 
 	getMlhProfile: protectedProcedure.handler(async ({ context }) => {

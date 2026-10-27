@@ -6,7 +6,7 @@ import {
 	participantsConfigSchema,
 	githubConfigSchema
 } from '#lib/server/config/schemas';
-import { o, protectedProcedure, publicProcedure } from '../shared';
+import { o, protectedProcedure } from '../shared';
 import { ORPCError } from '@orpc/server';
 
 const enforceConfigViewPermission = o.middleware(({ context, next }) => {
@@ -67,14 +67,6 @@ const configEditProcedure = o.use(enforceConfigEditPermission);
 export const configRouter = {
 	// Configuration snippets available to unauthenticated users or users who are not otherwise allowed to view configuration
 	viewPublic: {
-		eventStartTime: publicProcedure.handler(async ({ context }) => {
-			const eventStartTime = await context.config.getEventStartTime();
-			return eventStartTime;
-		}),
-		hasEventStarted: publicProcedure.handler(async ({ context }) => {
-			const eventStartTime = await context.config.getEventStartTime();
-			return new Date() >= eventStartTime;
-		}),
 		allowAccessToEventPages: protectedProcedure.handler(async ({ context }) => {
 			// Always allow access in dev mode
 			if (dev) return true;
@@ -84,18 +76,6 @@ export const configRouter = {
 
 			// Allow access once the event prep period begins
 			const eventPrepTime = await context.config.getEventPrepTime();
-
-			return new Date() >= eventPrepTime;
-		}),
-		allowAccessToTicketPages: protectedProcedure.handler(async ({ context }) => {
-			// Always allow access in dev mode
-			if (dev) return true;
-
-			// Always allow access for admins
-			if (context.user.role?.split(',').includes('admin')) return true;
-
-			// Allow access once the event prep period begins
-			const eventPrepTime = await context.config.getEventStartTime();
 
 			return new Date() >= eventPrepTime;
 		})

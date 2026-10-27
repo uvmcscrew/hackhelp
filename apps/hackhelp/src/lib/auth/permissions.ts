@@ -3,7 +3,5 @@ export {
 	roles,
 	checkRolePermission,
 	addRole,
-	removeRole,
-	type Role,
-	type RoleList
+	removeRole
 } from '@hackhelp/auth/permissions';

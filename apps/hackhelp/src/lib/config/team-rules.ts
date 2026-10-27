@@ -5,7 +5,6 @@
  * server validation and UI display always stay in sync.
  */
 
-export const TEAM_MIN_SIZE = 4;
 export const TEAM_MAX_SIZE = 6;
 
 export const PROGRAMMERS_MIN = 3;

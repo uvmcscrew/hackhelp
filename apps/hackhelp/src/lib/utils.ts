@@ -13,12 +13,6 @@ export async function delay(ms: number) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function promiseHandler<T>(promise: Promise<T>) {
-	return promise
-		.then((data) => ({ data, error: null }))
-		.catch((err: unknown) => ({ data: null, error: err }));
-}
-
 /**
  * This function only runs posthog events on the client side and in prod. otherwise, there are errors
  * @param posthogFn a function that does a thing with posthog
