@@ -10,7 +10,7 @@ export default defineRailway((ctx) => {
 		source: github('uvmcscrew/hackhelp', { branch: 'main', checkSuites: false }),
 		build: {
 			buildCommand:
-				'bun --cwd apps/hackhelp svelte-kit sync && bun --filter=hackhelp run build',
+				'bun --filter=hackhelp run prod:build',
 			buildEnvironment: 'V3',
 			builder: 'RAILPACK',
 			watchPatterns: ['apps/hackhelp/**', '.railway/railway.ts']
@@ -66,7 +66,7 @@ export default defineRailway((ctx) => {
 			GITHUB_WEBHOOK_SECRET: ctx.shared.GITHUB_WEBHOOK_SECRET,
 			SMTP_URL: ctx.shared.SMTP_URL,
 			PUBLIC_GITHUB_ORGNAME: 'UVMHacks2026',
-			PUBLIC_SMTP_FROM: 'noreply@hackhelp.uvm.lol'
+			SMTP_FROM: 'noreply@hackhelp.uvm.lol'
 		}
 	});
 
