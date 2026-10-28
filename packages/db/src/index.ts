@@ -1,12 +1,14 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import postgres, { type Sql } from 'postgres';
 
 import * as schema from './schema';
 
-// postgres.js has built in connection pooling
-export function createDb(databaseUrl: string) {
-	const queryClient = postgres(databaseUrl, { max: 20 });
-	return drizzle({ client: queryClient, schema });
+export function createDb(databaseUrlOrClient: string | Sql) {
+	const client =
+		typeof databaseUrlOrClient === 'string'
+			? postgres(databaseUrlOrClient, { max: 20 })
+			: databaseUrlOrClient;
+	return drizzle({ client, schema });
 }
 
 export type Db = ReturnType<typeof createDb>;
