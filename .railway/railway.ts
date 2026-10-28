@@ -10,7 +10,7 @@ export default defineRailway((ctx) => {
 		source: github('uvmcscrew/hackhelp', { branch: 'main', checkSuites: false }),
 		build: {
 			buildCommand:
-				'bun install && bun --cwd apps/hackhelp svelte-kit sync && bun --cwd apps/hackhelp --bun run build',
+				'bun --cwd apps/hackhelp svelte-kit sync && bun --cwd apps/hackhelp --bun run build',
 			buildEnvironment: 'V3',
 			builder: 'RAILPACK',
 			watchPatterns: ['apps/hackhelp/**', '.railway/railway.ts']
