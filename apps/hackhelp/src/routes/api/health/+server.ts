@@ -1,13 +1,11 @@
-import { testSMTPConnection } from '#lib/email';
+import { checkRedisConnection } from '@hackhelp/queue';
 import db from '#lib/server/db';
 
 export const GET = async () => {
-	 
-	const smtpstatus = await testSMTPConnection();
-	if (!smtpstatus) {
-		return new Response('SMTP Check Failed', { status: 503 });
+	const redisStatus = await checkRedisConnection();
+	if (!redisStatus) {
+		return new Response('Redis Check Failed', { status: 503 });
 	}
-	// Simple query to check database connectivity
 	const _configs = await db.client.select().from(db.schema.configuration);
 	if (_configs.length < 1) {
 		console.log('Database Check Failed');
