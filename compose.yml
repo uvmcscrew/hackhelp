@@ -17,3 +17,16 @@ services:
     container_name: hackhelp-redis
     ports:
       - 32701:6379
+
+  mailpit:
+      image: axllent/mailpit:v1.29
+      restart: always
+      ports:
+        - 32725:1025
+      environment:
+        MP_SMTP_AUTH_ACCEPT_ANY: true
+        MP_SMTP_AUTH_ALLOW_INSECURE: true
+        MP_SMTP_STRICT_RFC_HEADERS: true
+      labels:
+        - dev.orbstack.http-port=8025
+    # SMTP_URL="smtp://hackhelp@localhost:32725/?pool=true"
