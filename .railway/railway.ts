@@ -10,13 +10,13 @@ export default defineRailway((ctx) => {
 		source: github('uvmcscrew/hackhelp', { branch: 'main', checkSuites: false }),
 		build: {
 			buildCommand:
-				'bun --cwd apps/hackhelp svelte-kit sync && bun --cwd apps/hackhelp --bun run build',
+				'bun --cwd apps/hackhelp svelte-kit sync && bun --filter=hackhelp run build',
 			buildEnvironment: 'V3',
 			builder: 'RAILPACK',
 			watchPatterns: ['apps/hackhelp/**', '.railway/railway.ts']
 		},
 		start: 'bun --cwd apps/hackhelp build/index.js',
-		preDeploy: 'bun --cwd packages/db run db:migrate',
+		preDeploy: 'bun --filter=@hackhelp/db run db:migrate',
 		healthcheck: '/api/health',
 
 		replicas: { 'us-east4-eqdc4a': 1 },
@@ -52,7 +52,7 @@ export default defineRailway((ctx) => {
 			watchPatterns: ['apps/worker/**', '.railway/railway.ts']
 		},
 		start: 'bun --cwd apps/worker index.ts',
-		preDeploy: 'bun --cwd packages/db run db:migrate',
+		preDeploy: 'bun --filter=@hackhelp/db run db:migrate',
 		replicas: { 'us-east4-eqdc4a': 1 },
 		deploy: { limitOverride: { containers: { cpu: 2, memoryBytes: 4000000000 } } },
 		tracing: { enabled: true },
