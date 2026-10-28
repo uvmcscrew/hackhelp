@@ -14,7 +14,6 @@
 		"@hackhelp/db": "workspace:*",
 		"@hackhelp/emails": "workspace:*",
 		"better-auth": "^1.7.7",
-		"dotenv": "^17.2.4",
 		"dotenv": "18.0.8"
 	},
 	"devDependencies": {
