@@ -13,9 +13,6 @@ export const variables = defineEnvVars({
 	UVM_NETID_OIDC_CLIENT_ID: {},
 	UVM_NETID_OIDC_CLIENT_SECRET: {},
 	UVM_NETID_OIDC_DISCOVERY_URL: {},
-	MLH_OAUTH_CLIENT_ID: {},
-	MLH_OAUTH_CLIENT_SECRET: {},
 	PUBLIC_GITHUB_ORGNAME: { public: true },
 	PUBLIC_SMTP_FROM: { public: true },
-	PUBLIC_SHOW_CHALLENGES: { public: true }
 });

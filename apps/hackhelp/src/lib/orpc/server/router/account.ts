@@ -9,7 +9,6 @@ import { ORPCError, type } from '@orpc/server';
 import { addRole, checkRolePermission } from '#lib/auth/permissions';
 import { dev } from '$app/env';
 import { addSeconds, isPast } from 'date-fns';
-import { auth, type MLHUserProfile } from '#lib/auth/server.server';
 import z from 'zod';
 import { deserialize, serialize } from 'superjson';
 import { personProfileRole, profileDataSchema, type ProfileData } from '#lib/schemas';
@@ -556,44 +555,6 @@ export const accountRouter = {
 		};
 	}),
 
-	getMlhProfile: protectedProcedure.handler(async ({ context }) => {
-		const accounts = await getProviderAccounts(context, 'mlh');
-
-		if (accounts.length === 0)
-			throw new ORPCError('BAD_REQUEST', {
-				message: 'You must have a linked MLH account to make this request'
-			});
-
-		const mlhAccount = accounts[0];
-
-		let accessToken: string;
-		try {
-			const tokenResult = await auth.api.getAccessToken({
-				body: { accountId: mlhAccount.id },
-				headers: context.req.headers
-			});
-			accessToken = tokenResult.accessToken;
-		} catch {
-			return { accessTokenExpired: true as const, profile: null };
-		}
-
-		const profileResponse = await fetch('https://api.mlh.com/v4/users/me?expand[]=education', {
-			headers: {
-				Authorization: `Bearer ${accessToken}`
-			}
-		});
-
-		if (!profileResponse.ok) {
-			console.error('Failed to fetch MLH profile', await profileResponse.text());
-			throw new ORPCError('INTERNAL_SERVER_ERROR', {
-				message: 'Failed to fetch MLH profile'
-			});
-		}
-
-		const profile = (await profileResponse.json()) as MLHUserProfile;
-		return { accessTokenExpired: false as const, profile };
-	}),
-
 	profile: {
 		canInitialize: protectedProcedure.handler(async ({ context }) => {
 			if (
@@ -608,10 +569,6 @@ export const accountRouter = {
 
 			if (verificationStatus.isVerified) return true;
 			if (verificationStatus.canVerify) return true;
-
-			// Users with a linked MLH account can create a competitor profile
-			const mlhAccounts = await getProviderAccounts(context, 'mlh');
-			if (mlhAccounts.length > 0) return true;
 
 			return false;
 		}),
@@ -662,70 +619,6 @@ export const accountRouter = {
 					data: serialize(profileData)
 				});
 			}),
-		initializeFromMlh: protectedProcedure.handler(async ({ context }) => {
-			const mlhAccounts = await getProviderAccounts(context, 'mlh');
-
-			if (mlhAccounts.length === 0)
-				throw new ORPCError('BAD_REQUEST', {
-					message: 'You must have a linked MLH account to use this feature'
-				});
-
-			// Check if profile already exists
-			const existingProfiles = await context.db.client
-				.select()
-				.from(context.db.schema.profile)
-				.where(eq(context.db.schema.profile.id, context.user.id));
-
-			if (existingProfiles.length !== 0)
-				throw new ORPCError('BAD_REQUEST', {
-					message: 'Cannot create profile - you already have one'
-				});
-
-			// Get a fresh access token (handles refresh automatically)
-			let accessToken: string;
-			try {
-				const tokenResult = await auth.api.getAccessToken({
-					body: { accountId: mlhAccounts[0].id },
-					headers: context.req.headers
-				});
-				accessToken = tokenResult.accessToken;
-			} catch {
-				throw new ORPCError('UNAUTHORIZED', { message: 'MLH access token has expired' });
-			}
-
-			const profileResponse = await fetch('https://api.mlh.com/v4/users/me?expand[]=education', {
-				headers: { Authorization: `Bearer ${accessToken}` }
-			});
-
-			if (!profileResponse.ok) {
-				console.error('Failed to fetch MLH profile for init', await profileResponse.text());
-				throw new ORPCError('INTERNAL_SERVER_ERROR', {
-					message: 'Failed to fetch MLH profile'
-				});
-			}
-
-			const mlhProfile = (await profileResponse.json()) as MLHUserProfile;
-
-			// Update the user's display name from MLH
-			const fullName = [mlhProfile.first_name, mlhProfile.last_name].filter(Boolean).join(' ');
-			if (fullName) {
-				await context.db.client
-					.update(context.db.schema.user)
-					.set({ name: fullName, role: addRole(context.user.role || '', 'verifiedUser').join(',') })
-					.where(eq(context.db.schema.user.id, context.user.id));
-			}
-
-			// Create the profile as a competitor with default data
-			const profileData = profileDataSchema.parse({ mainlineDietaryRestrictions: {} });
-
-			await context.db.client.insert(context.db.schema.profile).values({
-				id: context.user.id,
-				primaryRole: 'competitor',
-				data: serialize(profileData)
-			});
-
-			return { name: fullName || null };
-		}),
 		get: protectedProcedure.handler(async ({ context }) => {
 			const existingProfiles = await context.db.client
 				.select()
@@ -743,49 +636,6 @@ export const accountRouter = {
 					data: profileData
 				}
 			};
-		}),
-		syncFromMlh: protectedProcedure.handler(async ({ context }) => {
-			const mlhAccounts = await getProviderAccounts(context, 'mlh');
-
-			if (mlhAccounts.length === 0)
-				throw new ORPCError('BAD_REQUEST', {
-					message: 'You must have a linked MLH account to use this feature'
-				});
-
-			// Get a fresh access token (handles refresh automatically)
-			let accessToken: string;
-			try {
-				const tokenResult = await auth.api.getAccessToken({
-					body: { accountId: mlhAccounts[0].id },
-					headers: context.req.headers
-				});
-				accessToken = tokenResult.accessToken;
-			} catch {
-				throw new ORPCError('UNAUTHORIZED', { message: 'MLH access token has expired' });
-			}
-
-			const profileResponse = await fetch('https://api.mlh.com/v4/users/me?expand[]=education', {
-				headers: { Authorization: `Bearer ${accessToken}` }
-			});
-
-			if (!profileResponse.ok) {
-				console.error('Failed to fetch MLH profile for sync', await profileResponse.text());
-				throw new ORPCError('INTERNAL_SERVER_ERROR', {
-					message: 'Failed to fetch MLH profile'
-				});
-			}
-
-			const mlhProfile = (await profileResponse.json()) as MLHUserProfile;
-
-			const fullName = [mlhProfile.first_name, mlhProfile.last_name].filter(Boolean).join(' ');
-			if (fullName) {
-				await context.db.client
-					.update(context.db.schema.user)
-					.set({ name: fullName, role: addRole(context.user.role || '', 'verifiedUser').join(',') })
-					.where(eq(context.db.schema.user.id, context.user.id));
-			}
-
-			return { name: fullName || null };
 		}),
 		update: protectedProcedure
 			// TODO: add stuff for affiliation here

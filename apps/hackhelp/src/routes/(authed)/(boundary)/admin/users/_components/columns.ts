@@ -55,13 +55,6 @@ export const columns: ColumnDef<UserRow>[] = [
 		enableColumnFilter: false
 	},
 	{
-		id: 'hasMlh',
-		accessorFn: (row) => row.hasMlh,
-		header: 'MLH',
-		enableSorting: true,
-		enableColumnFilter: false
-	},
-	{
 		id: 'createdAt',
 		accessorFn: (row) => row.user.createdAt,
 		header: 'Joined',

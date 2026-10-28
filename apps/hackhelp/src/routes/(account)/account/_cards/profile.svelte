@@ -3,18 +3,14 @@
 <script lang="ts">
 	import * as Card from '#lib/components/ui/card';
 	import { orpc } from '#lib/orpc/client/index.svelte';
-	import { createMutation, createQuery } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import WarningAlert from '#lib/components/warning-alert.svelte';
 	import type { RouterOutputs } from '#lib/orpc/server';
 	import ProfileInitialize from '../_components/profile-initialize.svelte';
 	import ProfileForm from '../_components/profile-form.svelte';
-	import ProfileInitializeMlh from '../_components/profile-initialize-mlh.svelte';
-	import ProfileMlhSync from '../_components/profile-mlh-sync.svelte';
 	import { accountsQueryOptions } from './accounts';
 	import type { UserAccounts } from '#lib/auth/server.server';
-	import { authClient, sessionQueryOptions } from '#lib/auth/client.svelte';
-	import { Button } from '#lib/components/ui/button';
-	import LoaderCircle from 'lucide-svelte/icons/loader-circle';
+	import { sessionQueryOptions } from '#lib/auth/client.svelte';
 
 	type Props = {
 		initialData: {
@@ -46,33 +42,16 @@
 		initialData: initialData.accounts
 	}));
 
-	const hasMlhAccount = $derived(
-		accountQuery.data?.some((acc: { providerId: string }) => acc.providerId === 'mlh') ?? false
-	);
-
-	const mlhLinkMutation = createMutation(() => ({
-		mutationKey: ['auth', 'accounts', 'mlh', 'link'],
-		mutationFn: () =>
-			authClient.linkSocial({
-				provider: 'mlh',
-				callbackURL: '/account',
-				errorCallbackURL: '/auth/error?provider=mlh'
-			})
-	}));
-
 	/**
 	 * View states:
-	 *  - 'mlh-sync'       — has MLH + has profile → show sync button only
-	 *  - 'mlh-initialize' — has MLH + no profile  → show MLH one-click create
-	 *  - 'form'           — no MLH + has profile  → show regular profile form
-	 *  - 'initialize'     — no MLH + can create   → show role-picker initialize
+	 *  - 'form'           — has profile  → show regular profile form
+	 *  - 'initialize'     — no profile + can create   → show role-picker initialize
 	 *  - 'no'             — not eligible at all
 	 */
 	const profileCardViewState = $derived.by(() => {
 		if (profileQuery.data !== null) {
-			return hasMlhAccount ? 'mlh-sync' : 'form';
+			return 'form';
 		}
-		if (hasMlhAccount) return 'mlh-initialize';
 		if (canCreateProfileQuery.data) return 'initialize';
 		return 'no';
 	});
@@ -85,28 +64,13 @@
 			>Set important information related to your participation in the hackathon.</Card.Description
 		>
 	</Card.Header>
-	{#if profileCardViewState === 'mlh-sync' && profileQuery.data}
-		<ProfileMlhSync />
-	{:else if profileCardViewState === 'mlh-initialize'}
-		<ProfileInitializeMlh />
-	{:else if profileCardViewState === 'form' && profileQuery.data}
+	{#if profileCardViewState === 'form' && profileQuery.data}
 		<ProfileForm initialProfile={profileQuery.data} />
 	{:else if profileCardViewState === 'initialize'}
 		{#if ['admin', 'mentor', 'judge'].some((r) => (sessionQuery.data?.user.role || '')
 				.split(',')
 				.includes(r))}
 			<ProfileInitialize />
-		{:else}
-			<Button
-				class="mt-2"
-				onclick={async () => await mlhLinkMutation.mutateAsync()}
-				disabled={mlhLinkMutation.isPending}
-			>
-				{#if mlhLinkMutation.isPending}
-					<LoaderCircle class="h-4 w-auto animate-spin" />
-				{/if}
-				Link MLH account
-			</Button>
 		{/if}
 	{:else if profileCardViewState === 'no'}
 		<Card.Content>{@render noAutoVerifyAlert()}</Card.Content>
@@ -119,27 +83,8 @@
 	<WarningAlert title="Your account cannot request verification">
 		<div class="mt-2 text-sm">
 			<p>
-				To be automatically verified, your account must have a linked UVM NetID profile, a linked
-				MLH account, or an email address associated with Middlebury College or Champlain College.
+				To be automatically verified, your account must have a linked UVM NetID profile, or an email address associated with Middlebury College or Champlain College.
 			</p>
-		</div>
-
-		<div class="mt-3 text-sm">
-			<strong>Are you a student competitor?</strong>
-			<p class="text-muted-foreground mt-1">
-				Link your MLH (Major League Hacking) account to get verified instantly and set up your
-				profile.
-			</p>
-			<Button
-				class="mt-2"
-				onclick={async () => await mlhLinkMutation.mutateAsync()}
-				disabled={mlhLinkMutation.isPending}
-			>
-				{#if mlhLinkMutation.isPending}
-					<LoaderCircle class="h-4 w-auto animate-spin" />
-				{/if}
-				Link MLH account
-			</Button>
 		</div>
 
 		<div class="mt-3 text-sm">

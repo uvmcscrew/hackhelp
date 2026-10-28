@@ -5,15 +5,11 @@ import {
 	GITHUB_APP_CLIENT_SECRET,
 	UVM_NETID_OIDC_CLIENT_ID,
 	UVM_NETID_OIDC_CLIENT_SECRET,
-	UVM_NETID_OIDC_DISCOVERY_URL,
-	MLH_OAUTH_CLIENT_ID,
-	MLH_OAUTH_CLIENT_SECRET
+	UVM_NETID_OIDC_DISCOVERY_URL
 } from '$app/env/private';
 import { db } from '#lib/server/db';
 import { sendEmailOtp, sendMagicLinkEmail } from '#lib/email';
-import { createAuth, type MLHUserProfile } from '@hackhelp/auth';
-
-export type { MLHUserProfile };
+import { createAuth } from '@hackhelp/auth';
 
 export const auth = createAuth({
 	db,
@@ -28,10 +24,6 @@ export const auth = createAuth({
 			clientId: UVM_NETID_OIDC_CLIENT_ID,
 			clientSecret: UVM_NETID_OIDC_CLIENT_SECRET,
 			discoveryUrl: UVM_NETID_OIDC_DISCOVERY_URL
-		},
-		mlh: {
-			clientId: MLH_OAUTH_CLIENT_ID,
-			clientSecret: MLH_OAUTH_CLIENT_SECRET
 		}
 	},
 	email: {

@@ -30,22 +30,6 @@
 		}
 	}));
 
-	let mlhSignUpMutation = createMutation(() => ({
-		mutationFn: async () => {
-			await authClient.signIn.social({
-				provider: 'mlh',
-				callbackURL: '/account',
-				errorCallbackURL: '/auth/error?provider=mlh',
-				newUserCallbackURL: '/account',
-				disableRedirect: false,
-				requestSignUp: true,
-				fetchOptions: {
-					throw: true
-				}
-			});
-		}
-	}));
-
 	let emailSignUpMutation = createMutation(() => ({
 		mutationFn: async (
 			event: SubmitEvent & {
@@ -74,7 +58,7 @@
 	}));
 
 	let loading = $derived(
-		emailSignUpMutation.isPending || uvmNetIdSignUpMutation.isPending || mlhSignUpMutation.isPending
+		emailSignUpMutation.isPending || uvmNetIdSignUpMutation.isPending
 	);
 </script>
 
@@ -84,13 +68,6 @@
 
 <CardContent>
 	<div class="flex flex-col gap-y-2">
-		<Button
-			disabled={loading}
-			aria-disabled={loading}
-			onclick={async () => await mlhSignUpMutation.mutateAsync()}
-			>{#if mlhSignUpMutation.isPending}<LoaderCircle class="h-6 w-auto animate-spin" />
-			{/if}Sign up with MajorLeagueHacking</Button
-		>
 		<Button
 			disabled={loading}
 			aria-disabled={loading}

@@ -11,7 +11,6 @@
 	import Shield from 'lucide-svelte/icons/shield';
 	import Users from 'lucide-svelte/icons/users';
 	import Link from 'lucide-svelte/icons/link';
-	import GraduationCap from 'lucide-svelte/icons/graduation-cap';
 	import type { PageProps } from './$types';
 	import { deserialize } from 'superjson';
 	import { shirtSizes, dietaryRestrictions, type ProfileData } from '#lib/schemas';
@@ -254,49 +253,6 @@
 												<p class="text-muted-foreground mt-1 text-xs">{acct.bio}</p>
 											{/if}
 										</div>
-									</div>
-								</div>
-							{:else if acct.providerId === 'mlh' && 'firstName' in acct}
-								<!-- MLH -->
-								<div class="rounded-md border px-4 py-3">
-									<div class="flex items-center gap-2">
-										<span class="text-sm font-medium">MLH</span>
-										<Badge variant="green" hoverEffects={false}>Linked</Badge>
-									</div>
-									<div class="text-muted-foreground mt-2 space-y-1 text-sm">
-										<div>{acct.firstName} {acct.lastName}</div>
-										<div>{acct.email}</div>
-										{#if acct.gender || acct.age}
-											<div>
-												{#if acct.gender}{acct.gender}{/if}
-												{#if acct.gender && acct.age},
-												{/if}
-												{#if acct.age}Age {acct.age}{/if}
-											</div>
-										{/if}
-										{#if acct.countryOfResidence}
-											<div>{acct.countryOfResidence}</div>
-										{/if}
-										{#if acct.education && acct.education.length > 0}
-											<div class="mt-2">
-												{#each acct.education as edu (edu)}
-													<div class="flex items-center gap-1.5">
-														<GraduationCap class="h-3.5 w-3.5 shrink-0" />
-														<span>
-															{edu.schoolName}
-															{#if edu.major}&middot; {edu.major}{/if}
-															{#if edu.current}
-																<Badge
-																	variant="secondary"
-																	hoverEffects={false}
-																	class="ml-1 text-[10px]">Current</Badge
-																>
-															{/if}
-														</span>
-													</div>
-												{/each}
-											</div>
-										{/if}
 									</div>
 								</div>
 							{:else if acct.providerId === 'uvm-netid'}

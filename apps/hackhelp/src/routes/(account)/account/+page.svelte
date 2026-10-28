@@ -20,7 +20,6 @@
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import UVMNetIDAccountCard from './_cards/uvmnetid-account.svelte';
 	import GithubAccountCard from './_cards/github-account.svelte';
-	import MLHAccountCard from './_cards/mlh-account.svelte';
 	import { orpc } from '#lib/orpc/client/index.svelte';
 	import { page } from '$app/state';
 	import RoleBadge from '#lib/components/role-badge.svelte';
@@ -134,7 +133,6 @@
 			<Tabs.Trigger value="profile">Profile</Tabs.Trigger>
 			<Tabs.Trigger value="passkeys">Passkeys</Tabs.Trigger>
 			<Tabs.Trigger value="netid">UVM NetID</Tabs.Trigger>
-			<Tabs.Trigger value="mlh">MLH</Tabs.Trigger>
 			{#if profilePermissionQuery.data}
 				<Tabs.Trigger value="github">GitHub</Tabs.Trigger>
 			{/if}
@@ -147,9 +145,6 @@
 		</Tabs.Content>
 		<Tabs.Content value="netid">
 			<UVMNetIDAccountCard initialData={data} />
-		</Tabs.Content>
-		<Tabs.Content value="mlh">
-			<MLHAccountCard initialData={data} />
 		</Tabs.Content>
 		{#if profilePermissionQuery.data}
 			<Tabs.Content value="github">

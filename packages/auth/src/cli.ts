@@ -23,10 +23,6 @@ export const auth = createAuth({
 			clientId: process.env.UVM_NETID_OIDC_CLIENT_ID ?? '',
 			clientSecret: process.env.UVM_NETID_OIDC_CLIENT_SECRET ?? '',
 			discoveryUrl: process.env.UVM_NETID_OIDC_DISCOVERY_URL ?? ''
-		},
-		mlh: {
-			clientId: process.env.MLH_OAUTH_CLIENT_ID ?? '',
-			clientSecret: process.env.MLH_OAUTH_CLIENT_SECRET ?? ''
 		}
 	},
 	email: {

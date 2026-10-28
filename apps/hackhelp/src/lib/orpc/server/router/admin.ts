@@ -10,7 +10,6 @@ import { TEAM_MAX_SIZE, PROGRAMMERS_MAX, BUSINESS_MAX } from '#lib/config/team-r
 import { WORK_ROOMS } from '#lib/utils';
 import { createId as cuid2 } from '@paralleldrive/cuid2';
 import { Octokit } from 'octokit';
-import { auth, type MLHUserProfile } from '#lib/auth/server.server';
 import { PUBLIC_GITHUB_ORGNAME } from '$app/env/public';
 import {
 	ensureGithubTeam,
@@ -44,8 +43,7 @@ const userRouter = {
 			.select({
 				user,
 				profile,
-				hasGithub: sql<boolean>`bool_or(${account.providerId} = 'github')`.as('has_github'),
-				hasMlh: sql<boolean>`bool_or(${account.providerId} = 'mlh')`.as('has_mlh')
+				hasGithub: sql<boolean>`bool_or(${account.providerId} = 'github')`.as('has_github')
 			})
 			.from(user)
 			.leftJoin(profile, eq(user.id, profile.id))
@@ -214,7 +212,7 @@ const userRouter = {
 	/**
 	 * Get a single user with their profile, linked accounts, and team membership.
 	 * For OAuth providers with stored access tokens, fetches the user's profile
-	 * from the provider API (GitHub, MLH).
+	 * from the provider API (GitHub).
 	 */
 	getById: adminProcedure
 		.input(z.object({ userId: z.string().nonempty() }))
@@ -257,20 +255,6 @@ const userRouter = {
 						name: string | null;
 						bio: string | null;
 				  }
-				| {
-						providerId: 'mlh';
-						firstName: string;
-						lastName: string;
-						email: string | null;
-						countryOfResidence: string | null;
-						gender: string | null;
-						age: number | null;
-						education: Array<{
-							current: boolean;
-							schoolName: string;
-							major: string | null;
-						}> | null;
-				  }
 				| { providerId: 'uvm-netid' }
 				| { providerId: 'email' }
 				| { providerId: string; error: string };
@@ -288,45 +272,6 @@ const userRouter = {
 								profileUrl: data.html_url,
 								name: data.name ?? null,
 								bio: data.bio ?? null
-							};
-						}
-
-						if (acct.providerId === 'mlh' && acct.accessToken) {
-							let tokenResult: Awaited<ReturnType<typeof auth.api.getAccessToken>>;
-							try {
-								tokenResult = await auth.api.getAccessToken({
-									body: { accountId: acct.id, userId: input.userId }
-								});
-							} catch (e) {
-								return {
-									providerId: 'mlh',
-									error: `Could not get MLH access token: ${e}`
-								};
-							}
-							const res = await fetch('https://api.mlh.com/v4/users/me?expand[]=education', {
-								headers: { Authorization: `Bearer ${tokenResult.accessToken}` }
-							});
-							if (!res.ok) {
-								return {
-									providerId: 'mlh',
-									error: `MLH API returned ${res.status}`
-								};
-							}
-							const mlh = (await res.json()) as MLHUserProfile;
-							return {
-								providerId: 'mlh',
-								firstName: mlh.first_name,
-								lastName: mlh.last_name,
-								email: mlh.email,
-								countryOfResidence: mlh.profile?.country_of_residence ?? null,
-								gender: mlh.profile?.gender ?? null,
-								age: mlh.profile?.age ?? null,
-								education:
-									mlh.education?.map((e) => ({
-										current: e.current,
-										schoolName: e.school_name,
-										major: e.major ?? null
-									})) ?? null
 							};
 						}
 
