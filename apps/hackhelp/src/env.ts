@@ -2,6 +2,7 @@ import { defineEnvVars } from '@sveltejs/kit/env';
 
 export const variables = defineEnvVars({
 	DATABASE_URL: {},
+	REDIS_URL: {},
 	AUTH_SECRET: {},
 	BASE_URL: {},
 	GITHUB_APP_ID: {},
@@ -9,7 +10,6 @@ export const variables = defineEnvVars({
 	GITHUB_APP_CLIENT_ID: {},
 	GITHUB_APP_CLIENT_SECRET: {},
 	GITHUB_WEBHOOK_SECRET: {},
-	SMTP_URL: {},
 	UVM_NETID_OIDC_CLIENT_ID: {},
 	UVM_NETID_OIDC_CLIENT_SECRET: {},
 	UVM_NETID_OIDC_DISCOVERY_URL: {},
