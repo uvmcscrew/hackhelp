@@ -17,7 +17,7 @@ export default defineRailway((ctx) => {
 		},
 		start: 'bun --cwd apps/hackhelp build/index.js',
 		preDeploy: 'bun --filter=@hackhelp/db run db:migrate',
-		healthcheck: '/api/health',
+		// healthcheck: '/api/health',
 
 		replicas: { 'us-east4-eqdc4a': 1 },
 		deploy: { limitOverride: { containers: { cpu: 4, memoryBytes: 6000000000 } } },
