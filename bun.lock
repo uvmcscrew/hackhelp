@@ -52,6 +52,7 @@
         "@hackhelp/auth": "workspace:*",
         "@hackhelp/db": "workspace:*",
         "@hackhelp/emails": "workspace:*",
+        "@hackhelp/queue": "workspace:*",
         "@kubiks/otel-drizzle": "^2.1.0",
         "@octokit/webhooks": "^13.9.1",
         "@opentelemetry/api": "^1.10.0",
