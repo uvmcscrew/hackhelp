@@ -21,7 +21,7 @@ export default defineRailway((ctx) => {
 
 		replicas: { 'us-east4-eqdc4a': 1 },
 		deploy: { limitOverride: { containers: { cpu: 4, memoryBytes: 6000000000 } } },
-		domains: [{ domain: 'hackhelp.uvm.lol', port: 3000 }],
+		// domains: [{ domain: 'hackhelp.uvm.lol', port: 3000 }],
 		tracing: { enabled: true },
 		env: {
 			DATABASE_URL: db.env.DATABASE_URL,
