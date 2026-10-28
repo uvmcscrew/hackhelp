@@ -11,3 +11,9 @@ services:
     volumes:
       - ${PWD}/.tmp/db-data/:/var/lib/postgresql/data/
 # DATABASE_URL=postgres://cscrew:database@localhost:32700/hackhelp
+
+  redis:
+    image: redis:7-alpine
+    container_name: hackhelp-redis
+    ports:
+      - 32701:6379
