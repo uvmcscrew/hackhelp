@@ -6,5 +6,8 @@ import adapter from 'svelte-adapter-bun';
 export default defineConfig({
   plugins: [tailwindcss(), sveltekit({
 		adapter: adapter(),
+		tracing: {
+			server: true
+		}
 	})]
 });
