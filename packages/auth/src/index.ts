@@ -54,6 +54,11 @@ export function createAuth({ db, env, email: emailHandlers }: CreateAuthOptions)
 		}),
 		secret: env.authSecret,
 		baseURL: env.baseUrl,
+		advanced: {
+			ipAddress: {
+				ipAddressHeaders: ['cf-connecting-ip', 'x-real-ip', 'x-forwarded-for']
+			}
+		},
 		user: {
 			additionalFields: {
 				teamId: {
