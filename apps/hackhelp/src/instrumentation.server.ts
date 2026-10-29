@@ -1,16 +1,8 @@
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { PostgresInstrumentation } from 'otel-instrumentation-postgres';
 
 const sdk = new NodeSDK({
-	traceExporter: new OTLPTraceExporter(),
-	instrumentations: [
-		new PostgresInstrumentation({
-			serviceName: process.env.OTEL_SERVICE_NAME ?? 'hackhelp',
-			collectQueryParameters: true,
-			enableHistogram: true
-		})
-	]
+	traceExporter: new OTLPTraceExporter()
 });
 
 sdk.start();
